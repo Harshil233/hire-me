@@ -1,0 +1,83 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
+import { Alert } from '@/components/Alert';
+import type { Role } from '@/config/constants';
+import { Button } from '@/components/Button';
+import { FormField } from '@/components/FormField';
+import { TextInput } from '@/components/TextInput';
+import { isApiError } from '@/services/api-error';
+import { useLogin } from '../hooks/useAuthActions';
+import { useServerFieldErrors } from '../hooks/useServerFieldErrors';
+import { loginFormSchema, type LoginFormValues } from '../schemas/auth.schema';
+
+export interface LoginFormProps {
+  /** Which role's sign-in path this submission goes to. */
+  readonly role: Role;
+  readonly onSuccess: () => void;
+}
+
+export const LoginForm = ({ role, onSuccess }: LoginFormProps): React.JSX.Element => {
+  const login = useLogin();
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginFormSchema),
+    defaultValues: { email: '', password: '' },
+  });
+
+  useServerFieldErrors(login.error, setError);
+
+  const submit = handleSubmit((values) => {
+    login.mutate({ role, values }, { onSuccess });
+  });
+
+  // Credential failures are deliberately not tied to a field: the server does not say
+  // which half was wrong, and neither should the UI.
+  const bannerMessage =
+    isApiError(login.error) && !login.error.isValidationError ? login.error.message : null;
+
+  return (
+    <form
+      onSubmit={(event) => {
+        void submit(event);
+      }}
+      noValidate
+      className="space-y-4"
+    >
+      {bannerMessage !== null && <Alert tone="error">{bannerMessage}</Alert>}
+
+      <FormField label="Email" error={errors.email?.message} isRequired>
+        {(fieldProps) => (
+          <TextInput
+            {...register('email')}
+            {...fieldProps}
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            isInvalid={errors.email !== undefined}
+          />
+        )}
+      </FormField>
+
+      <FormField label="Password" error={errors.password?.message} isRequired>
+        {(fieldProps) => (
+          <TextInput
+            {...register('password')}
+            {...fieldProps}
+            type="password"
+            autoComplete="current-password"
+            isInvalid={errors.password !== undefined}
+          />
+        )}
+      </FormField>
+
+      <Button type="submit" isLoading={login.isPending} className="w-full">
+        Sign in
+      </Button>
+    </form>
+  );
+};

@@ -1,0 +1,38 @@
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+
+import { Spinner } from '@/components/Spinner';
+import { ROUTES } from '@/config/constants';
+import { useSession } from '@/features/auth/hooks/useSession';
+
+const RestoringSession = (): React.JSX.Element => (
+  <div className="flex min-h-screen items-center justify-center text-brand-600">
+    <Spinner size="lg" label="Restoring your session" />
+  </div>
+);
+
+/** Blocks a route until a session exists, remembering where the user was headed. */
+export const ProtectedRoute = (): React.JSX.Element => {
+  const { isRestoring, isAuthenticated } = useSession();
+  const location = useLocation();
+
+  if (isRestoring) {
+    return <RestoringSession />;
+  }
+
+  return isAuthenticated ? (
+    <Outlet />
+  ) : (
+    <Navigate to={ROUTES.LOGIN} replace state={{ from: location.pathname }} />
+  );
+};
+
+/** Keeps a signed-in user away from the sign-in and sign-up screens. */
+export const PublicOnlyRoute = (): React.JSX.Element => {
+  const { isRestoring, isAuthenticated } = useSession();
+
+  if (isRestoring) {
+    return <RestoringSession />;
+  }
+
+  return isAuthenticated ? <Navigate to={ROUTES.PROFILE} replace /> : <Outlet />;
+};
