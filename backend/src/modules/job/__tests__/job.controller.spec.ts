@@ -37,6 +37,7 @@ const createController = (): { controller: JobController; service: IJobService }
   const service: IJobService = {
     browse: vi.fn(async () => ({ jobs: [JOB], pagination: PAGINATION_META })),
     listForHr: vi.fn(async () => ({ jobs: [JOB], pagination: PAGINATION_META })),
+    findManyByIds: vi.fn(async () => new Map([[JOB.id, JOB]])),
     getVisible: vi.fn(async () => JOB),
     create: vi.fn(async () => JOB),
     update: vi.fn(async () => JOB),

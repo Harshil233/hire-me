@@ -62,6 +62,42 @@ export const JOB_STATUS_TRANSITIONS: Readonly<Record<JobStatus, readonly JobStat
     closed: ['published'],
   });
 
+export const APPLICATION_STATUS_VALUES = [
+  'applied',
+  'shortlisted',
+  'rejected',
+  'withdrawn',
+] as const;
+export type ApplicationStatus = (typeof APPLICATION_STATUS_VALUES)[number];
+export const APPLICATION_STATUSES = {
+  APPLIED: 'applied',
+  SHORTLISTED: 'shortlisted',
+  REJECTED: 'rejected',
+  WITHDRAWN: 'withdrawn',
+} as const satisfies Record<string, ApplicationStatus>;
+
+/** Legal application status moves. `withdrawn` is terminal; a rejection may be revisited. */
+export const APPLICATION_STATUS_TRANSITIONS: Readonly<
+  Record<ApplicationStatus, readonly ApplicationStatus[]>
+> = Object.freeze({
+  applied: ['shortlisted', 'rejected', 'withdrawn'],
+  shortlisted: ['rejected', 'withdrawn'],
+  rejected: ['shortlisted'],
+  withdrawn: [],
+});
+
+/**
+ * Which role may put an application into each state. Transitions are actor-scoped as
+ * well as order-scoped: only the employer shortlists or rejects, and only the candidate
+ * withdraws. `applied` is listed for completeness — the candidate creates it by applying.
+ */
+export const APPLICATION_STATUS_ACTORS: Readonly<Record<ApplicationStatus, Role>> = Object.freeze({
+  applied: 'candidate',
+  shortlisted: 'hr',
+  rejected: 'hr',
+  withdrawn: 'candidate',
+});
+
 export const COMPANY_ROLE_VALUES = ['owner', 'member'] as const;
 export type CompanyRole = (typeof COMPANY_ROLE_VALUES)[number];
 export const COMPANY_ROLES = {
@@ -93,6 +129,7 @@ export const COLLECTIONS = {
   PROJECTS: 'projects',
   FILES: 'files',
   JOBS: 'jobs',
+  APPLICATIONS: 'applications',
 } as const;
 
 /* -------------------------------------------------------------------------- */

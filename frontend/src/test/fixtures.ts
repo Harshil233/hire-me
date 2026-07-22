@@ -6,6 +6,10 @@ import type {
   ProfileCompletion,
   ProfileView,
 } from '@/features/profile/schemas/profile.schema';
+import type {
+  Applicant,
+  MyApplication,
+} from '@/features/applications/schemas/application.schema';
 import type { Job, Pagination } from '@/features/jobs/schemas/job.schema';
 import type { SessionUser } from '@/store/auth.store';
 
@@ -112,4 +116,40 @@ export const jobDetailResponse = (
 ): { success: true; data: { job: Job } } => ({
   success: true,
   data: { job: job(overrides) },
+});
+
+export const myApplication = (overrides: Partial<MyApplication> = {}): MyApplication => ({
+  id: 'application-1',
+  status: 'applied',
+  statusUpdatedAt: '2026-03-05T10:00:00.000Z',
+  createdAt: '2026-03-05T10:00:00.000Z',
+  updatedAt: '2026-03-05T10:00:00.000Z',
+  job: job(),
+  ...overrides,
+});
+
+export const applicant = (overrides: Partial<Applicant> = {}): Applicant => ({
+  id: 'application-1',
+  status: 'applied',
+  statusUpdatedAt: '2026-03-05T10:00:00.000Z',
+  createdAt: '2026-03-05T10:00:00.000Z',
+  updatedAt: '2026-03-05T10:00:00.000Z',
+  candidate: {
+    userId: 'user-1',
+    fullName: 'Ada Lovelace',
+    currentLocation: 'Pune',
+    skills: ['TypeScript'],
+  },
+  ...overrides,
+});
+
+export const applicationListResponse = <TItem>(
+  items: TItem[],
+  pagination: Partial<Pagination> = {},
+): { success: true; data: { applications: TItem[]; pagination: Pagination } } => ({
+  success: true,
+  data: {
+    applications: items,
+    pagination: { page: 1, pageSize: 20, total: items.length, totalPages: 1, ...pagination },
+  },
 });

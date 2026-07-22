@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { Alert } from '@/components/Alert';
 import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/Card';
 import { Pagination } from '@/components/Pagination';
 import { Skeleton } from '@/components/Skeleton';
-import { JOB_STATUS_VALUES } from '@/config/constants';
+import { JOB_STATUS_VALUES, jobApplicantsPath } from '@/config/constants';
 import { JobCard } from '@/features/jobs/components/JobCard';
 import { JobFormModal } from '@/features/jobs/components/JobFormModal';
 import { useJobMutations, useMyJobs } from '@/features/jobs/hooks/useJobs';
@@ -73,6 +74,11 @@ export const HrJobsPage = (): React.JSX.Element => {
           <div key={job.id} className="space-y-2">
             <JobCard job={job} showStatus />
             <div className="flex justify-end gap-2">
+              <Link to={jobApplicantsPath(job.id)}>
+                <Button size="sm" variant="secondary">
+                  View applicants
+                </Button>
+              </Link>
               <Button
                 size="sm"
                 variant="secondary"

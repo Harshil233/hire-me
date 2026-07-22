@@ -2,6 +2,7 @@ import type { FilterQuery, Model } from 'mongoose';
 
 import type { JobStatus } from '../../config/constants';
 import { toIdString, toObjectId, toObjectIdOrNull } from '../../common/persistence/object-id';
+import type { Page } from '../../common/persistence/page';
 import type { JobDocument } from '../../database/models/job.model';
 import type {
   CreateJobData,
@@ -10,7 +11,6 @@ import type {
   Job,
   JobFilter,
   JobSummary,
-  Page,
 } from './job.interface';
 import type { UpdateJobInput } from './job.schema';
 
@@ -26,6 +26,23 @@ export class JobRepository implements IJobRepository, IJobSummaryProvider {
 
     const document = await this.model.findById(objectId).lean<JobDocument | null>().exec();
     return document === null ? null : JobRepository.toDomain(document);
+  }
+
+  async findManyByIds(ids: readonly string[]): Promise<Job[]> {
+    const objectIds = ids
+      .map((id) => toObjectIdOrNull(id))
+      .filter((id): id is NonNullable<typeof id> => id !== null);
+
+    if (objectIds.length === 0) {
+      return [];
+    }
+
+    const documents = await this.model
+      .find({ _id: { $in: objectIds } })
+      .lean<JobDocument[]>()
+      .exec();
+
+    return documents.map((document) => JobRepository.toDomain(document));
   }
 
   async findSummaryById(id: string): Promise<JobSummary | null> {

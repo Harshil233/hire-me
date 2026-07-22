@@ -36,6 +36,11 @@ export const AppLayout = (): React.JSX.Element => {
                   My postings
                 </NavLink>
               )}
+              {user?.role === ROLES.CANDIDATE && (
+                <NavLink to={ROUTES.APPLICATIONS} className={linkClasses}>
+                  My applications
+                </NavLink>
+              )}
             </nav>
           </div>
 

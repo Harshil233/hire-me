@@ -12,6 +12,7 @@ import { JwtTokenService } from '../common/security/jwt-token.service';
 import { MongooseConnection, type IDatabaseConnection } from '../database/connection';
 import { MongooseTransactionManager } from '../database/mongoose-transaction-manager';
 import {
+  ApplicationModel,
   CandidateProfileModel,
   CertificationModel,
   CompanyModel,
@@ -46,6 +47,15 @@ import {
 import { CompanyController } from '../modules/company/company.controller';
 import { CompanyDirectoryAdapter } from '../modules/company/company-directory.adapter';
 import { CompanyRepository } from '../modules/company/company.repository';
+import { ApplicationController } from '../modules/application/application.controller';
+import { ApplicationRepository } from '../modules/application/application.repository';
+import { ApplicationService } from '../modules/application/application.service';
+import {
+  APPLICATION_REPOSITORY,
+  APPLICATION_SERVICE,
+  CANDIDATE_DIRECTORY,
+} from '../modules/application/application.interface';
+import { CandidateDirectoryAdapter } from '../modules/candidate/candidate-directory.adapter';
 import { JobController } from '../modules/job/job.controller';
 import { JobRepository } from '../modules/job/job.repository';
 import { JobService } from '../modules/job/job.service';
@@ -103,6 +113,7 @@ import {
   EDUCATION_CONTROLLER,
   EXPERIENCE_CONTROLLER,
   FILE_CONTROLLER,
+  APPLICATION_CONTROLLER,
   HEALTH_CONTROLLER,
   JOB_CONTROLLER,
   PROFILE_CONTROLLER,
@@ -162,6 +173,7 @@ export const createContainer = (config: ContainerConfig): Container => {
   const projectRepository = new ProjectRepository(ProjectModel);
   const fileRepository = new FileRepository(FileModel);
   const jobRepository = new JobRepository(JobModel);
+  const applicationRepository = new ApplicationRepository(ApplicationModel);
 
   container
     .register(USER_REPOSITORY, userRepository)
@@ -174,7 +186,8 @@ export const createContainer = (config: ContainerConfig): Container => {
     .register(CERTIFICATION_REPOSITORY, certificationRepository)
     .register(PROJECT_REPOSITORY, projectRepository)
     .register(FILE_REPOSITORY, fileRepository)
-    .register(JOB_REPOSITORY, jobRepository);
+    .register(JOB_REPOSITORY, jobRepository)
+    .register(APPLICATION_REPOSITORY, applicationRepository);
 
   /* ------------------------------------------------------------- services */
   const userService = new UserService(userRepository);
@@ -195,6 +208,17 @@ export const createContainer = (config: ContainerConfig): Container => {
 
   const companyDirectory = new CompanyDirectoryAdapter(companyRepository);
   const jobService = new JobService(jobRepository, companyMembership, companyDirectory, now);
+
+  const candidateDirectory = new CandidateDirectoryAdapter(candidateProfileRepository);
+  const applicationService = new ApplicationService({
+    applicationRepository,
+    jobService,
+    jobSummaries: jobRepository,
+    membership: companyMembership,
+    candidateProfileService,
+    candidateDirectory,
+    now,
+  });
 
   const authService = new AuthService({
     userRepository,
@@ -232,6 +256,8 @@ export const createContainer = (config: ContainerConfig): Container => {
     .register(COMPANY_DIRECTORY, companyDirectory)
     .register(JOB_SERVICE, jobService)
     .register(JOB_SUMMARY_PROVIDER, jobRepository)
+    .register(CANDIDATE_DIRECTORY, candidateDirectory)
+    .register(APPLICATION_SERVICE, applicationService)
     .register(EXPERIENCE_SERVICE, experienceService)
     .register(EDUCATION_SERVICE, educationService)
     .register(CERTIFICATION_SERVICE, certificationService)
@@ -253,6 +279,7 @@ export const createContainer = (config: ContainerConfig): Container => {
     .register(PROFILE_UPDATE_VALIDATOR, createProfileUpdateValidator(profileService))
     .register(COMPANY_CONTROLLER, new CompanyController(companyService))
     .register(JOB_CONTROLLER, new JobController(jobService))
+    .register(APPLICATION_CONTROLLER, new ApplicationController(applicationService))
     .register(FILE_CONTROLLER, new FileController(fileService))
     .register(HEALTH_CONTROLLER, new HealthController(database, now))
     .register(

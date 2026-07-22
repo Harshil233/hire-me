@@ -1,5 +1,6 @@
 import type { JobRole, JobStatus, JobType, WorkMode } from '../../config/constants';
 import type { PaginationMeta } from '../../common/http/api-response';
+import type { Page } from '../../common/persistence/page';
 import { createToken, type Token } from '../../container/token';
 import type { CreateJobInput, HrJobQueryInput, JobQueryInput, UpdateJobInput } from './job.schema';
 
@@ -37,11 +38,6 @@ export interface JobFilter extends Omit<JobQueryInput, 'page' | 'pageSize'> {
   readonly companyId?: string | undefined;
 }
 
-export interface Page<TItem> {
-  readonly items: readonly TItem[];
-  readonly total: number;
-}
-
 /**
  * Company headline data as a listing needs it. Declared here and implemented by the
  * company module, so the job module never learns how companies are stored — the same
@@ -65,6 +61,8 @@ export interface JobWithCompany extends Job {
 
 export interface IJobRepository {
   findById(id: string): Promise<Job | null>;
+  /** Batched read so a page of rows referencing jobs never becomes a query per row. */
+  findManyByIds(ids: readonly string[]): Promise<Job[]>;
   search(filter: JobFilter, page: number, pageSize: number): Promise<Page<Job>>;
   create(data: CreateJobData): Promise<Job>;
   update(id: string, data: UpdateJobInput): Promise<Job | null>;
@@ -83,6 +81,12 @@ export interface IJobService {
   listForHr(userId: string, query: HrJobQueryInput): Promise<JobListResult>;
   /** Reads one job, hiding unpublished listings from everyone but their own company. */
   getVisible(id: string, viewerUserId: string): Promise<JobWithCompany>;
+  /**
+   * Batched read for other modules that present jobs beside their own rows. Unfiltered
+   * by status on purpose: a candidate must still see the listing they applied to after
+   * it has been closed.
+   */
+  findManyByIds(ids: readonly string[]): Promise<ReadonlyMap<string, JobWithCompany>>;
   create(userId: string, input: CreateJobInput): Promise<JobWithCompany>;
   update(id: string, userId: string, input: UpdateJobInput): Promise<JobWithCompany>;
   changeStatus(id: string, userId: string, status: JobStatus): Promise<JobWithCompany>;

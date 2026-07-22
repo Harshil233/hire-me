@@ -14,6 +14,7 @@ import { createRateLimiter } from './common/middlewares/rate-limit.middleware';
 import { createRequestIdMiddleware } from './common/middlewares/request-id.middleware';
 import type { Container } from './container/container';
 import {
+  APPLICATION_CONTROLLER,
   AUTHENTICATE_MIDDLEWARE,
   AUTH_CONTROLLER,
   AUTH_RATE_LIMITER,
@@ -29,6 +30,10 @@ import {
   PROJECT_CONTROLLER,
   UPLOAD_MIDDLEWARE,
 } from './container/tokens';
+import {
+  createApplicationRouter,
+  createJobApplicationRouter,
+} from './modules/application/application.routes';
 import { createAuthRouter } from './modules/auth/auth.routes';
 import { createCertificationRouter } from './modules/certification/certification.routes';
 import { createCompanyRouter } from './modules/company/company.routes';
@@ -69,9 +74,18 @@ const createApiRouter = (container: Container): Router => {
     createCompanyRouter({ controller: container.resolve(COMPANY_CONTROLLER), authenticate }),
   );
 
+  const applicationController = container.resolve(APPLICATION_CONTROLLER);
+
   router.use(
     '/jobs',
     createJobRouter({ controller: container.resolve(JOB_CONTROLLER), authenticate }),
+  );
+  // Job-scoped application routes share the `/jobs` prefix. They are mounted after the
+  // job router, whose `/:id` routes match a single segment and so never swallow these.
+  router.use('/jobs', createJobApplicationRouter({ controller: applicationController, authenticate }));
+  router.use(
+    '/applications',
+    createApplicationRouter({ controller: applicationController, authenticate }),
   );
 
   router.use(

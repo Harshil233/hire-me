@@ -1,3 +1,4 @@
+export * from './application.model';
 export * from './candidate-profile.model';
 export * from './certification.model';
 export * from './company.model';

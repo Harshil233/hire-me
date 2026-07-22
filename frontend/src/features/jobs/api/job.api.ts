@@ -24,8 +24,15 @@ export interface IJobApi {
   changeStatus(id: string, status: JobStatus): Promise<Job>;
 }
 
-/** Blank filters are omitted so the URL carries only what the user actually chose. */
-export const toQueryParams = (filters: JobFilters): Record<string, string> => {
+/** A filter bag: scalar values only, so nothing can stringify to `[object Object]`. */
+export type QueryFilters = Readonly<Record<string, string | number | undefined>>;
+
+/**
+ * Blank filters are omitted so the URL carries only what the user actually chose.
+ * Takes any scalar filter bag, so the applications feature reuses it rather than
+ * repeating it.
+ */
+export const toQueryParams = (filters: QueryFilters): Record<string, string> => {
   const params: Record<string, string> = { pageSize: String(JOBS_PAGE_SIZE) };
 
   for (const [key, value] of Object.entries(filters)) {

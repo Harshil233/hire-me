@@ -79,6 +79,22 @@ export const JOB_STATUS_LABELS: Readonly<Record<JobStatus, string>> = Object.fre
 
 export const JOBS_PAGE_SIZE = 20;
 
+export const APPLICATION_STATUS_VALUES = [
+  'applied',
+  'shortlisted',
+  'rejected',
+  'withdrawn',
+] as const;
+export type ApplicationStatus = (typeof APPLICATION_STATUS_VALUES)[number];
+
+export const APPLICATION_STATUS_LABELS: Readonly<Record<ApplicationStatus, string>> =
+  Object.freeze({
+    applied: 'Applied',
+    shortlisted: 'Shortlisted',
+    rejected: 'Not selected',
+    withdrawn: 'Withdrawn',
+  });
+
 export const FILE_KINDS = {
   PROFILE_PIC: 'profile_pic',
   RESUME: 'resume',
@@ -118,11 +134,14 @@ export const ROUTES = {
   JOBS: '/jobs',
   JOB_DETAIL: '/jobs/:id',
   HR_JOBS: '/hr/jobs',
+  HR_JOB_APPLICANTS: '/hr/jobs/:id/applicants',
+  APPLICATIONS: '/applications',
   ROOT: '/',
 } as const;
 
-/** Builds a concrete job path from the `:id` pattern above. */
+/** Builds concrete paths from the `:id` patterns above. */
 export const jobDetailPath = (id: string): string => `${ROUTES.JOBS}/${id}`;
+export const jobApplicantsPath = (id: string): string => `${ROUTES.HR_JOBS}/${id}/applicants`;
 
 /** Query keys for the server-state cache, declared once to avoid typos. */
 export const QUERY_KEYS = {
@@ -133,4 +152,8 @@ export const QUERY_KEYS = {
   jobs: (filters: Readonly<Record<string, unknown>>) => ['jobs', filters] as const,
   myJobs: (filters: Readonly<Record<string, unknown>>) => ['jobs', 'mine', filters] as const,
   job: (id: string) => ['job', id] as const,
+  myApplications: (filters: Readonly<Record<string, unknown>>) =>
+    ['applications', 'mine', filters] as const,
+  jobApplicants: (jobId: string, filters: Readonly<Record<string, unknown>>) =>
+    ['applications', 'job', jobId, filters] as const,
 };

@@ -21,6 +21,7 @@ const createRepository = (
   overrides: Partial<ICandidateProfileRepository> = {},
 ): ICandidateProfileRepository => ({
   findByUserId: vi.fn(async () => PROFILE),
+  findManyByUserIds: vi.fn(async () => [PROFILE]),
   create: vi.fn(async () => PROFILE),
   update: vi.fn(async () => PROFILE),
   ...overrides,

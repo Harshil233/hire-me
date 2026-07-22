@@ -27,6 +27,8 @@ export interface CandidateProfile {
 
 export interface ICandidateProfileRepository {
   findByUserId(userId: string): Promise<CandidateProfile | null>;
+  /** Batched read so an applicant list never becomes one query per applicant. */
+  findManyByUserIds(userIds: readonly string[]): Promise<CandidateProfile[]>;
   create(
     userId: string,
     data: CreateCandidateProfileInput,

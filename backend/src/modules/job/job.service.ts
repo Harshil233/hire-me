@@ -71,6 +71,13 @@ export class JobService implements IJobService {
     return this.withCompany(job);
   }
 
+  async findManyByIds(ids: readonly string[]): Promise<ReadonlyMap<string, JobWithCompany>> {
+    const jobs = await this.jobRepository.findManyByIds([...new Set(ids)]);
+    const withCompanies = await this.attachCompanies(jobs);
+
+    return new Map(withCompanies.map((job) => [job.id, job]));
+  }
+
   async create(userId: string, input: CreateJobInput): Promise<JobWithCompany> {
     const companyId = await this.requireCompanyId(userId);
     const created = await this.jobRepository.create({

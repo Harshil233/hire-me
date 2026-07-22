@@ -1,6 +1,6 @@
 import type { Model } from 'mongoose';
 
-import { toIdString, toObjectId } from '../../common/persistence/object-id';
+import { toIdString, toObjectId, toObjectIdOrNull } from '../../common/persistence/object-id';
 import {
   MongooseUserScopedRepository,
   fileReferenceTransformers,
@@ -20,6 +20,23 @@ export class CandidateProfileRepository
 {
   constructor(model: Model<CandidateProfileDocument>) {
     super(model, fileReferenceTransformers('profilePicFileId', 'resumeFileId'));
+  }
+
+  async findManyByUserIds(userIds: readonly string[]): Promise<CandidateProfile[]> {
+    const objectIds = userIds
+      .map((id) => toObjectIdOrNull(id))
+      .filter((id): id is NonNullable<typeof id> => id !== null);
+
+    if (objectIds.length === 0) {
+      return [];
+    }
+
+    const documents = await this.model
+      .find({ userId: { $in: objectIds } })
+      .lean<CandidateProfileDocument[]>()
+      .exec();
+
+    return documents.map((document) => this.toDomain(document));
   }
 
   async create(

@@ -27,6 +27,7 @@ owns its `package.json`, `tsconfig.json`, lint config, test config and `Dockerfi
 | Profile sections | Experience, education, certifications and projects (full CRUD) |
 | Files | Profile photo, résumé and company logo upload behind a swappable storage adapter |
 | Job listings | HR posts jobs for their company; candidates browse and filter by role, type, work mode, location, skills, CTC and experience |
+| Applications | Candidates apply once per job and track status; HR reviews applicants and shortlists or rejects |
 
 Deferred to a later phase: email verification, forgot/reset password, HR joining an
 existing company, and a curated skills list.
@@ -108,6 +109,10 @@ Base path `/api/v1`. Every response uses one envelope:
 | GET | `/jobs/:id` | access | Listing detail; drafts visible only to their own company |
 | PUT | `/jobs/:id` | HR owner | Update the listing |
 | PATCH | `/jobs/:id/status` | HR owner | `draft → published → closed`, and reopen |
+| POST | `/jobs/:id/apply` | candidate | Apply once; the résumé is snapshotted server-side |
+| GET | `/jobs/:id/applications` | HR owner | Applicant list for that listing |
+| GET | `/applications` | candidate | The caller's own applications |
+| PATCH | `/applications/:id/status` | both | HR shortlists/rejects; the candidate withdraws |
 | GET/POST | `/experience` | candidate | List / create |
 | PUT/DELETE | `/experience/:id` | candidate | Update / delete |
 | … | `/education`, `/certification`, `/project` | candidate | Identical shape |
@@ -122,6 +127,14 @@ Job listings are owned by a **company**, never by an email. A posting's `company
 from the poster's own membership and a `companyId` in the request body is ignored, so one HR
 cannot post under another company. Another company's listing answers **404**, and a draft is
 invisible outside the company that owns it.
+
+Applying twice to the same job is stopped by a **unique index** on
+`{ jobId, candidateUserId }`, so two concurrent requests cannot both slip past a
+read-then-write check; the duplicate-key failure surfaces as a 409. Status changes are
+**actor-scoped** as well as order-scoped: only the employer shortlists or rejects, only
+the candidate withdraws, and `withdrawn` is terminal. An employer sees a deliberately
+narrow applicant card — name, location, skills, photo — never the candidate's date of
+birth, mobile number or salary expectations.
 
 Sign-in is **role-scoped**: each role has its own path and refuses the other's accounts.
 A candidate presenting correct credentials to `/hr/login` gets the same generic

@@ -63,6 +63,7 @@ interface Harness {
 const createHarness = (): Harness => {
   const repository: IJobRepository = {
     findById: vi.fn(async () => JOB),
+    findManyByIds: vi.fn(async () => [JOB]),
     search: vi.fn(async () => ({ items: [JOB], total: 1 })),
     create: vi.fn(async () => JOB),
     update: vi.fn(async () => JOB),

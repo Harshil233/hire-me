@@ -7,7 +7,13 @@ import axios from 'axios';
 import { ROUTES } from '@/config/constants';
 import { httpClient } from '@/services/api-client';
 import { useAuthStore } from '@/store/auth.store';
-import { candidateProfileView, candidateUser, hrUser, jobListResponse } from '@/test/fixtures';
+import {
+  applicationListResponse,
+  candidateProfileView,
+  candidateUser,
+  hrUser,
+  jobListResponse,
+} from '@/test/fixtures';
 import { renderWithProviders } from '@/test/render';
 import { AppRoutes } from '../router';
 
@@ -158,6 +164,51 @@ describe('role-scoped routes', () => {
 
     await screen.findByRole('complementary', { name: 'Job filters' });
     expect(screen.queryByRole('link', { name: 'My postings' })).not.toBeInTheDocument();
+  });
+
+  it('lets a candidate reach their applications', async () => {
+    allowRestore(candidateUser);
+    mock.onGet('/applications').reply(200, applicationListResponse([]));
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.APPLICATIONS });
+
+    expect(await screen.findByRole('heading', { name: 'Your applications' })).toBeInTheDocument();
+  });
+
+  it('sends an employer away from the candidate-only applications screen', async () => {
+    allowRestore(hrUser);
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.APPLICATIONS });
+
+    expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Your applications' })).not.toBeInTheDocument();
+  });
+
+  it('sends a candidate away from the employer-only applicants screen', async () => {
+    allowRestore(candidateUser);
+
+    renderWithProviders(<AppRoutes />, { route: '/hr/jobs/job-1/applicants' });
+
+    expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Applicants/ })).not.toBeInTheDocument();
+  });
+
+  it('shows the applications link in the nav only to a candidate', async () => {
+    allowRestore(candidateUser);
+    mock.onGet('/applications').reply(200, applicationListResponse([]));
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.APPLICATIONS });
+
+    expect(await screen.findByRole('link', { name: 'My applications' })).toBeInTheDocument();
+  });
+
+  it('hides the applications link from an employer', async () => {
+    allowRestore(hrUser);
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.JOBS });
+
+    await screen.findByRole('complementary', { name: 'Job filters' });
+    expect(screen.queryByRole('link', { name: 'My applications' })).not.toBeInTheDocument();
   });
 });
 

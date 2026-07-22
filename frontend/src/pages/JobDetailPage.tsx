@@ -1,17 +1,23 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { Alert } from '@/components/Alert';
+import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Skeleton } from '@/components/Skeleton';
 import {
   JOB_ROLE_LABELS,
   JOB_TYPE_LABELS,
+  ROLES,
   ROUTES,
   WORK_MODE_LABELS,
 } from '@/config/constants';
+import { ApplyModal } from '@/features/applications/components/ApplyModal';
+import { useApply } from '@/features/applications/hooks/useApplications';
 import { JobStatusBadge } from '@/features/jobs/components/JobStatusBadge';
 import { useJob } from '@/features/jobs/hooks/useJobs';
 import { formatCtcRange, formatExperienceRange } from '@/features/jobs/utils/job.format';
+import { useAuthStore } from '@/store/auth.store';
 
 const Detail = ({
   label,
@@ -30,6 +36,10 @@ const Detail = ({
 export const JobDetailPage = (): React.JSX.Element => {
   const { id = '' } = useParams<{ id: string }>();
   const query = useJob(id);
+  const role = useAuthStore((state) => state.user?.role);
+  const apply = useApply();
+  const [isApplyOpen, setIsApplyOpen] = useState(false);
+  const [hasApplied, setHasApplied] = useState(false);
 
   if (query.isPending) {
     return <Skeleton className="h-64" />;
@@ -47,6 +57,8 @@ export const JobDetailPage = (): React.JSX.Element => {
   }
 
   const job = query.data;
+  // Only a candidate can apply, and only while the listing is live.
+  const canApply = role === ROLES.CANDIDATE && job.status === 'published';
 
   return (
     <div className="space-y-4">
@@ -60,7 +72,22 @@ export const JobDetailPage = (): React.JSX.Element => {
             <h1 className="text-xl font-semibold text-slate-900">{job.title}</h1>
             <p className="mt-1 text-sm text-slate-500">{job.company.name}</p>
           </div>
-          <JobStatusBadge status={job.status} />
+          <div className="flex items-center gap-3">
+            <JobStatusBadge status={job.status} />
+            {canApply &&
+              (hasApplied ? (
+                <span className="text-sm font-medium text-emerald-700">Application sent</span>
+              ) : (
+                <Button
+                  onClick={() => {
+                    apply.reset();
+                    setIsApplyOpen(true);
+                  }}
+                >
+                  Apply
+                </Button>
+              ))}
+          </div>
         </div>
 
         <dl className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -98,6 +125,29 @@ export const JobDetailPage = (): React.JSX.Element => {
           </div>
         )}
       </Card>
+
+      {isApplyOpen && (
+        <ApplyModal
+          isOpen={isApplyOpen}
+          jobTitle={job.title}
+          isApplying={apply.isPending}
+          error={apply.error}
+          onClose={() => {
+            setIsApplyOpen(false);
+          }}
+          onSubmit={(values) => {
+            apply.mutate(
+              { jobId: job.id, values },
+              {
+                onSuccess: () => {
+                  setIsApplyOpen(false);
+                  setHasApplied(true);
+                },
+              },
+            );
+          }}
+        />
+      )}
     </div>
   );
 };
