@@ -2,11 +2,13 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2023"],
-    "module": "commonjs",
-    "moduleResolution": "node",
+    // `nodenext` replaces the deprecated node10 resolution. package.json has no
+    // `"type": "module"`, so these files stay CommonJS and `dist/server.js` is
+    // still plain `require`-based output.
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "rootDir": ".",
     "outDir": "dist",
-    "baseUrl": ".",
 
     "strict": true,
     "noImplicitAny": true,
