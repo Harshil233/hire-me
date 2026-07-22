@@ -23,6 +23,7 @@ import {
   EXPERIENCE_CONTROLLER,
   FILE_CONTROLLER,
   HEALTH_CONTROLLER,
+  JOB_CONTROLLER,
   PROFILE_CONTROLLER,
   PROFILE_UPDATE_VALIDATOR,
   PROJECT_CONTROLLER,
@@ -35,6 +36,7 @@ import { createEducationRouter } from './modules/education/education.routes';
 import { createExperienceRouter } from './modules/experience/experience.routes';
 import { createFileRouter } from './modules/file/file.routes';
 import { createHealthRouter } from './modules/health/health.routes';
+import { createJobRouter } from './modules/job/job.routes';
 import { createProfileRouter } from './modules/profile/profile.routes';
 import { createProjectRouter } from './modules/project/project.routes';
 
@@ -65,6 +67,11 @@ const createApiRouter = (container: Container): Router => {
   router.use(
     '/company',
     createCompanyRouter({ controller: container.resolve(COMPANY_CONTROLLER), authenticate }),
+  );
+
+  router.use(
+    '/jobs',
+    createJobRouter({ controller: container.resolve(JOB_CONTROLLER), authenticate }),
   );
 
   router.use(

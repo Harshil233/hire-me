@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 
-import { useAuthStore } from '@/store/auth.store';
+import { useAuthStore, type SessionUser } from '@/store/auth.store';
 import { authApi, type IAuthApi } from '../api/auth.api';
 
 export interface UseSessionResult {
   readonly isRestoring: boolean;
   readonly isAuthenticated: boolean;
+  /** `null` until the session settles; drives role-aware navigation and guards. */
+  readonly user: SessionUser | null;
 }
 
 /**
@@ -14,6 +16,7 @@ export interface UseSessionResult {
  */
 export const useSession = (api: IAuthApi = authApi): UseSessionResult => {
   const status = useAuthStore((state) => state.status);
+  const user = useAuthStore((state) => state.user);
   const setSession = useAuthStore((state) => state.setSession);
   const clearSession = useAuthStore((state) => state.clearSession);
 
@@ -47,5 +50,6 @@ export const useSession = (api: IAuthApi = authApi): UseSessionResult => {
   return {
     isRestoring: status === 'unknown',
     isAuthenticated: status === 'authenticated',
+    user,
   };
 };

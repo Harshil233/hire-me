@@ -6,6 +6,7 @@ import type {
   ProfileCompletion,
   ProfileView,
 } from '@/features/profile/schemas/profile.schema';
+import type { Job, Pagination } from '@/features/jobs/schemas/job.schema';
 import type { SessionUser } from '@/store/auth.store';
 
 export const candidateUser: SessionUser = {
@@ -72,3 +73,43 @@ export const hrProfileView: ProfileView = {
   profile: hrProfile,
   completion: completion(20, ['companyDescription']),
 };
+
+export const job = (overrides: Partial<Job> = {}): Job => ({
+  id: 'job-1',
+  title: 'Senior Backend Engineer',
+  description: 'Own the API from schema to production.',
+  role: 'engineering',
+  jobType: 'full_time',
+  workMode: 'hybrid',
+  skills: ['TypeScript', 'MongoDB'],
+  locations: ['Pune'],
+  ctcMin: 1_800_000,
+  ctcMax: 2_800_000,
+  experienceMinYears: 4,
+  experienceMaxYears: 8,
+  status: 'published',
+  publishedAt: '2026-03-01T10:00:00.000Z',
+  company: { id: 'company-1', name: 'Acme Corp', slug: 'acme-corp' },
+  createdAt: '2026-03-01T10:00:00.000Z',
+  updatedAt: '2026-03-01T10:00:00.000Z',
+  ...overrides,
+});
+
+/** Wraps jobs in the success envelope the API returns. */
+export const jobListResponse = (
+  jobs: Job[],
+  pagination: Partial<Pagination> = {},
+): { success: true; data: { jobs: Job[]; pagination: Pagination } } => ({
+  success: true,
+  data: {
+    jobs,
+    pagination: { page: 1, pageSize: 20, total: jobs.length, totalPages: 1, ...pagination },
+  },
+});
+
+export const jobDetailResponse = (
+  overrides: Partial<Job> = {},
+): { success: true; data: { job: Job } } => ({
+  success: true,
+  data: { job: job(overrides) },
+});

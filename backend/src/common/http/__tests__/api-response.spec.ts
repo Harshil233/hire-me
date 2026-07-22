@@ -8,6 +8,7 @@ import {
   buildSuccessBody,
   sendNoContent,
   sendSuccess,
+  toPaginationMeta,
 } from '../api-response';
 
 describe('buildSuccessBody', () => {
@@ -68,5 +69,28 @@ describe('sendNoContent', () => {
 
     expect(res.capturedStatus).toBe(204);
     expect(res.send).toHaveBeenCalledWith();
+  });
+});
+
+describe('toPaginationMeta', () => {
+  it('reports the window and derives the page count', () => {
+    expect(toPaginationMeta(45, 2, 20)).toEqual({
+      page: 2,
+      pageSize: 20,
+      total: 45,
+      totalPages: 3,
+    });
+  });
+
+  it('rounds a partial last page up', () => {
+    expect(toPaginationMeta(21, 1, 20).totalPages).toBe(2);
+  });
+
+  it('reports one page for an empty result, never zero', () => {
+    expect(toPaginationMeta(0, 1, 20).totalPages).toBe(1);
+  });
+
+  it('reports one page when the total fits exactly', () => {
+    expect(toPaginationMeta(20, 1, 20).totalPages).toBe(1);
   });
 });

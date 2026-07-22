@@ -154,6 +154,32 @@ export const ctcSchema = z
   .min(0, 'Amount cannot be negative')
   .max(VALIDATION_LIMITS.MAX_CTC, 'Amount is unrealistically large');
 
+export interface NumericRangeFields {
+  readonly minField: string;
+  readonly maxField: string;
+  readonly label: string;
+}
+
+/**
+ * Shared cross-field rule for any `min`/`max` pair (CTC, years of experience): when both
+ * bounds are supplied the upper one may not fall below the lower one. Numeric sibling of
+ * `createDateRangeRule` below, so the comparison is written once (CLAUDE.md §9).
+ */
+export const createNumericRangeRule =
+  ({ minField, maxField, label }: NumericRangeFields) =>
+  (value: Readonly<Record<string, unknown>>, ctx: z.RefinementCtx): void => {
+    const min = value[minField];
+    const max = value[maxField];
+
+    if (typeof min === 'number' && typeof max === 'number' && max < min) {
+      ctx.addIssue({
+        code: 'custom',
+        path: [maxField],
+        message: `Maximum ${label} cannot be lower than the minimum`,
+      });
+    }
+  };
+
 export interface DateRangeFields {
   readonly startField?: string;
   readonly endField?: string;

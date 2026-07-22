@@ -31,6 +31,7 @@ interface Harness {
 const createHarness = (): Harness => {
   const repository: ICompanyRepository = {
     findById: vi.fn(async () => COMPANY),
+    findManyByIds: vi.fn(async () => [COMPANY]),
     existsBySlug: vi.fn(async () => false),
     existsByDomain: vi.fn(async () => false),
     create: vi.fn(async () => COMPANY),

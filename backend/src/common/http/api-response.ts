@@ -50,3 +50,23 @@ export const sendSuccess = (
 export const sendNoContent = (res: Response): void => {
   res.status(HTTP_STATUS.NO_CONTENT).send();
 };
+
+/** Paging block that rides inside `data` alongside the resource key, keeping one envelope. */
+export interface PaginationMeta {
+  readonly page: number;
+  readonly pageSize: number;
+  readonly total: number;
+  readonly totalPages: number;
+}
+
+export const toPaginationMeta = (
+  total: number,
+  page: number,
+  pageSize: number,
+): PaginationMeta => ({
+  page,
+  pageSize,
+  total,
+  // A page count of zero would make "page 1 of 0" render for an empty list.
+  totalPages: Math.max(Math.ceil(total / pageSize), 1),
+});

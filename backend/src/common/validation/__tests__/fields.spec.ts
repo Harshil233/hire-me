@@ -4,6 +4,7 @@ import { z } from 'zod';
 import {
   clearableField,
   createDateRangeRule,
+  createNumericRangeRule,
   ctcSchema,
   dobSchema,
   emailSchema,
@@ -261,5 +262,33 @@ describe('createDateRangeRule', () => {
 
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.path).toEqual(['expiresOn']);
+  });
+});
+
+describe('createNumericRangeRule', () => {
+  const schema = z
+    .object({ min: z.number().optional(), max: z.number().optional() })
+    .superRefine(createNumericRangeRule({ minField: 'min', maxField: 'max', label: 'salary' }));
+
+  it('accepts a well-ordered range', () => {
+    expect(schema.safeParse({ min: 10, max: 20 }).success).toBe(true);
+  });
+
+  it('accepts equal bounds', () => {
+    expect(schema.safeParse({ min: 10, max: 10 }).success).toBe(true);
+  });
+
+  it('rejects a ceiling below the floor and blames the upper field', () => {
+    const result = schema.safeParse({ min: 20, max: 10 });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path).toEqual(['max']);
+    expect(result.error?.issues[0]?.message).toContain('salary');
+  });
+
+  it('stays silent when either bound is missing', () => {
+    expect(schema.safeParse({ min: 20 }).success).toBe(true);
+    expect(schema.safeParse({ max: 10 }).success).toBe(true);
+    expect(schema.safeParse({}).success).toBe(true);
   });
 });

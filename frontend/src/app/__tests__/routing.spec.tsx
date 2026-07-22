@@ -7,7 +7,7 @@ import axios from 'axios';
 import { ROUTES } from '@/config/constants';
 import { httpClient } from '@/services/api-client';
 import { useAuthStore } from '@/store/auth.store';
-import { candidateProfileView, candidateUser } from '@/test/fixtures';
+import { candidateProfileView, candidateUser, hrUser, jobListResponse } from '@/test/fixtures';
 import { renderWithProviders } from '@/test/render';
 import { AppRoutes } from '../router';
 
@@ -42,8 +42,8 @@ const denyRestore = (): void => {
   bareAxiosMock.onPost(/\/refresh$/).reply(401, body);
 };
 
-const allowRestore = (): void => {
-  const body = { success: true, data: { user: candidateUser, accessToken: 'token-1' } };
+const allowRestore = (user = candidateUser): void => {
+  const body = { success: true, data: { user, accessToken: 'token-1' } };
   mock.onPost('/refresh').reply(200, body);
   bareAxiosMock.onPost(/\/refresh$/).reply(200, body);
 };
@@ -100,6 +100,64 @@ describe('route guards', () => {
     renderWithProviders(<AppRoutes />, { route: '/nowhere' });
 
     expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
+  });
+});
+
+describe('role-scoped routes', () => {
+  beforeEach(() => {
+    mock.onGet('/jobs').reply(200, jobListResponse([]));
+    mock.onGet('/jobs/mine').reply(200, jobListResponse([]));
+  });
+
+  it('lets an HR reach their postings', async () => {
+    allowRestore(hrUser);
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.HR_JOBS });
+
+    expect(await screen.findByRole('heading', { name: 'Your postings' })).toBeInTheDocument();
+  });
+
+  it('sends a candidate away from the HR-only postings screen', async () => {
+    allowRestore(candidateUser);
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.HR_JOBS });
+
+    // Redirected to the profile rather than shown a screen the API would refuse.
+    expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Your postings' })).not.toBeInTheDocument();
+  });
+
+  it('sends an anonymous visitor to sign in', async () => {
+    denyRestore();
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.HR_JOBS });
+
+    expect(await screen.findByRole('heading', { name: 'Welcome back' })).toBeInTheDocument();
+  });
+
+  it('opens the shared job browse screen to both roles', async () => {
+    allowRestore(candidateUser);
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.JOBS });
+
+    expect(await screen.findByRole('complementary', { name: 'Job filters' })).toBeInTheDocument();
+  });
+
+  it('shows the postings link in the nav only to HR', async () => {
+    allowRestore(hrUser);
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.JOBS });
+
+    expect(await screen.findByRole('link', { name: 'My postings' })).toBeInTheDocument();
+  });
+
+  it('hides the postings link from a candidate', async () => {
+    allowRestore(candidateUser);
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.JOBS });
+
+    await screen.findByRole('complementary', { name: 'Job filters' });
+    expect(screen.queryByRole('link', { name: 'My postings' })).not.toBeInTheDocument();
   });
 });
 

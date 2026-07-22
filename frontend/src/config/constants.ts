@@ -34,6 +34,51 @@ export const JOB_TYPE_LABELS: Readonly<Record<JobType, string>> = Object.freeze(
   freelance: 'Freelance',
 });
 
+export const JOB_ROLE_VALUES = [
+  'engineering',
+  'design',
+  'product',
+  'sales',
+  'marketing',
+  'hr',
+  'finance',
+  'operations',
+  'other',
+] as const;
+export type JobRole = (typeof JOB_ROLE_VALUES)[number];
+
+export const JOB_ROLE_LABELS: Readonly<Record<JobRole, string>> = Object.freeze({
+  engineering: 'Engineering',
+  design: 'Design',
+  product: 'Product',
+  sales: 'Sales',
+  marketing: 'Marketing',
+  hr: 'HR',
+  finance: 'Finance',
+  operations: 'Operations',
+  other: 'Other',
+});
+
+export const WORK_MODE_VALUES = ['onsite', 'hybrid', 'remote'] as const;
+export type WorkMode = (typeof WORK_MODE_VALUES)[number];
+
+export const WORK_MODE_LABELS: Readonly<Record<WorkMode, string>> = Object.freeze({
+  onsite: 'On-site',
+  hybrid: 'Hybrid',
+  remote: 'Remote',
+});
+
+export const JOB_STATUS_VALUES = ['draft', 'published', 'closed'] as const;
+export type JobStatus = (typeof JOB_STATUS_VALUES)[number];
+
+export const JOB_STATUS_LABELS: Readonly<Record<JobStatus, string>> = Object.freeze({
+  draft: 'Draft',
+  published: 'Published',
+  closed: 'Closed',
+});
+
+export const JOBS_PAGE_SIZE = 20;
+
 export const FILE_KINDS = {
   PROFILE_PIC: 'profile_pic',
   RESUME: 'resume',
@@ -70,8 +115,14 @@ export const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
   PROFILE: '/profile',
+  JOBS: '/jobs',
+  JOB_DETAIL: '/jobs/:id',
+  HR_JOBS: '/hr/jobs',
   ROOT: '/',
 } as const;
+
+/** Builds a concrete job path from the `:id` pattern above. */
+export const jobDetailPath = (id: string): string => `${ROUTES.JOBS}/${id}`;
 
 /** Query keys for the server-state cache, declared once to avoid typos. */
 export const QUERY_KEYS = {
@@ -79,4 +130,7 @@ export const QUERY_KEYS = {
   profile: ['profile'] as const,
   section: (resource: string) => ['section', resource] as const,
   file: (fileId: string) => ['file', fileId] as const,
+  jobs: (filters: Readonly<Record<string, unknown>>) => ['jobs', filters] as const,
+  myJobs: (filters: Readonly<Record<string, unknown>>) => ['jobs', 'mine', filters] as const,
+  job: (id: string) => ['job', id] as const,
 };

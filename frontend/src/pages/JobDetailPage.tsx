@@ -1,0 +1,103 @@
+import { Link, useParams } from 'react-router-dom';
+
+import { Alert } from '@/components/Alert';
+import { Card } from '@/components/Card';
+import { Skeleton } from '@/components/Skeleton';
+import {
+  JOB_ROLE_LABELS,
+  JOB_TYPE_LABELS,
+  ROUTES,
+  WORK_MODE_LABELS,
+} from '@/config/constants';
+import { JobStatusBadge } from '@/features/jobs/components/JobStatusBadge';
+import { useJob } from '@/features/jobs/hooks/useJobs';
+import { formatCtcRange, formatExperienceRange } from '@/features/jobs/utils/job.format';
+
+const Detail = ({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value: string;
+}): React.JSX.Element | null =>
+  value === '' ? null : (
+    <div>
+      <dt className="text-xs uppercase tracking-wide text-slate-400">{label}</dt>
+      <dd className="mt-0.5 text-sm text-slate-800">{value}</dd>
+    </div>
+  );
+
+export const JobDetailPage = (): React.JSX.Element => {
+  const { id = '' } = useParams<{ id: string }>();
+  const query = useJob(id);
+
+  if (query.isPending) {
+    return <Skeleton className="h-64" />;
+  }
+
+  if (query.isError) {
+    return (
+      <div className="space-y-4">
+        <Alert tone="error">{query.error.message}</Alert>
+        <Link to={ROUTES.JOBS} className="text-sm font-medium text-brand-600 hover:underline">
+          Back to jobs
+        </Link>
+      </div>
+    );
+  }
+
+  const job = query.data;
+
+  return (
+    <div className="space-y-4">
+      <Link to={ROUTES.JOBS} className="text-sm font-medium text-brand-600 hover:underline">
+        ← Back to jobs
+      </Link>
+
+      <Card>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-semibold text-slate-900">{job.title}</h1>
+            <p className="mt-1 text-sm text-slate-500">{job.company.name}</p>
+          </div>
+          <JobStatusBadge status={job.status} />
+        </div>
+
+        <dl className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Detail label="Role" value={JOB_ROLE_LABELS[job.role]} />
+          <Detail label="Job type" value={JOB_TYPE_LABELS[job.jobType]} />
+          <Detail label="Work mode" value={WORK_MODE_LABELS[job.workMode]} />
+          <Detail
+            label="Experience"
+            value={formatExperienceRange(job.experienceMinYears, job.experienceMaxYears)}
+          />
+          <Detail label="CTC" value={formatCtcRange(job.ctcMin, job.ctcMax)} />
+          <Detail label="Locations" value={job.locations.join(' · ')} />
+        </dl>
+
+        <div className="mt-6">
+          <h2 className="text-sm font-semibold text-slate-900">About this role</h2>
+          <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700">
+            {job.description}
+          </p>
+        </div>
+
+        {job.skills.length > 0 && (
+          <div className="mt-6">
+            <h2 className="text-sm font-semibold text-slate-900">Skills</h2>
+            <ul className="mt-2 flex flex-wrap gap-1.5">
+              {job.skills.map((skill) => (
+                <li
+                  key={skill}
+                  className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600"
+                >
+                  {skill}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+};

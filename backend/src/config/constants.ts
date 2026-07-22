@@ -26,6 +26,42 @@ export const JOB_TYPE_VALUES = [
 ] as const;
 export type JobType = (typeof JOB_TYPE_VALUES)[number];
 
+/** Filterable job category. `title` stays free text for the headline. */
+export const JOB_ROLE_VALUES = [
+  'engineering',
+  'design',
+  'product',
+  'sales',
+  'marketing',
+  'hr',
+  'finance',
+  'operations',
+  'other',
+] as const;
+export type JobRole = (typeof JOB_ROLE_VALUES)[number];
+
+export const WORK_MODE_VALUES = ['onsite', 'hybrid', 'remote'] as const;
+export type WorkMode = (typeof WORK_MODE_VALUES)[number];
+
+export const JOB_STATUS_VALUES = ['draft', 'published', 'closed'] as const;
+export type JobStatus = (typeof JOB_STATUS_VALUES)[number];
+export const JOB_STATUSES = {
+  DRAFT: 'draft',
+  PUBLISHED: 'published',
+  CLOSED: 'closed',
+} as const satisfies Record<string, JobStatus>;
+
+/**
+ * Legal job status moves. A frozen map keeps the rule declarative instead of an
+ * `if`-chain in the service (CLAUDE.md §3, OCP).
+ */
+export const JOB_STATUS_TRANSITIONS: Readonly<Record<JobStatus, readonly JobStatus[]>> =
+  Object.freeze({
+    draft: ['published', 'closed'],
+    published: ['closed'],
+    closed: ['published'],
+  });
+
 export const COMPANY_ROLE_VALUES = ['owner', 'member'] as const;
 export type CompanyRole = (typeof COMPANY_ROLE_VALUES)[number];
 export const COMPANY_ROLES = {
@@ -56,6 +92,18 @@ export const COLLECTIONS = {
   CERTIFICATIONS: 'certifications',
   PROJECTS: 'projects',
   FILES: 'files',
+  JOBS: 'jobs',
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/* Pagination                                                                  */
+/* -------------------------------------------------------------------------- */
+
+/** `MAX_PAGE_SIZE` is a hard ceiling: an uncapped page size is a DoS vector. */
+export const PAGINATION = {
+  DEFAULT_PAGE: 1,
+  DEFAULT_PAGE_SIZE: 20,
+  MAX_PAGE_SIZE: 100,
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -77,6 +125,7 @@ export const VALIDATION_LIMITS = {
   MIN_AGE_YEARS: 16,
   MAX_AGE_YEARS: 100,
   MAX_CTC: 1_000_000_000,
+  MAX_EXPERIENCE_YEARS: 60,
 } as const;
 
 export const CTC_CURRENCY = 'INR' as const;

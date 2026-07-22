@@ -19,6 +19,7 @@ import {
   ExperienceModel,
   FileModel,
   HrProfileModel,
+  JobModel,
   ProjectModel,
   RefreshTokenModel,
   UserModel,
@@ -43,7 +44,17 @@ import {
   CERTIFICATION_SERVICE,
 } from '../modules/certification/certification.interface';
 import { CompanyController } from '../modules/company/company.controller';
+import { CompanyDirectoryAdapter } from '../modules/company/company-directory.adapter';
 import { CompanyRepository } from '../modules/company/company.repository';
+import { JobController } from '../modules/job/job.controller';
+import { JobRepository } from '../modules/job/job.repository';
+import { JobService } from '../modules/job/job.service';
+import {
+  COMPANY_DIRECTORY,
+  JOB_REPOSITORY,
+  JOB_SERVICE,
+  JOB_SUMMARY_PROVIDER,
+} from '../modules/job/job.interface';
 import { CompanyService } from '../modules/company/company.service';
 import {
   COMPANY_MEMBERSHIP,
@@ -93,6 +104,7 @@ import {
   EXPERIENCE_CONTROLLER,
   FILE_CONTROLLER,
   HEALTH_CONTROLLER,
+  JOB_CONTROLLER,
   PROFILE_CONTROLLER,
   PROFILE_UPDATE_VALIDATOR,
   PROJECT_CONTROLLER,
@@ -149,6 +161,7 @@ export const createContainer = (config: ContainerConfig): Container => {
   const certificationRepository = new CertificationRepository(CertificationModel);
   const projectRepository = new ProjectRepository(ProjectModel);
   const fileRepository = new FileRepository(FileModel);
+  const jobRepository = new JobRepository(JobModel);
 
   container
     .register(USER_REPOSITORY, userRepository)
@@ -160,7 +173,8 @@ export const createContainer = (config: ContainerConfig): Container => {
     .register(EDUCATION_REPOSITORY, educationRepository)
     .register(CERTIFICATION_REPOSITORY, certificationRepository)
     .register(PROJECT_REPOSITORY, projectRepository)
-    .register(FILE_REPOSITORY, fileRepository);
+    .register(FILE_REPOSITORY, fileRepository)
+    .register(JOB_REPOSITORY, jobRepository);
 
   /* ------------------------------------------------------------- services */
   const userService = new UserService(userRepository);
@@ -178,6 +192,9 @@ export const createContainer = (config: ContainerConfig): Container => {
   const certificationService = new OwnedResourceService(certificationRepository, 'Certification');
   const projectService = new OwnedResourceService(projectRepository, 'Project');
   const fileService = new FileService(fileRepository, fileStorage);
+
+  const companyDirectory = new CompanyDirectoryAdapter(companyRepository);
+  const jobService = new JobService(jobRepository, companyMembership, companyDirectory, now);
 
   const authService = new AuthService({
     userRepository,
@@ -212,6 +229,9 @@ export const createContainer = (config: ContainerConfig): Container => {
     .register(HR_PROFILE_SERVICE, hrProfileService)
     .register(COMPANY_MEMBERSHIP, companyMembership)
     .register(COMPANY_SERVICE, companyService)
+    .register(COMPANY_DIRECTORY, companyDirectory)
+    .register(JOB_SERVICE, jobService)
+    .register(JOB_SUMMARY_PROVIDER, jobRepository)
     .register(EXPERIENCE_SERVICE, experienceService)
     .register(EDUCATION_SERVICE, educationService)
     .register(CERTIFICATION_SERVICE, certificationService)
@@ -232,6 +252,7 @@ export const createContainer = (config: ContainerConfig): Container => {
     .register(PROFILE_CONTROLLER, new ProfileController(profileService))
     .register(PROFILE_UPDATE_VALIDATOR, createProfileUpdateValidator(profileService))
     .register(COMPANY_CONTROLLER, new CompanyController(companyService))
+    .register(JOB_CONTROLLER, new JobController(jobService))
     .register(FILE_CONTROLLER, new FileController(fileService))
     .register(HEALTH_CONTROLLER, new HealthController(database, now))
     .register(

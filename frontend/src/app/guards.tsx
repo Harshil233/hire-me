@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { Spinner } from '@/components/Spinner';
-import { ROUTES } from '@/config/constants';
+import { ROUTES, type Role } from '@/config/constants';
 import { useSession } from '@/features/auth/hooks/useSession';
 
 const RestoringSession = (): React.JSX.Element => (
@@ -24,6 +24,29 @@ export const ProtectedRoute = (): React.JSX.Element => {
   ) : (
     <Navigate to={ROUTES.LOGIN} replace state={{ from: location.pathname }} />
   );
+};
+
+export interface RoleRouteProps {
+  readonly allow: Role;
+}
+
+/**
+ * Restricts a branch of the router to one role. Sits inside `ProtectedRoute`, so by the
+ * time it renders the session is settled. The server enforces the same rule — this only
+ * spares the user a screen they would be refused anyway.
+ */
+export const RoleRoute = ({ allow }: RoleRouteProps): React.JSX.Element => {
+  const { isRestoring, isAuthenticated, user } = useSession();
+
+  if (isRestoring) {
+    return <RestoringSession />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to={ROUTES.LOGIN} replace />;
+  }
+
+  return user?.role === allow ? <Outlet /> : <Navigate to={ROUTES.PROFILE} replace />;
 };
 
 /** Keeps a signed-in user away from the sign-in and sign-up screens. */

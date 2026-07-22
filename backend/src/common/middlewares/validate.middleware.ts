@@ -54,3 +54,15 @@ export const validateRequest = (schemas: RequestSchemas): RequestHandler => {
     next();
   };
 };
+
+/**
+ * Reads the parsed query string. `validateRequest` has already replaced `req.query` with
+ * the schema's output, but Express types that property as `ParsedQs` — string-valued by
+ * definition — so a coerced number cannot be expressed through the `Request` generic.
+ * The narrowing lives here, once, next to the assignment that makes it true.
+ *
+ * The type parameter appears only in the return position because that is the whole point:
+ * this is a single, documented cast, and the caller names the shape its validator produced.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+export const validatedQuery = <TQuery>(req: Request): TQuery => req.query as unknown as TQuery;

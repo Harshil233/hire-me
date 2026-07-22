@@ -8,7 +8,7 @@ import {
   createMockResponse,
   createNext,
 } from '../../../../tests/helpers/express-mocks';
-import { validateRequest } from '../validate.middleware';
+import { validateRequest, validatedQuery } from '../validate.middleware';
 
 const bodySchema = z.object({ email: z.email(), age: z.coerce.number().int() });
 const paramsSchema = z.object({ id: z.string().min(3) });
@@ -81,5 +81,22 @@ describe('validateRequest', () => {
     validateRequest({})(createMockRequest(), createMockResponse(), next);
 
     expect(next).toHaveBeenCalledWith();
+  });
+});
+
+describe('validatedQuery', () => {
+  it('hands back the coerced value the validator wrote onto the request', () => {
+    const req = createMockRequest({ query: { page: '3' } });
+    const next = createNext();
+
+    validateRequest({ query: z.object({ page: z.coerce.number() }) })(
+      req,
+      createMockResponse(),
+      next,
+    );
+
+    expect(next).toHaveBeenCalledWith();
+    // A number, not the '3' that arrived on the query string.
+    expect(validatedQuery<{ page: number }>(req).page).toBe(3);
   });
 });

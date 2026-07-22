@@ -26,6 +26,7 @@ owns its `package.json`, `tsconfig.json`, lint config, test config and `Dockerfi
 | Profile | Personal details, job preferences, résumé, company details, live completion score |
 | Profile sections | Experience, education, certifications and projects (full CRUD) |
 | Files | Profile photo, résumé and company logo upload behind a swappable storage adapter |
+| Job listings | HR posts jobs for their company; candidates browse and filter by role, type, work mode, location, skills, CTC and experience |
 
 Deferred to a later phase: email verification, forgot/reset password, HR joining an
 existing company, and a curated skills list.
@@ -101,6 +102,12 @@ Base path `/api/v1`. Every response uses one envelope:
 | POST | `/company/register` | HR | Register a company for an HR that has none |
 | GET | `/company/:id` | access | Company detail |
 | PUT | `/company/:id` | HR owner | Update the company |
+| GET | `/jobs` | access | Browse **published** listings; filters + pagination |
+| POST | `/jobs` | HR | Post a job for the caller's own company (created as a draft) |
+| GET | `/jobs/mine` | HR | The caller's company postings, drafts included |
+| GET | `/jobs/:id` | access | Listing detail; drafts visible only to their own company |
+| PUT | `/jobs/:id` | HR owner | Update the listing |
+| PATCH | `/jobs/:id/status` | HR owner | `draft → published → closed`, and reopen |
 | GET/POST | `/experience` | candidate | List / create |
 | PUT/DELETE | `/experience/:id` | candidate | Update / delete |
 | … | `/education`, `/certification`, `/project` | candidate | Identical shape |
@@ -110,6 +117,11 @@ Base path `/api/v1`. Every response uses one envelope:
 
 Validation failures return **422** with per-field details. A record owned by another
 user returns **404**, never 403, so the API cannot be used to probe for other accounts.
+
+Job listings are owned by a **company**, never by an email. A posting's `companyId` is taken
+from the poster's own membership and a `companyId` in the request body is ignored, so one HR
+cannot post under another company. Another company's listing answers **404**, and a draft is
+invisible outside the company that owns it.
 
 Sign-in is **role-scoped**: each role has its own path and refuses the other's accounts.
 A candidate presenting correct credentials to `/hr/login` gets the same generic

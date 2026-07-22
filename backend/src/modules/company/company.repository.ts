@@ -20,6 +20,23 @@ export class CompanyRepository implements ICompanyRepository {
     return document === null ? null : CompanyRepository.toDomain(document);
   }
 
+  async findManyByIds(ids: readonly string[]): Promise<Company[]> {
+    const objectIds = ids
+      .map((id) => toObjectIdOrNull(id))
+      .filter((id): id is NonNullable<typeof id> => id !== null);
+
+    if (objectIds.length === 0) {
+      return [];
+    }
+
+    const documents = await this.model
+      .find({ _id: { $in: objectIds } })
+      .lean<CompanyDocument[]>()
+      .exec();
+
+    return documents.map((document) => CompanyRepository.toDomain(document));
+  }
+
   async existsBySlug(slug: string): Promise<boolean> {
     return (await this.model.exists({ slug }).exec()) !== null;
   }
