@@ -11,14 +11,19 @@ export interface AuthLayoutProps {
 }
 
 /**
- * The brand panel states the product's premise the way the product itself works: as a
- * pay band. Three real bands on a shared axis say "roles are ranges, and you can see
- * them at a glance" before the visitor has read a word.
+ * What each side of the product is for. Plain claims about how it works — the panel used
+ * to illustrate the point with three specimen listings and their pay, which read as real
+ * openings to anyone who had not signed in yet. Nothing here is invented.
  */
-const SAMPLE_ROLES = [
-  { title: 'Senior Backend Engineer', pay: '₹18–28L', start: 34, width: 30 },
-  { title: 'Product Designer', pay: '₹15–26L', start: 24, width: 30 },
-  { title: 'Data Engineer', pay: '₹19–30L', start: 38, width: 34 },
+const AUDIENCES = [
+  {
+    heading: 'Looking for a role',
+    body: 'Filter by pay, experience, location and work mode, then track every application in one place.',
+  },
+  {
+    heading: 'Hiring for one',
+    body: 'Post an opening, search the talent pool, and shortlist from a single view of each candidate.',
+  },
 ];
 
 export const AuthLayout = ({
@@ -41,35 +46,22 @@ export const AuthLayout = ({
       <div className="max-w-lg">
         <p className="eyebrow">Two sides, one shortlist</p>
         <h2 className="mt-4 font-display text-[2.75rem] leading-[1.05] font-semibold tracking-tight text-fg xl:text-[3.25rem]">
-          Every role is a range.
+          Find the role.
           <br />
-          See where yours sits.
+          Or find the person.
         </h2>
 
-        <ul className="mt-10 space-y-5">
-          {SAMPLE_ROLES.map((role) => (
-            <li key={role.title} className="max-w-md">
-              <div className="flex items-baseline justify-between gap-4">
-                <span className="text-sm text-fg-muted">{role.title}</span>
-                <span className="numeric text-sm text-fg">{role.pay}</span>
-              </div>
-              <div
-                aria-hidden="true"
-                className="relative mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-border"
-              >
-                <span
-                  className="absolute inset-y-0 rounded-full bg-accent"
-                  style={{ left: `${String(role.start)}%`, width: `${String(role.width)}%` }}
-                />
-              </div>
+        <ul className="mt-10 space-y-6">
+          {AUDIENCES.map((audience) => (
+            <li key={audience.heading} className="max-w-md border-l-2 border-accent-line pl-4">
+              <p className="text-sm font-medium text-fg">{audience.heading}</p>
+              <p className="mt-1 text-sm text-fg-muted">{audience.body}</p>
             </li>
           ))}
         </ul>
       </div>
 
-      <p className="max-w-sm text-sm text-fg-subtle">
-        Compensation, experience and location up front — on every listing, before you click.
-      </p>
+      <p className="max-w-sm text-sm text-fg-subtle">One account, whichever side you are on.</p>
     </aside>
 
     {/* ----------------------------------------------------------- form panel */}
