@@ -104,7 +104,7 @@ describe('candidate detail', () => {
     expect(screen.getByText('College of Engineering, Pune')).toBeInTheDocument();
   });
 
-  it('leaves out a section the candidate left empty', async () => {
+  it('still shows a section the candidate left empty, so a gap is visible', async () => {
     mock
       .onGet(/\/candidates\//)
       .reply(200, candidateDetailResponse({ experience: [EXPERIENCE] }));
@@ -112,8 +112,41 @@ describe('candidate detail', () => {
     renderPage();
 
     await screen.findByRole('heading', { name: /Work experience/ });
-    expect(screen.queryByRole('heading', { name: /Certifications/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: /Projects/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Certifications/ })).toBeInTheDocument();
+    expect(screen.getByText('No certifications listed.')).toBeInTheDocument();
+    expect(screen.getByText('No projects listed.')).toBeInTheDocument();
+    expect(screen.getByText('No education listed.')).toBeInTheDocument();
+  });
+
+  it('covers every section a profile can have', async () => {
+    mock.onGet(/\/candidates\//).reply(200, candidateDetailResponse());
+
+    renderPage();
+
+    await screen.findByRole('heading', { name: 'Ada Lovelace' });
+    for (const title of [/Work experience/, /Education/, /Projects/, /Certifications/]) {
+      expect(screen.getByRole('heading', { name: title })).toBeInTheDocument();
+    }
+  });
+
+  it('says so when a sparse profile lists no skills', async () => {
+    mock.onGet(/\/candidates\//).reply(200, candidateDetailResponse({ skills: [] }));
+
+    renderPage();
+
+    expect(await screen.findByText('No skills listed.')).toBeInTheDocument();
+  });
+
+  it('says so when no location is shared', async () => {
+    mock.onGet(/\/candidates\//).reply(
+      200,
+      candidateDetailResponse({ currentLocation: undefined, preferredLocations: [] }),
+    );
+
+    renderPage();
+
+    expect(await screen.findByText('Location not shared')).toBeInTheDocument();
+    expect(screen.getByText('No preferred locations listed')).toBeInTheDocument();
   });
 
   it('never offers editing controls on someone else’s profile', async () => {
@@ -128,36 +161,39 @@ describe('candidate detail', () => {
     expect(screen.queryByRole('button', { name: /^Delete/ })).not.toBeInTheDocument();
   });
 
-  it('offers the résumé when there is one', async () => {
+  it('offers reading and keeping the résumé when there is one', async () => {
     mock
       .onGet(/\/candidates\//)
       .reply(200, candidateDetailResponse({ resumeFileId: 'file-7' }));
 
     renderPage();
 
-    expect(await screen.findByRole('button', { name: /Résumé/ })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'View résumé' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Download Ada Lovelace’s résumé' }),
+    ).toBeInTheDocument();
   });
 
-  it('hides the résumé button when the candidate has not uploaded one', async () => {
+  it('says so rather than going quiet when there is no résumé', async () => {
     mock.onGet(/\/candidates\//).reply(200, candidateDetailResponse());
 
     renderPage();
 
-    await screen.findByRole('heading', { name: 'Ada Lovelace' });
-    expect(screen.queryByRole('button', { name: /Résumé/ })).not.toBeInTheDocument();
+    expect(await screen.findByText('No résumé uploaded')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'View résumé' })).not.toBeInTheDocument();
   });
 
-  it('downloads the résumé only once asked', async () => {
+  it('fetches the résumé only once asked', async () => {
     const user = userEvent.setup();
-    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
     vi.stubGlobal('URL', { ...URL, createObjectURL: () => 'blob:x', revokeObjectURL: () => undefined });
+    vi.stubGlobal('open', vi.fn());
     mock
       .onGet(/\/candidates\//)
       .reply(200, candidateDetailResponse({ resumeFileId: 'file-7' }));
     mock.onGet('/files/file-7').reply(200, new Blob(['pdf']));
 
     renderPage();
-    const button = await screen.findByRole('button', { name: /Résumé/ });
+    const button = await screen.findByRole('button', { name: 'View résumé' });
 
     expect(mock.history.get.some((entry) => entry.url === '/files/file-7')).toBe(false);
 

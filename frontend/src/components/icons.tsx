@@ -123,6 +123,13 @@ export const DownloadIcon = (props: IconProps): React.JSX.Element => (
   </svg>
 );
 
+export const EyeIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z" />
+    <circle cx="12" cy="12" r="2.6" />
+  </svg>
+);
+
 export const ArrowLeftIcon = (props: IconProps): React.JSX.Element => (
   <svg {...base(props)}>
     <path d="M19 12H5" />

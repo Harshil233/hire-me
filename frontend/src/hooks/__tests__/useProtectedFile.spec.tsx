@@ -3,22 +3,25 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { IFileApi } from '@/services/file.api';
-import { useFileDownload } from '../useFileDownload';
+import { useProtectedFile } from '../useProtectedFile';
 
 const createObjectURL = vi.fn(() => 'blob:resume');
 const revokeObjectURL = vi.fn();
+const open = vi.fn();
 
 beforeEach(() => {
   vi.stubGlobal('URL', { ...URL, createObjectURL, revokeObjectURL });
+  vi.stubGlobal('open', open);
 });
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
   vi.clearAllMocks();
 });
 
 const Harness = ({ api }: { api: IFileApi }): React.JSX.Element => {
-  const { download, isDownloading, error } = useFileDownload(api);
+  const { download, view, isBusy, error } = useProtectedFile(api);
 
   return (
     <>
@@ -30,7 +33,15 @@ const Harness = ({ api }: { api: IFileApi }): React.JSX.Element => {
       >
         Download
       </button>
-      <span data-testid="state">{isDownloading ? 'busy' : 'idle'}</span>
+      <button
+        type="button"
+        onClick={() => {
+          void view('file-1');
+        }}
+      >
+        View
+      </button>
+      <span data-testid="state">{isBusy ? 'busy' : 'idle'}</span>
       <span data-testid="error">{error ?? ''}</span>
     </>
   );
@@ -38,7 +49,7 @@ const Harness = ({ api }: { api: IFileApi }): React.JSX.Element => {
 
 const okApi = (): IFileApi => ({ download: vi.fn(async () => new Blob(['pdf'])) });
 
-describe('useFileDownload', () => {
+describe('useProtectedFile', () => {
   it('does not fetch anything until asked', () => {
     const api = okApi();
 
@@ -47,9 +58,10 @@ describe('useFileDownload', () => {
     expect(api.download).not.toHaveBeenCalled();
   });
 
-  it('fetches the file when the button is pressed', async () => {
+  it('fetches the bytes when downloading', async () => {
     const user = userEvent.setup();
     const api = okApi();
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
 
     render(<Harness api={api} />);
     await user.click(screen.getByRole('button', { name: 'Download' }));
@@ -59,21 +71,24 @@ describe('useFileDownload', () => {
     });
   });
 
-  it('hands the bytes to the browser under the requested filename', async () => {
+  it('saves under the requested filename', async () => {
     const user = userEvent.setup();
-    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+    let savedAs = '';
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      savedAs = this.download;
+    });
 
     render(<Harness api={okApi()} />);
     await user.click(screen.getByRole('button', { name: 'Download' }));
 
     await waitFor(() => {
-      expect(click).toHaveBeenCalled();
+      expect(savedAs).toBe('ada-resume.pdf');
     });
-    expect(createObjectURL).toHaveBeenCalled();
-    click.mockRestore();
   });
 
-  it('releases the object URL rather than leaking it', async () => {
+  it('releases the URL after a download rather than leaking it', async () => {
     const user = userEvent.setup();
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
 
@@ -85,17 +100,41 @@ describe('useFileDownload', () => {
     });
   });
 
-  it('leaves no anchor behind in the document', async () => {
+  it('opens the file in a new tab when viewing', async () => {
     const user = userEvent.setup();
-    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
 
     render(<Harness api={okApi()} />);
-    await user.click(screen.getByRole('button', { name: 'Download' }));
+    await user.click(screen.getByRole('button', { name: 'View' }));
 
     await waitFor(() => {
-      expect(revokeObjectURL).toHaveBeenCalled();
+      expect(open).toHaveBeenCalledWith('blob:resume', '_blank', 'noopener,noreferrer');
     });
-    expect(document.querySelector('a[download]')).toBeNull();
+  });
+
+  it('keeps a viewed URL alive, because the new tab is still reading it', async () => {
+    const user = userEvent.setup();
+
+    render(<Harness api={okApi()} />);
+    await user.click(screen.getByRole('button', { name: 'View' }));
+
+    await waitFor(() => {
+      expect(open).toHaveBeenCalled();
+    });
+    expect(revokeObjectURL).not.toHaveBeenCalled();
+  });
+
+  it('releases viewed URLs once the component goes away', async () => {
+    const user = userEvent.setup();
+
+    const { unmount } = render(<Harness api={okApi()} />);
+    await user.click(screen.getByRole('button', { name: 'View' }));
+    await waitFor(() => {
+      expect(open).toHaveBeenCalled();
+    });
+
+    unmount();
+
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:resume');
   });
 
   it('reports a failure instead of throwing', async () => {
@@ -103,10 +142,10 @@ describe('useFileDownload', () => {
     const api: IFileApi = { download: vi.fn(async () => Promise.reject(new Error('403'))) };
 
     render(<Harness api={api} />);
-    await user.click(screen.getByRole('button', { name: 'Download' }));
+    await user.click(screen.getByRole('button', { name: 'View' }));
 
     expect(await screen.findByTestId('error')).toHaveTextContent(
-      'That file could not be downloaded.',
+      'That file could not be opened.',
     );
   });
 
@@ -122,19 +161,18 @@ describe('useFileDownload', () => {
     });
   });
 
-  it('clears a previous error when a later download succeeds', async () => {
+  it('clears a previous error when a later attempt succeeds', async () => {
     const user = userEvent.setup();
-    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
     const download = vi
       .fn<IFileApi['download']>()
       .mockRejectedValueOnce(new Error('403'))
       .mockResolvedValueOnce(new Blob(['pdf']));
 
     render(<Harness api={{ download }} />);
-    await user.click(screen.getByRole('button', { name: 'Download' }));
-    await screen.findByText('That file could not be downloaded.');
+    await user.click(screen.getByRole('button', { name: 'View' }));
+    await screen.findByText('That file could not be opened.');
 
-    await user.click(screen.getByRole('button', { name: 'Download' }));
+    await user.click(screen.getByRole('button', { name: 'View' }));
 
     await waitFor(() => {
       expect(screen.getByTestId('error')).toHaveTextContent('');

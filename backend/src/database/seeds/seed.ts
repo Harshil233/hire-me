@@ -76,9 +76,32 @@ const seed = async (): Promise<void> => {
   let created = { employers: 0, candidates: 0, sections: 0, jobs: 0, applications: 0 };
 
   /**
-   * Writes the sections an employer sees on a candidate's detail page. Only reached for
-   * a freshly created account, so re-running the seed never duplicates them.
+   * Writes one section list, but only when the candidate has none of that kind yet.
+   *
+   * Per-section rather than per-account, because an environment seeded before sections
+   * existed already has the accounts: skipping on "the user exists" would leave those
+   * profiles permanently empty. Entries are parsed through the same schemas a request
+   * goes through, so seed data cannot drift from what the endpoints would accept.
    */
+  const fillSection = async <TEntry, TParsed>(
+    service: { countByUser(userId: string): Promise<number>; create(userId: string, data: TParsed): Promise<unknown> },
+    userId: string,
+    entries: readonly TEntry[] | undefined,
+    parse: (entry: TEntry) => TParsed,
+  ): Promise<number> => {
+    if (entries === undefined || entries.length === 0) {
+      return 0;
+    }
+
+    if ((await service.countByUser(userId)) > 0) {
+      return 0;
+    }
+
+    await Promise.all(entries.map((entry) => service.create(userId, parse(entry))));
+    return entries.length;
+  };
+
+  /** Backfills every section an employer sees on a candidate's detail page. */
   const addSections = async (
     userId: string,
     sections: SeedCandidateSections | undefined,
@@ -87,25 +110,22 @@ const seed = async (): Promise<void> => {
       return 0;
     }
 
-    // Parsed through the same schemas a request goes through, so seed data cannot drift
-    // from what the endpoints would accept.
-    const writes = [
-      ...(sections.experience ?? []).map((entry) =>
-        experiences.create(userId, experienceInputSchema.parse(entry)),
+    const written = await Promise.all([
+      fillSection(experiences, userId, sections.experience, (entry) =>
+        experienceInputSchema.parse(entry),
       ),
-      ...(sections.education ?? []).map((entry) =>
-        educations.create(userId, educationInputSchema.parse(entry)),
+      fillSection(educations, userId, sections.education, (entry) =>
+        educationInputSchema.parse(entry),
       ),
-      ...(sections.projects ?? []).map((entry) =>
-        projects.create(userId, projectInputSchema.parse(entry)),
+      fillSection(projects, userId, sections.projects, (entry) =>
+        projectInputSchema.parse(entry),
       ),
-      ...(sections.certifications ?? []).map((entry) =>
-        certifications.create(userId, certificationInputSchema.parse(entry)),
+      fillSection(certifications, userId, sections.certifications, (entry) =>
+        certificationInputSchema.parse(entry),
       ),
-    ];
+    ]);
 
-    await Promise.all(writes);
-    return writes.length;
+    return written.reduce((total, count) => total + count, 0);
   };
 
   /* ------------------------------------------------------------- employers */
@@ -125,20 +145,24 @@ const seed = async (): Promise<void> => {
   /* ------------------------------------------------------------ candidates */
   for (const candidate of SEED_CANDIDATES) {
     const existing = await users.findByEmail(candidate.account.email);
+    let userId: string;
 
-    if (existing !== null) {
-      userIdByEmail.set(candidate.account.email, existing.id);
-      continue;
+    if (existing === null) {
+      const session = await authService.registerCandidate(candidate.account, {});
+      userId = session.user.id;
+      // Fills in skills and location, so an employer's applicant list is not blank.
+      await candidateProfiles.update(userId, candidate.profile);
+      created = { ...created, candidates: created.candidates + 1 };
+    } else {
+      userId = existing.id;
     }
 
-    const session = await authService.registerCandidate(candidate.account, {});
-    userIdByEmail.set(candidate.account.email, session.user.id);
-    // Fills in skills and location, so an employer's applicant list is not blank.
-    await candidateProfiles.update(session.user.id, candidate.profile);
+    userIdByEmail.set(candidate.account.email, userId);
+    // Runs for existing accounts too, so a database seeded before sections existed
+    // still ends up with them.
     created = {
       ...created,
-      candidates: created.candidates + 1,
-      sections: created.sections + (await addSections(session.user.id, candidate.sections)),
+      sections: created.sections + (await addSections(userId, candidate.sections)),
     };
   }
 

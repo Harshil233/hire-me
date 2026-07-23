@@ -174,7 +174,7 @@ describe('CandidatesPage', () => {
 
     renderWithProviders(<CandidatesPage />);
 
-    expect(await screen.findByRole('button', { name: /Résumé/ })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'View résumé' })).toBeInTheDocument();
   });
 
   it('leaves the résumé button off a card without one', async () => {
@@ -183,7 +183,7 @@ describe('CandidatesPage', () => {
     renderWithProviders(<CandidatesPage />);
 
     await screen.findByText('Ada Lovelace');
-    expect(screen.queryByRole('button', { name: /Résumé/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'View résumé' })).not.toBeInTheDocument();
   });
 
   it('pages forward', async () => {
