@@ -64,7 +64,7 @@ export const ChipsInput = ({
   return (
     <div
       className={cn(
-        'flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-300 bg-white p-2 shadow-sm',
+        'flex flex-wrap items-center gap-1.5 rounded-lg border border-border-strong bg-surface p-2 shadow-sm',
         'focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-200',
         isInvalid && 'border-red-400 focus-within:border-red-500 focus-within:ring-red-200',
       )}
@@ -72,7 +72,7 @@ export const ChipsInput = ({
       {value.map((item, index) => (
         <span
           key={item}
-          className="inline-flex items-center gap-1 rounded-md bg-brand-50 py-1 pr-1 pl-2 text-sm font-medium text-brand-700"
+          className="inline-flex items-center gap-1 rounded-md bg-brand-soft py-1 pr-1 pl-2 text-sm font-medium text-brand-text"
         >
           {item}
           <button
@@ -81,7 +81,7 @@ export const ChipsInput = ({
               remove(index);
             }}
             aria-label={`Remove ${item}`}
-            className="rounded px-1 text-brand-500 transition hover:bg-brand-100 hover:text-brand-800"
+            className="rounded px-1 text-brand transition hover:bg-brand-100 hover:text-brand-800"
           >
             ×
           </button>
@@ -102,7 +102,7 @@ export const ChipsInput = ({
         aria-describedby={describedBy}
         placeholder={value.length >= maxItems ? `Limit of ${maxItems} reached` : placeholder}
         disabled={value.length >= maxItems}
-        className="min-w-32 flex-1 border-0 bg-transparent px-1 py-1 text-sm outline-none placeholder:text-slate-400 disabled:cursor-not-allowed"
+        className="min-w-32 flex-1 border-0 bg-transparent px-1 py-1 text-sm outline-none placeholder:text-fg-subtle disabled:cursor-not-allowed"
       />
     </div>
   );

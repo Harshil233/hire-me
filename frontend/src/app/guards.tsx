@@ -5,7 +5,7 @@ import { ROUTES, type Role } from '@/config/constants';
 import { useSession } from '@/features/auth/hooks/useSession';
 
 const RestoringSession = (): React.JSX.Element => (
-  <div className="flex min-h-screen items-center justify-center text-brand-600">
+  <div className="flex min-h-screen items-center justify-center text-brand-text">
     <Spinner size="lg" label="Restoring your session" />
   </div>
 );

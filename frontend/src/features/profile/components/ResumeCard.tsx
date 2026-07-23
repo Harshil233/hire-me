@@ -59,10 +59,10 @@ export const ResumeCard = ({ resumeFileId }: ResumeCardProps): React.JSX.Element
           }
         />
       ) : (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border px-4 py-3">
           <div>
-            <p className="text-sm font-medium text-slate-800">Résumé attached</p>
-            <p className="text-xs text-slate-500">Visible to employers you apply to.</p>
+            <p className="text-sm font-medium text-fg">Résumé attached</p>
+            <p className="text-xs text-fg-muted">Visible to employers you apply to.</p>
           </div>
 
           {resumeUrl !== null && (

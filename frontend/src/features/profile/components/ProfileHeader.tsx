@@ -50,7 +50,7 @@ export const ProfileHeader = ({
         <div className="flex items-center gap-4">
           <div className="relative">
             {avatarUrl === null ? (
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-100 text-xl font-semibold text-brand-700">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-100 text-xl font-semibold text-brand-text">
                 {initials({ firstName, lastName }) || '?'}
               </div>
             ) : (
@@ -63,12 +63,12 @@ export const ProfileHeader = ({
           </div>
 
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-semibold text-slate-900">
+            <h1 className="truncate text-xl font-semibold text-fg">
               {fullName({ firstName, middleName, lastName })}
             </h1>
-            <p className="truncate text-sm text-slate-500">{email}</p>
+            <p className="truncate text-sm text-fg-muted">{email}</p>
             {subtitle !== undefined && subtitle !== '' && (
-              <p className="mt-0.5 truncate text-sm font-medium text-brand-700">{subtitle}</p>
+              <p className="mt-0.5 truncate text-sm font-medium text-brand-text">{subtitle}</p>
             )}
             <div className="mt-3">
               <FileUploadButton
@@ -83,7 +83,7 @@ export const ProfileHeader = ({
 
         <div className="flex flex-1 flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
           <div className="order-2 max-w-sm sm:order-1">
-            <p className="text-sm font-medium text-slate-700">
+            <p className="text-sm font-medium text-fg">
               {completion.percentage === 100
                 ? 'Your profile is complete 🎉'
                 : 'Finish your profile to stand out'}
@@ -95,7 +95,7 @@ export const ProfileHeader = ({
                   <li key={item.key}>
                     <a
                       href={`#section-${item.key}`}
-                      className="inline-block rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-200 hover:text-slate-900"
+                      className="inline-block rounded-md bg-surface-inset px-2 py-1 text-xs font-medium text-fg-muted transition hover:bg-surface-hover hover:text-fg"
                     >
                       + {item.label}
                     </a>

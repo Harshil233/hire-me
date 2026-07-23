@@ -1,6 +1,7 @@
 import type { ApplicationStatus, Role } from '../../config/constants';
 import type { PaginationMeta } from '../../common/http/api-response';
 import type { Page } from '../../common/persistence/page';
+import type { TransactionContext } from '../../common/persistence/transaction.types';
 import { createToken, type Token } from '../../container/token';
 import type { JobWithCompany } from '../job/job.interface';
 import type {
@@ -46,6 +47,7 @@ export interface IApplicationRepository {
     status: ApplicationStatus,
     actorUserId: string,
     at: Date,
+    context?: TransactionContext,
   ): Promise<Application | null>;
 }
 

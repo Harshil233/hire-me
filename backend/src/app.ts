@@ -25,6 +25,7 @@ import {
   FILE_CONTROLLER,
   HEALTH_CONTROLLER,
   JOB_CONTROLLER,
+  NOTIFICATION_CONTROLLER,
   PROFILE_CONTROLLER,
   PROFILE_UPDATE_VALIDATOR,
   PROJECT_CONTROLLER,
@@ -42,6 +43,7 @@ import { createExperienceRouter } from './modules/experience/experience.routes';
 import { createFileRouter } from './modules/file/file.routes';
 import { createHealthRouter } from './modules/health/health.routes';
 import { createJobRouter } from './modules/job/job.routes';
+import { createNotificationRouter } from './modules/notification/notification.routes';
 import { createProfileRouter } from './modules/profile/profile.routes';
 import { createProjectRouter } from './modules/project/project.routes';
 
@@ -86,6 +88,13 @@ const createApiRouter = (container: Container): Router => {
   router.use(
     '/applications',
     createApplicationRouter({ controller: applicationController, authenticate }),
+  );
+  router.use(
+    '/notifications',
+    createNotificationRouter({
+      controller: container.resolve(NOTIFICATION_CONTROLLER),
+      authenticate,
+    }),
   );
 
   router.use(

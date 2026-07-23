@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   formatDateRange,
   formatMonthYear,
+  formatRelativeTime,
   fullName,
   initials,
   toDateInputValue,
@@ -83,5 +84,34 @@ describe('initials', () => {
   it('copes with a partial name', () => {
     expect(initials({ firstName: 'Ada' })).toBe('A');
     expect(initials({})).toBe('');
+  });
+});
+
+describe('formatRelativeTime', () => {
+  const now = new Date('2026-03-10T12:00:00.000Z').getTime();
+  const ago = (ms: number): string => new Date(now - ms).toISOString();
+
+  it('reports anything under a minute as "just now"', () => {
+    expect(formatRelativeTime(ago(30_000), now)).toBe('just now');
+  });
+
+  it('reports minutes', () => {
+    expect(formatRelativeTime(ago(5 * 60_000), now)).toBe('5m ago');
+  });
+
+  it('reports hours', () => {
+    expect(formatRelativeTime(ago(4 * 60 * 60_000), now)).toBe('4h ago');
+  });
+
+  it('reports days', () => {
+    expect(formatRelativeTime(ago(3 * 24 * 60 * 60_000), now)).toBe('3d ago');
+  });
+
+  it('falls back to a month and year beyond a week', () => {
+    expect(formatRelativeTime(ago(40 * 24 * 60 * 60_000), now)).toMatch(/\d{4}/);
+  });
+
+  it('returns an empty string for an unparsable timestamp', () => {
+    expect(formatRelativeTime('not-a-date', now)).toBe('');
   });
 });

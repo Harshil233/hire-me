@@ -21,9 +21,9 @@ export const RegisterPage = (): React.JSX.Element => {
       subtitle="Start with the essentials — you can complete your profile next."
       wide={role === ROLES.HR}
       footer={
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-fg-muted">
           Already have an account?{' '}
-          <Link to={ROUTES.LOGIN} className="font-medium text-brand-600 hover:underline">
+          <Link to={ROUTES.LOGIN} className="font-medium text-brand-text hover:underline">
             Sign in
           </Link>
         </p>

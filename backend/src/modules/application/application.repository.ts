@@ -3,6 +3,8 @@ import type { FilterQuery, Model } from 'mongoose';
 import type { ApplicationStatus } from '../../config/constants';
 import type { Page } from '../../common/persistence/page';
 import { toIdString, toObjectId, toObjectIdOrNull } from '../../common/persistence/object-id';
+import type { TransactionContext } from '../../common/persistence/transaction.types';
+import { getSession } from '../../database/mongoose-transaction-manager';
 import type { ApplicationDocument } from '../../database/models/application.model';
 import type {
   Application,
@@ -79,6 +81,7 @@ export class ApplicationRepository implements IApplicationRepository {
     status: ApplicationStatus,
     actorUserId: string,
     at: Date,
+    context?: TransactionContext,
   ): Promise<Application | null> {
     const objectId = toObjectIdOrNull(id);
     const actorId = toObjectIdOrNull(actorUserId);
@@ -86,11 +89,12 @@ export class ApplicationRepository implements IApplicationRepository {
       return null;
     }
 
+    const session = getSession(context);
     const document = await this.model
       .findOneAndUpdate(
         { _id: objectId },
         { $set: { status, statusUpdatedAt: at, statusUpdatedByUserId: actorId } },
-        { new: true },
+        { new: true, ...(session === undefined ? {} : { session }) },
       )
       .lean<ApplicationDocument | null>()
       .exec();

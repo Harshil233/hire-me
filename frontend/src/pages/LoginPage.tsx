@@ -21,9 +21,9 @@ export const LoginPage = (): React.JSX.Element => {
       title="Welcome back"
       subtitle="Sign in to manage your profile."
       footer={
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-fg-muted">
           New here?{' '}
-          <Link to={ROUTES.REGISTER} className="font-medium text-brand-600 hover:underline">
+          <Link to={ROUTES.REGISTER} className="font-medium text-brand-text hover:underline">
             Create an account
           </Link>
         </p>

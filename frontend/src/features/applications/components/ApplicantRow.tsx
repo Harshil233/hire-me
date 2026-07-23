@@ -26,11 +26,11 @@ export const ApplicantRow = ({
     <article className="surface-card px-5 py-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="truncate text-base font-semibold text-slate-900">
+          <h3 className="truncate text-base font-semibold text-fg">
             {applicant.candidate.fullName}
           </h3>
           {applicant.candidate.currentLocation !== undefined && (
-            <p className="mt-0.5 text-sm text-slate-500">
+            <p className="mt-0.5 text-sm text-fg-muted">
               {applicant.candidate.currentLocation}
             </p>
           )}
@@ -43,7 +43,7 @@ export const ApplicantRow = ({
           {applicant.candidate.skills.map((skill) => (
             <li
               key={skill}
-              className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600"
+              className="rounded-full bg-surface-inset px-2.5 py-0.5 text-xs font-medium text-fg-muted"
             >
               {skill}
             </li>
@@ -52,7 +52,7 @@ export const ApplicantRow = ({
       )}
 
       {applicant.coverNote !== undefined && (
-        <p className="mt-3 whitespace-pre-line text-sm text-slate-700">{applicant.coverNote}</p>
+        <p className="mt-3 whitespace-pre-line text-sm text-fg">{applicant.coverNote}</p>
       )}
 
       {!isClosed && (

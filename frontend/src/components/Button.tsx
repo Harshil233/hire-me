@@ -4,7 +4,7 @@ import { cn } from '@/lib/cn';
 import { Spinner } from './Spinner';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
-export type ButtonSize = 'sm' | 'md';
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   readonly variant?: ButtonVariant;
@@ -16,16 +16,19 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary: 'bg-brand-600 text-white hover:bg-brand-700 disabled:bg-brand-300',
+  primary:
+    'bg-brand text-fg-on-brand shadow-sm hover:bg-brand-hover hover:shadow-md active:translate-y-px disabled:bg-brand/50 disabled:shadow-none',
   secondary:
-    'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 disabled:text-slate-400',
-  ghost: 'text-slate-600 hover:bg-slate-100 disabled:text-slate-300',
-  danger: 'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300',
+    'border border-border bg-surface text-fg hover:border-border-strong hover:bg-surface-hover active:translate-y-px disabled:text-fg-subtle',
+  ghost: 'text-fg-muted hover:bg-surface-hover hover:text-fg disabled:text-fg-subtle',
+  danger:
+    'bg-danger text-fg-on-brand shadow-sm hover:brightness-110 active:translate-y-px disabled:opacity-50',
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
   sm: 'px-3 py-1.5 text-sm gap-1.5',
   md: 'px-4 py-2.5 text-sm gap-2',
+  lg: 'px-5 py-3 text-base gap-2',
 };
 
 export const Button = ({
@@ -44,8 +47,8 @@ export const Button = ({
     disabled={disabled === true || isLoading}
     aria-busy={isLoading}
     className={cn(
-      'inline-flex items-center justify-center rounded-lg font-medium transition',
-      'disabled:cursor-not-allowed',
+      'inline-flex items-center justify-center rounded-[var(--radius-control)] font-medium',
+      'transition duration-150 disabled:cursor-not-allowed disabled:active:translate-y-0',
       VARIANT_CLASSES[variant],
       SIZE_CLASSES[size],
       className,

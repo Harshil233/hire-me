@@ -21,9 +21,9 @@ export const Pagination = ({
   return (
     <nav
       aria-label="Pagination"
-      className="flex items-center justify-between gap-3 border-t border-slate-200 pt-4"
+      className="flex items-center justify-between gap-3 border-t border-border pt-4"
     >
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-fg-muted">
         Page {page} of {totalPages} · {total} {total === 1 ? 'result' : 'results'}
       </p>
 

@@ -28,6 +28,8 @@ owns its `package.json`, `tsconfig.json`, lint config, test config and `Dockerfi
 | Files | Profile photo, résumé and company logo upload behind a swappable storage adapter |
 | Job listings | HR posts jobs for their company; candidates browse and filter by role, type, work mode, location, skills, CTC and experience |
 | Applications | Candidates apply once per job and track status; HR reviews applicants and shortlists or rejects |
+| Notifications | A candidate is told when their application status changes; read on page load, no polling |
+| Theming | Light and dark, following the OS until the user picks one, then remembered |
 
 Deferred to a later phase: email verification, forgot/reset password, HR joining an
 existing company, and a curated skills list.
@@ -113,6 +115,8 @@ Base path `/api/v1`. Every response uses one envelope:
 | GET | `/jobs/:id/applications` | HR owner | Applicant list for that listing |
 | GET | `/applications` | candidate | The caller's own applications |
 | PATCH | `/applications/:id/status` | both | HR shortlists/rejects; the candidate withdraws |
+| GET | `/notifications` | access | The caller's inbox plus an unread count |
+| PATCH | `/notifications/read` | access | Mark one notification read, or all of them |
 | GET/POST | `/experience` | candidate | List / create |
 | PUT/DELETE | `/experience/:id` | candidate | Update / delete |
 | … | `/education`, `/certification`, `/project` | candidate | Identical shape |
@@ -201,6 +205,13 @@ Notable decisions:
 - **The four profile sections share one implementation** — a config object per section
   supplies its schema, mapping and fields; the list, modal, cache handling and API
   client are written once.
+- **One token layer, two themes** — every colour is a semantic CSS variable
+  (`--surface`, `--fg-muted`, `--brand`…) redefined under `[data-theme='dark']` and
+  exposed to Tailwind through `@theme inline`. Components say `bg-surface` once, so
+  there is not a single `dark:` variant in the codebase and a theme switch repaints
+  without a rebuild.
+- **Notifications are durable rows, not a live feed** — the bell reads them when the
+  shell mounts, so they appear on load and on reload. No interval, no socket.
 
 ---
 

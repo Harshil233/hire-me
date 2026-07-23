@@ -7,6 +7,7 @@ export * from './experience.model';
 export * from './file.model';
 export * from './hr-profile.model';
 export * from './job.model';
+export * from './notification.model';
 export * from './project.model';
 export * from './refresh-token.model';
 export * from './user.model';

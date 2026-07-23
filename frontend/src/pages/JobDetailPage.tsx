@@ -28,8 +28,8 @@ const Detail = ({
 }): React.JSX.Element | null =>
   value === '' ? null : (
     <div>
-      <dt className="text-xs uppercase tracking-wide text-slate-400">{label}</dt>
-      <dd className="mt-0.5 text-sm text-slate-800">{value}</dd>
+      <dt className="text-xs uppercase tracking-wide text-fg-subtle">{label}</dt>
+      <dd className="mt-0.5 text-sm text-fg">{value}</dd>
     </div>
   );
 
@@ -49,7 +49,7 @@ export const JobDetailPage = (): React.JSX.Element => {
     return (
       <div className="space-y-4">
         <Alert tone="error">{query.error.message}</Alert>
-        <Link to={ROUTES.JOBS} className="text-sm font-medium text-brand-600 hover:underline">
+        <Link to={ROUTES.JOBS} className="text-sm font-medium text-brand-text hover:underline">
           Back to jobs
         </Link>
       </div>
@@ -62,21 +62,21 @@ export const JobDetailPage = (): React.JSX.Element => {
 
   return (
     <div className="space-y-4">
-      <Link to={ROUTES.JOBS} className="text-sm font-medium text-brand-600 hover:underline">
+      <Link to={ROUTES.JOBS} className="text-sm font-medium text-brand-text hover:underline">
         ← Back to jobs
       </Link>
 
       <Card>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-xl font-semibold text-slate-900">{job.title}</h1>
-            <p className="mt-1 text-sm text-slate-500">{job.company.name}</p>
+            <h1 className="text-xl font-semibold text-fg">{job.title}</h1>
+            <p className="mt-1 text-sm text-fg-muted">{job.company.name}</p>
           </div>
           <div className="flex items-center gap-3">
             <JobStatusBadge status={job.status} />
             {canApply &&
               (hasApplied ? (
-                <span className="text-sm font-medium text-emerald-700">Application sent</span>
+                <span className="text-sm font-medium text-success">Application sent</span>
               ) : (
                 <Button
                   onClick={() => {
@@ -103,20 +103,20 @@ export const JobDetailPage = (): React.JSX.Element => {
         </dl>
 
         <div className="mt-6">
-          <h2 className="text-sm font-semibold text-slate-900">About this role</h2>
-          <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700">
+          <h2 className="text-sm font-semibold text-fg">About this role</h2>
+          <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-fg">
             {job.description}
           </p>
         </div>
 
         {job.skills.length > 0 && (
           <div className="mt-6">
-            <h2 className="text-sm font-semibold text-slate-900">Skills</h2>
+            <h2 className="text-sm font-semibold text-fg">Skills</h2>
             <ul className="mt-2 flex flex-wrap gap-1.5">
               {job.skills.map((skill) => (
                 <li
                   key={skill}
-                  className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600"
+                  className="rounded-full bg-surface-inset px-2.5 py-0.5 text-xs font-medium text-fg-muted"
                 >
                   {skill}
                 </li>

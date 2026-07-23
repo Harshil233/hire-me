@@ -5,7 +5,13 @@ export interface SkeletonProps {
 }
 
 export const Skeleton = ({ className }: SkeletonProps): React.JSX.Element => (
-  <div aria-hidden="true" className={cn('animate-pulse rounded-md bg-slate-200', className)} />
+  <div
+    aria-hidden="true"
+    className={cn(
+      'animate-pulse rounded-[var(--radius-control)] border border-border bg-surface-inset',
+      className,
+    )}
+  />
 );
 
 /** Placeholder used while a profile section loads. */

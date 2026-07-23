@@ -70,7 +70,7 @@ export const ApplyModal = ({
       >
         {bannerMessage !== null && <Alert tone="error">{bannerMessage}</Alert>}
 
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-fg-muted">
           Your profile and the résumé currently on it are sent with this application.
         </p>
 

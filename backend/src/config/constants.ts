@@ -98,6 +98,15 @@ export const APPLICATION_STATUS_ACTORS: Readonly<Record<ApplicationStatus, Role>
   withdrawn: 'candidate',
 });
 
+export const NOTIFICATION_TYPE_VALUES = ['application_status_changed'] as const;
+export type NotificationType = (typeof NOTIFICATION_TYPE_VALUES)[number];
+export const NOTIFICATION_TYPES = {
+  APPLICATION_STATUS_CHANGED: 'application_status_changed',
+} as const satisfies Record<string, NotificationType>;
+
+export const NOTIFICATION_RESOURCE_KINDS = ['application', 'job'] as const;
+export type NotificationResourceKind = (typeof NOTIFICATION_RESOURCE_KINDS)[number];
+
 export const COMPANY_ROLE_VALUES = ['owner', 'member'] as const;
 export type CompanyRole = (typeof COMPANY_ROLE_VALUES)[number];
 export const COMPANY_ROLES = {
@@ -130,6 +139,7 @@ export const COLLECTIONS = {
   FILES: 'files',
   JOBS: 'jobs',
   APPLICATIONS: 'applications',
+  NOTIFICATIONS: 'notifications',
 } as const;
 
 /* -------------------------------------------------------------------------- */

@@ -13,7 +13,7 @@ export const ProfilePage = (): React.JSX.Element => {
 
   if (profileQuery.isPending) {
     return (
-      <div className="flex justify-center py-24 text-brand-600">
+      <div className="flex justify-center py-24 text-brand-text">
         <Spinner size="lg" label="Loading your profile" />
       </div>
     );

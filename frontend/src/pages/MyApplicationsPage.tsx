@@ -24,8 +24,8 @@ export const MyApplicationsPage = (): React.JSX.Element => {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-xl font-semibold text-slate-900">Your applications</h1>
-        <p className="mt-0.5 text-sm text-slate-500">
+        <h1 className="text-xl font-semibold text-fg">Your applications</h1>
+        <p className="mt-0.5 text-sm text-fg-muted">
           Every role you have applied to, and where each one stands.
         </p>
       </header>
@@ -57,20 +57,20 @@ export const MyApplicationsPage = (): React.JSX.Element => {
           <article key={application.id} className="surface-card px-5 py-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <h2 className="truncate text-base font-semibold text-slate-900">
+                <h2 className="truncate text-base font-semibold text-fg">
                   <Link
                     to={jobDetailPath(application.job.id)}
-                    className="hover:text-brand-700 hover:underline"
+                    className="hover:text-brand-text hover:underline"
                   >
                     {application.job.title}
                   </Link>
                 </h2>
-                <p className="mt-0.5 text-sm text-slate-500">{application.job.company.name}</p>
+                <p className="mt-0.5 text-sm text-fg-muted">{application.job.company.name}</p>
               </div>
               <ApplicationStatusBadge status={application.status} />
             </div>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-fg-muted">
               Applied {formatDateRange(application.createdAt, undefined, false)}
             </p>
 

@@ -73,7 +73,7 @@ export const HrRegisterForm = ({ onSuccess }: HrRegisterFormProps): React.JSX.El
       {bannerMessage !== null && <Alert tone="error">{bannerMessage}</Alert>}
 
       <fieldset className="space-y-4">
-        <legend className="text-sm font-semibold text-slate-900">Your details</legend>
+        <legend className="text-sm font-semibold text-fg">Your details</legend>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField label="First name" error={errors.firstName?.message} isRequired>
@@ -140,9 +140,9 @@ export const HrRegisterForm = ({ onSuccess }: HrRegisterFormProps): React.JSX.El
         />
       </fieldset>
 
-      <fieldset className="space-y-4 border-t border-slate-200 pt-5">
-        <legend className="text-sm font-semibold text-slate-900">Your company</legend>
-        <p className="text-sm text-slate-500">
+      <fieldset className="space-y-4 border-t border-border pt-5">
+        <legend className="text-sm font-semibold text-fg">Your company</legend>
+        <p className="text-sm text-fg-muted">
           Registering creates the company and makes you its owner.
         </p>
 

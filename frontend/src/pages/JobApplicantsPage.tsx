@@ -25,16 +25,16 @@ export const JobApplicantsPage = (): React.JSX.Element => {
 
   return (
     <div className="space-y-5">
-      <Link to={ROUTES.HR_JOBS} className="text-sm font-medium text-brand-600 hover:underline">
+      <Link to={ROUTES.HR_JOBS} className="text-sm font-medium text-brand-text hover:underline">
         ← Back to your postings
       </Link>
 
       <header>
-        <h1 className="text-xl font-semibold text-slate-900">
+        <h1 className="text-xl font-semibold text-fg">
           {job.isSuccess ? `Applicants for ${job.data.title}` : 'Applicants'}
         </h1>
         {applicants.isSuccess && (
-          <p className="mt-0.5 text-sm text-slate-500">
+          <p className="mt-0.5 text-sm text-fg-muted">
             {applicants.data.pagination.total}{' '}
             {applicants.data.pagination.total === 1 ? 'application' : 'applications'}
           </p>

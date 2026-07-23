@@ -156,4 +156,5 @@ export const QUERY_KEYS = {
     ['applications', 'mine', filters] as const,
   jobApplicants: (jobId: string, filters: Readonly<Record<string, unknown>>) =>
     ['applications', 'job', jobId, filters] as const,
+  notifications: ['notifications'] as const,
 };

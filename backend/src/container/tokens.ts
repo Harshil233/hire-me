@@ -6,6 +6,7 @@ import type { AuthController } from '../modules/auth/auth.controller';
 import type { CompanyController } from '../modules/company/company.controller';
 import type { FileController } from '../modules/file/file.controller';
 import type { HealthController } from '../modules/health/health.controller';
+import type { NotificationController } from '../modules/notification/notification.controller';
 import type { JobController } from '../modules/job/job.controller';
 import type { ProfileController } from '../modules/profile/profile.controller';
 import type { OwnedResourceController } from '../common/http/owned-resource.controller';
@@ -33,6 +34,8 @@ export const FILE_CONTROLLER: Token<FileController> = createToken('FileControlle
 export const JOB_CONTROLLER: Token<JobController> = createToken('JobController');
 export const APPLICATION_CONTROLLER: Token<ApplicationController> =
   createToken('ApplicationController');
+export const NOTIFICATION_CONTROLLER: Token<NotificationController> =
+  createToken('NotificationController');
 export const HEALTH_CONTROLLER: Token<HealthController> = createToken('HealthController');
 export const PROFILE_UPDATE_VALIDATOR: Token<RequestHandler> = createToken(
   'ProfileUpdateValidator',

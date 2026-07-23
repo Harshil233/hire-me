@@ -42,7 +42,7 @@ export const FormField = ({
       <label htmlFor={id} className="field-label">
         {label}
         {isRequired && (
-          <span aria-hidden="true" className="ml-0.5 text-red-500">
+          <span aria-hidden="true" className="ml-0.5 text-danger">
             *
           </span>
         )}
@@ -55,7 +55,7 @@ export const FormField = ({
       })}
 
       {hint !== undefined && error === undefined && (
-        <p id={hintId} className="mt-1.5 text-xs text-slate-500">
+        <p id={hintId} className="mt-1.5 text-xs text-fg-muted">
           {hint}
         </p>
       )}

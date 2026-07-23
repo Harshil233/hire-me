@@ -61,7 +61,7 @@ export const DateRangeFields = <TValues extends FieldValues>({
           control={form.control}
           name={fieldName<TValues>('isCurrent')}
           render={({ field }) => (
-            <label className="flex w-fit items-center gap-2 text-sm text-slate-700">
+            <label className="flex w-fit items-center gap-2 text-sm text-fg">
               <input
                 type="checkbox"
                 checked={field.value === true}
@@ -71,7 +71,7 @@ export const DateRangeFields = <TValues extends FieldValues>({
                     form.setValue(fieldName<TValues>('endDate'), '' as never);
                   }
                 }}
-                className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+                className="h-4 w-4 rounded border-border-strong text-brand-text focus:ring-brand-500"
               />
               {currentLabel}
             </label>

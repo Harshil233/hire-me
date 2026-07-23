@@ -43,7 +43,7 @@ export const JobFiltersPanel = ({ value, onChange }: JobFiltersProps): React.JSX
   return (
     <aside className="surface-card space-y-4 px-5 py-5" aria-label="Job filters">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-900">Filters</h2>
+        <h2 className="text-sm font-semibold text-fg">Filters</h2>
         {hasFilters && (
           <Button
             size="sm"

@@ -2,6 +2,7 @@ import {
   APPLICATION_STATUS_ACTORS,
   APPLICATION_STATUS_TRANSITIONS,
   JOB_STATUSES,
+  NOTIFICATION_TYPES,
   PAGINATION,
   ROLES,
   type ApplicationStatus,
@@ -11,9 +12,11 @@ import { InternalError, NotFoundError, ValidationError } from '../../common/erro
 import { ERROR_CODES } from '../../common/errors/error-codes';
 import { toPaginationMeta } from '../../common/http/api-response';
 import type { Page } from '../../common/persistence/page';
+import type { ITransactionManager } from '../../common/persistence/transaction.types';
 import type { ICompanyMembership } from '../company/company.interface';
+import type { INotificationService } from '../notification/notification.interface';
 import type { ICandidateProfileService } from '../candidate/candidate.interface';
-import type { IJobService, IJobSummaryProvider } from '../job/job.interface';
+import type { IJobService, IJobSummaryProvider, JobSummary } from '../job/job.interface';
 import type {
   Application,
   ApplicantListResult,
@@ -37,6 +40,8 @@ export interface ApplicationServiceDependencies {
   readonly membership: ICompanyMembership;
   readonly candidateProfileService: ICandidateProfileService;
   readonly candidateDirectory: ICandidateDirectory;
+  readonly notificationService: INotificationService;
+  readonly transactionManager: ITransactionManager;
   readonly now: () => Date;
 }
 
@@ -123,7 +128,10 @@ export class ApplicationService implements IApplicationService {
   ): Promise<Application> {
     const application = await this.requireApplication(id);
 
-    await this.requireActorMayTouch(application, actorUserId, actorRole);
+    // Non-null exactly when the actor is the employer, since that is the branch that
+    // has to resolve the job to authorise at all. Reused below for the notification
+    // text rather than fetching the same summary twice.
+    const job = await this.requireActorMayTouch(application, actorUserId, actorRole);
 
     // Who may move an application into this state at all. A candidate cannot shortlist
     // themselves, and an employer cannot withdraw on a candidate's behalf.
@@ -152,16 +160,42 @@ export class ApplicationService implements IApplicationService {
       );
     }
 
-    const updated = await this.deps.applicationRepository.setStatus(
-      id,
-      status,
-      actorUserId,
-      this.deps.now(),
-    );
+    const at = this.deps.now();
 
-    if (updated === null) {
-      throw ApplicationService.notFound();
-    }
+    // The status change and the notification it causes commit together, so a candidate
+    // is never left with a stale status and no word of it — or a notification for a
+    // change that was rolled back.
+    const updated = await this.deps.transactionManager.runInTransaction(async (context) => {
+      const result = await this.deps.applicationRepository.setStatus(
+        id,
+        status,
+        actorUserId,
+        at,
+        context,
+      );
+
+      if (result === null) {
+        throw ApplicationService.notFound();
+      }
+
+      // Only tell the candidate about changes someone else made; withdrawing is their
+      // own action and needs no announcement.
+      if (actorUserId !== result.candidateUserId) {
+        await this.deps.notificationService.notify(
+          {
+            userId: result.candidateUserId,
+            type: NOTIFICATION_TYPES.APPLICATION_STATUS_CHANGED,
+            title: `Your application is now ${status}`,
+            body: `${job?.title ?? 'A role you applied to'} — your application has been marked ${status}.`,
+            resourceKind: 'application',
+            resourceId: result.id,
+          },
+          context,
+        );
+      }
+
+      return result;
+    });
 
     return updated;
   }
@@ -175,19 +209,19 @@ export class ApplicationService implements IApplicationService {
     application: Application,
     actorUserId: string,
     actorRole: Role,
-  ): Promise<void> {
+  ): Promise<JobSummary | null> {
     if (actorRole === ROLES.CANDIDATE) {
       if (application.candidateUserId !== actorUserId) {
         throw ApplicationService.notFound();
       }
-      return;
+      return null;
     }
 
-    await this.requireManageableJob(application.jobId, actorUserId);
+    return this.requireManageableJob(application.jobId, actorUserId);
   }
 
   /** The job must exist and belong to a company this user manages; otherwise 404. */
-  private async requireManageableJob(jobId: string, actorUserId: string): Promise<void> {
+  private async requireManageableJob(jobId: string, actorUserId: string): Promise<JobSummary> {
     const summary = await this.deps.jobSummaries.findSummaryById(jobId);
 
     if (summary === null) {
@@ -197,6 +231,8 @@ export class ApplicationService implements IApplicationService {
     if (!(await this.deps.membership.canManageCompany(actorUserId, summary.companyId))) {
       throw new NotFoundError('Job not found', ERROR_CODES.JOB_NOT_FOUND);
     }
+
+    return summary;
   }
 
   private async requireApplication(id: string): Promise<Application> {

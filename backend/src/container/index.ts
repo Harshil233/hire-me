@@ -21,6 +21,7 @@ import {
   FileModel,
   HrProfileModel,
   JobModel,
+  NotificationModel,
   ProjectModel,
   RefreshTokenModel,
   UserModel,
@@ -56,6 +57,13 @@ import {
   CANDIDATE_DIRECTORY,
 } from '../modules/application/application.interface';
 import { CandidateDirectoryAdapter } from '../modules/candidate/candidate-directory.adapter';
+import { NotificationController } from '../modules/notification/notification.controller';
+import { NotificationRepository } from '../modules/notification/notification.repository';
+import { NotificationService } from '../modules/notification/notification.service';
+import {
+  NOTIFICATION_REPOSITORY,
+  NOTIFICATION_SERVICE,
+} from '../modules/notification/notification.interface';
 import { JobController } from '../modules/job/job.controller';
 import { JobRepository } from '../modules/job/job.repository';
 import { JobService } from '../modules/job/job.service';
@@ -116,6 +124,7 @@ import {
   APPLICATION_CONTROLLER,
   HEALTH_CONTROLLER,
   JOB_CONTROLLER,
+  NOTIFICATION_CONTROLLER,
   PROFILE_CONTROLLER,
   PROFILE_UPDATE_VALIDATOR,
   PROJECT_CONTROLLER,
@@ -174,6 +183,7 @@ export const createContainer = (config: ContainerConfig): Container => {
   const fileRepository = new FileRepository(FileModel);
   const jobRepository = new JobRepository(JobModel);
   const applicationRepository = new ApplicationRepository(ApplicationModel);
+  const notificationRepository = new NotificationRepository(NotificationModel);
 
   container
     .register(USER_REPOSITORY, userRepository)
@@ -187,7 +197,8 @@ export const createContainer = (config: ContainerConfig): Container => {
     .register(PROJECT_REPOSITORY, projectRepository)
     .register(FILE_REPOSITORY, fileRepository)
     .register(JOB_REPOSITORY, jobRepository)
-    .register(APPLICATION_REPOSITORY, applicationRepository);
+    .register(APPLICATION_REPOSITORY, applicationRepository)
+    .register(NOTIFICATION_REPOSITORY, notificationRepository);
 
   /* ------------------------------------------------------------- services */
   const userService = new UserService(userRepository);
@@ -210,6 +221,7 @@ export const createContainer = (config: ContainerConfig): Container => {
   const jobService = new JobService(jobRepository, companyMembership, companyDirectory, now);
 
   const candidateDirectory = new CandidateDirectoryAdapter(candidateProfileRepository);
+  const notificationService = new NotificationService(notificationRepository, now);
   const applicationService = new ApplicationService({
     applicationRepository,
     jobService,
@@ -217,6 +229,8 @@ export const createContainer = (config: ContainerConfig): Container => {
     membership: companyMembership,
     candidateProfileService,
     candidateDirectory,
+    notificationService,
+    transactionManager,
     now,
   });
 
@@ -258,6 +272,7 @@ export const createContainer = (config: ContainerConfig): Container => {
     .register(JOB_SUMMARY_PROVIDER, jobRepository)
     .register(CANDIDATE_DIRECTORY, candidateDirectory)
     .register(APPLICATION_SERVICE, applicationService)
+    .register(NOTIFICATION_SERVICE, notificationService)
     .register(EXPERIENCE_SERVICE, experienceService)
     .register(EDUCATION_SERVICE, educationService)
     .register(CERTIFICATION_SERVICE, certificationService)
@@ -280,6 +295,7 @@ export const createContainer = (config: ContainerConfig): Container => {
     .register(COMPANY_CONTROLLER, new CompanyController(companyService))
     .register(JOB_CONTROLLER, new JobController(jobService))
     .register(APPLICATION_CONTROLLER, new ApplicationController(applicationService))
+    .register(NOTIFICATION_CONTROLLER, new NotificationController(notificationService))
     .register(FILE_CONTROLLER, new FileController(fileService))
     .register(HEALTH_CONTROLLER, new HealthController(database, now))
     .register(

@@ -4,9 +4,9 @@ import { ROUTES } from '@/config/constants';
 
 export const NotFoundPage = (): React.JSX.Element => (
   <div className="flex min-h-full flex-col items-center justify-center px-4 py-20 text-center">
-    <p className="text-sm font-semibold tracking-wide text-brand-600 uppercase">404</p>
-    <h1 className="mt-2 text-2xl font-semibold text-slate-900">Page not found</h1>
-    <p className="mt-2 text-sm text-slate-500">
+    <p className="text-sm font-semibold tracking-wide text-brand-text uppercase">404</p>
+    <h1 className="mt-2 text-2xl font-semibold text-fg">Page not found</h1>
+    <p className="mt-2 text-sm text-fg-muted">
       The page you are looking for does not exist or has moved.
     </p>
     <Link

@@ -42,8 +42,8 @@ export const HrJobsPage = (): React.JSX.Element => {
     <div className="space-y-5">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">Your postings</h1>
-          <p className="mt-0.5 text-sm text-slate-500">
+          <h1 className="text-xl font-semibold text-fg">Your postings</h1>
+          <p className="mt-0.5 text-sm text-fg-muted">
             Drafts stay private until you publish them.
           </p>
         </div>

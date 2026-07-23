@@ -7,7 +7,12 @@ import {
   ROLES,
 } from '../../../config/constants';
 import { ERROR_CODES } from '../../../common/errors/error-codes';
+import type {
+  ITransactionManager,
+  TransactionContext,
+} from '../../../common/persistence/transaction.types';
 import type { ICompanyMembership } from '../../company/company.interface';
+import type { INotificationService } from '../../notification/notification.interface';
 import type { ICandidateProfileService } from '../../candidate/candidate.interface';
 import type { IJobService, IJobSummaryProvider, JobWithCompany } from '../../job/job.interface';
 import { ApplicationService } from '../application.service';
@@ -58,6 +63,8 @@ const CANDIDATE: CandidateSummary = {
 
 const QUERY = { page: PAGINATION.DEFAULT_PAGE, pageSize: PAGINATION.DEFAULT_PAGE_SIZE };
 
+const TEST_CONTEXT: TransactionContext = { transactionId: 'txn-1' };
+
 interface Harness {
   readonly service: ApplicationService;
   readonly repository: IApplicationRepository;
@@ -66,6 +73,8 @@ interface Harness {
   readonly membership: ICompanyMembership;
   readonly candidateProfileService: ICandidateProfileService;
   readonly candidateDirectory: ICandidateDirectory;
+  readonly notificationService: INotificationService;
+  readonly transactionManager: ITransactionManager;
 }
 
 const createHarness = (): Harness => {
@@ -111,6 +120,16 @@ const createHarness = (): Harness => {
     findSummaries: vi.fn(async () => new Map([[CANDIDATE.userId, CANDIDATE]])),
   };
 
+  const notificationService = {
+    notify: vi.fn(async () => ({}) as never),
+    list: vi.fn(),
+    markRead: vi.fn(),
+  } as unknown as INotificationService;
+
+  const transactionManager: ITransactionManager = {
+    runInTransaction: vi.fn(async (work) => work(TEST_CONTEXT)),
+  };
+
   return {
     service: new ApplicationService({
       applicationRepository: repository,
@@ -119,6 +138,8 @@ const createHarness = (): Harness => {
       membership,
       candidateProfileService,
       candidateDirectory,
+      notificationService,
+      transactionManager,
       now: () => NOW,
     }),
     repository,
@@ -127,6 +148,8 @@ const createHarness = (): Harness => {
     membership,
     candidateProfileService,
     candidateDirectory,
+    notificationService,
+    transactionManager,
   };
 };
 
@@ -335,6 +358,7 @@ describe('ApplicationService.changeStatus', () => {
         status,
         'hr-1',
         NOW,
+        TEST_CONTEXT,
       );
     },
   );
@@ -477,5 +501,121 @@ describe('ApplicationService.changeStatus', () => {
         APPLICATION_STATUSES.SHORTLISTED,
       ),
     ).rejects.toMatchObject({ statusCode: 404 });
+  });
+});
+
+describe('ApplicationService.changeStatus — notifications', () => {
+  let harness: Harness;
+
+  beforeEach(() => {
+    harness = createHarness();
+  });
+
+  it('tells the candidate when the employer changes their status', async () => {
+    await harness.service.changeStatus(
+      'application-1',
+      'hr-1',
+      ROLES.HR,
+      APPLICATION_STATUSES.SHORTLISTED,
+    );
+
+    expect(harness.notificationService.notify).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'candidate-1',
+        type: 'application_status_changed',
+        resourceKind: 'application',
+        resourceId: 'application-1',
+      }),
+      TEST_CONTEXT,
+    );
+  });
+
+  it('names the role in the notification body', async () => {
+    await harness.service.changeStatus(
+      'application-1',
+      'hr-1',
+      ROLES.HR,
+      APPLICATION_STATUSES.REJECTED,
+    );
+
+    const [payload] = vi.mocked(harness.notificationService.notify).mock.calls[0] ?? [];
+    expect(payload?.body).toContain('Senior Backend Engineer');
+    expect(payload?.title).toContain(APPLICATION_STATUSES.REJECTED);
+  });
+
+  it('writes the status and the notification in one transaction', async () => {
+    await harness.service.changeStatus(
+      'application-1',
+      'hr-1',
+      ROLES.HR,
+      APPLICATION_STATUSES.SHORTLISTED,
+    );
+
+    expect(harness.transactionManager.runInTransaction).toHaveBeenCalledOnce();
+    // Both writes receive the same context, so they commit or roll back together.
+    expect(harness.repository.setStatus).toHaveBeenCalledWith(
+      'application-1',
+      APPLICATION_STATUSES.SHORTLISTED,
+      'hr-1',
+      NOW,
+      TEST_CONTEXT,
+    );
+    expect(harness.notificationService.notify).toHaveBeenCalledWith(
+      expect.anything(),
+      TEST_CONTEXT,
+    );
+  });
+
+  it('does not notify the candidate about their own withdrawal', async () => {
+    await harness.service.changeStatus(
+      'application-1',
+      'candidate-1',
+      ROLES.CANDIDATE,
+      APPLICATION_STATUSES.WITHDRAWN,
+    );
+
+    expect(harness.notificationService.notify).not.toHaveBeenCalled();
+  });
+
+  it('resolves the job once, reusing the summary authorisation already loaded', async () => {
+    await harness.service.changeStatus(
+      'application-1',
+      'hr-1',
+      ROLES.HR,
+      APPLICATION_STATUSES.SHORTLISTED,
+    );
+
+    expect(harness.jobSummaries.findSummaryById).toHaveBeenCalledOnce();
+  });
+
+  it('sends no notification when the status write finds nothing', async () => {
+    vi.mocked(harness.repository.setStatus).mockResolvedValue(null);
+
+    await expect(
+      harness.service.changeStatus(
+        'application-1',
+        'hr-1',
+        ROLES.HR,
+        APPLICATION_STATUSES.SHORTLISTED,
+      ),
+    ).rejects.toMatchObject({ statusCode: 404 });
+    expect(harness.notificationService.notify).not.toHaveBeenCalled();
+  });
+
+  it('sends no notification for a no-op status change', async () => {
+    vi.mocked(harness.repository.findById).mockResolvedValue({
+      ...APPLICATION,
+      status: APPLICATION_STATUSES.SHORTLISTED,
+    });
+
+    await harness.service.changeStatus(
+      'application-1',
+      'hr-1',
+      ROLES.HR,
+      APPLICATION_STATUSES.SHORTLISTED,
+    );
+
+    expect(harness.notificationService.notify).not.toHaveBeenCalled();
+    expect(harness.transactionManager.runInTransaction).not.toHaveBeenCalled();
   });
 });

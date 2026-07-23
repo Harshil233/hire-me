@@ -16,18 +16,18 @@ export const SectionItemRow = ({
 }: SectionItemRowProps): React.JSX.Element => (
   <li className="flex flex-wrap items-start justify-between gap-3 py-4 first:pt-0 last:pb-0">
     <div className="min-w-0 flex-1">
-      <p className="font-medium text-slate-900">{view.title}</p>
+      <p className="font-medium text-fg">{view.title}</p>
 
       {view.subtitle !== undefined && view.subtitle !== '' && (
-        <p className="text-sm text-slate-600">{view.subtitle}</p>
+        <p className="text-sm text-fg-muted">{view.subtitle}</p>
       )}
 
       {view.meta !== undefined && view.meta !== '' && (
-        <p className="mt-0.5 text-xs text-slate-500">{view.meta}</p>
+        <p className="mt-0.5 text-xs text-fg-muted">{view.meta}</p>
       )}
 
       {view.description !== undefined && view.description !== '' && (
-        <p className="mt-2 text-sm whitespace-pre-line text-slate-600">{view.description}</p>
+        <p className="mt-2 text-sm whitespace-pre-line text-fg-muted">{view.description}</p>
       )}
 
       {view.link !== undefined && view.link !== '' && (
@@ -35,7 +35,7 @@ export const SectionItemRow = ({
           href={view.link}
           target="_blank"
           rel="noreferrer noopener"
-          className="mt-2 inline-block text-sm font-medium text-brand-600 hover:text-brand-800 hover:underline"
+          className="mt-2 inline-block text-sm font-medium text-brand-text hover:text-brand-800 hover:underline"
         >
           View link
         </a>
@@ -46,7 +46,7 @@ export const SectionItemRow = ({
           {view.tags.map((tag) => (
             <li
               key={tag}
-              className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600"
+              className="rounded-md bg-surface-inset px-2 py-0.5 text-xs font-medium text-fg-muted"
             >
               {tag}
             </li>
@@ -65,7 +65,7 @@ export const SectionItemRow = ({
         onClick={onDelete}
         isLoading={isDeleting}
         aria-label={`Delete ${view.title}`}
-        className="text-red-600 hover:bg-red-50"
+        className="text-danger hover:bg-red-50"
       >
         Delete
       </Button>

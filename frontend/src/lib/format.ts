@@ -41,6 +41,39 @@ export const toDateInputValue = (value: string | undefined): string => {
   return date === null ? '' : (date.toISOString().split('T')[0] ?? '');
 };
 
+const MINUTE = 60_000;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
+
+/**
+ * `just now` / `4h ago` / `3d ago`, falling back to a date beyond a week. Takes the
+ * comparison instant so tests can pin it rather than depend on the wall clock.
+ */
+export const formatRelativeTime = (value: string, now: number = Date.now()): string => {
+  const date = parse(value);
+
+  if (date === null) {
+    return '';
+  }
+
+  const elapsed = now - date.getTime();
+
+  if (elapsed < MINUTE) {
+    return 'just now';
+  }
+  if (elapsed < HOUR) {
+    return `${Math.floor(elapsed / MINUTE)}m ago`;
+  }
+  if (elapsed < DAY) {
+    return `${Math.floor(elapsed / HOUR)}h ago`;
+  }
+  if (elapsed < 7 * DAY) {
+    return `${Math.floor(elapsed / DAY)}d ago`;
+  }
+
+  return formatMonthYear(value);
+};
+
 export const fullName = (parts: {
   firstName?: string | undefined;
   middleName?: string | undefined;

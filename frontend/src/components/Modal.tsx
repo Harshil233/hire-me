@@ -88,13 +88,13 @@ export const Modal = ({
         aria-label={title}
         className="surface-card relative z-10 my-6 w-full max-w-2xl rounded-b-none sm:rounded-[var(--radius-card)]"
       >
-        <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+        <header className="flex items-center justify-between border-b border-border px-5 py-4">
+          <h2 className="text-base font-semibold text-fg">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-md px-2 py-1 text-xl leading-none text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-md px-2 py-1 text-xl leading-none text-fg-subtle transition hover:bg-surface-inset hover:text-fg"
           >
             ×
           </button>
@@ -103,7 +103,7 @@ export const Modal = ({
         <div className="max-h-[65vh] overflow-y-auto px-5 py-5">{children}</div>
 
         {footer !== undefined && (
-          <footer className="flex justify-end gap-2 border-t border-slate-200 px-5 py-4">
+          <footer className="flex justify-end gap-2 border-t border-border px-5 py-4">
             {footer}
           </footer>
         )}

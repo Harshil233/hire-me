@@ -21,19 +21,19 @@ export const Card = ({
 }: CardProps): React.JSX.Element => (
   <section id={id} className={cn('surface-card', className)}>
     {(title !== undefined || actions !== undefined) && (
-      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 px-5 py-4">
+      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-6 py-4">
         <div>
           {title !== undefined && (
-            <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+            <h2 className="text-base font-semibold tracking-tight text-fg">{title}</h2>
           )}
           {description !== undefined && (
-            <p className="mt-0.5 text-sm text-slate-500">{description}</p>
+            <p className="mt-0.5 text-sm text-fg-muted">{description}</p>
           )}
         </div>
         {actions}
       </header>
     )}
-    <div className="px-5 py-5">{children}</div>
+    <div className="px-6 py-5">{children}</div>
   </section>
 );
 
@@ -41,12 +41,25 @@ export interface EmptyStateProps {
   readonly title: string;
   readonly description?: string;
   readonly action?: ReactNode;
+  readonly icon?: ReactNode;
 }
 
-export const EmptyState = ({ title, description, action }: EmptyStateProps): React.JSX.Element => (
-  <div className="rounded-lg border border-dashed border-slate-300 px-4 py-8 text-center">
-    <p className="text-sm font-medium text-slate-700">{title}</p>
-    {description !== undefined && <p className="mt-1 text-sm text-slate-500">{description}</p>}
-    {action !== undefined && <div className="mt-4 flex justify-center">{action}</div>}
+export const EmptyState = ({
+  title,
+  description,
+  action,
+  icon,
+}: EmptyStateProps): React.JSX.Element => (
+  <div className="rounded-[var(--radius-card)] border border-dashed border-border-strong bg-surface-inset px-6 py-12 text-center">
+    {icon !== undefined && (
+      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-brand-text">
+        {icon}
+      </div>
+    )}
+    <p className="text-base font-semibold text-fg">{title}</p>
+    {description !== undefined && (
+      <p className="mx-auto mt-1.5 max-w-sm text-sm text-fg-muted">{description}</p>
+    )}
+    {action !== undefined && <div className="mt-5 flex justify-center">{action}</div>}
   </div>
 );

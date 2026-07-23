@@ -88,7 +88,7 @@ export const JobPreferencesCard = ({ profile }: JobPreferencesCardProps): React.
                     className={
                       isSelected
                         ? 'rounded-full bg-brand-600 px-3 py-1.5 text-sm font-medium text-white'
-                        : 'rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:border-brand-400 hover:text-brand-700'
+                        : 'rounded-full border border-border-strong bg-surface px-3 py-1.5 text-sm font-medium text-fg-muted transition hover:border-brand-400 hover:text-brand-text'
                     }
                   >
                     {JOB_TYPE_LABELS[jobType]}

@@ -1,9 +1,9 @@
 import { JOB_STATUS_LABELS, type JobStatus } from '@/config/constants';
 
 const TONES: Readonly<Record<JobStatus, string>> = Object.freeze({
-  draft: 'bg-slate-100 text-slate-600',
-  published: 'bg-emerald-100 text-emerald-700',
-  closed: 'bg-amber-100 text-amber-700',
+  draft: 'bg-surface-inset text-fg-muted',
+  published: 'bg-success-soft text-success',
+  closed: 'bg-warning-soft text-warning',
 });
 
 export interface JobStatusBadgeProps {

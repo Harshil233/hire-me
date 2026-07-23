@@ -93,7 +93,7 @@ export const CompanyCard = ({ company, canManage }: CompanyCardProps): React.JSX
     >
       <div className="flex items-center gap-4">
         {logoUrl === null ? (
-          <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-slate-100 text-lg font-semibold text-slate-500">
+          <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-surface-inset text-lg font-semibold text-fg-muted">
             {company.name.charAt(0).toUpperCase()}
           </div>
         ) : (

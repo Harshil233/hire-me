@@ -10,7 +10,7 @@ const toneFor = (percentage: number): string => {
   if (percentage >= 80) {
     return 'text-emerald-500';
   }
-  return percentage >= 40 ? 'text-amber-500' : 'text-red-500';
+  return percentage >= 40 ? 'text-amber-500' : 'text-danger';
 };
 
 /** Circular progress indicator for profile completion. */
@@ -49,7 +49,7 @@ export const CompletionRing = ({
           className={`${toneFor(safe)} stroke-current transition-[stroke-dashoffset] duration-500`}
         />
       </svg>
-      <span className="absolute text-lg font-semibold text-slate-800">{safe}%</span>
+      <span className="absolute text-lg font-semibold text-fg">{safe}%</span>
     </div>
   );
 };

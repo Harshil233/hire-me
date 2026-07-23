@@ -11,11 +11,12 @@ export interface AlertProps {
   readonly className?: string;
 }
 
+/** Tinted surface plus a solid accent bar, so tone reads even at a glance. */
 const TONE_CLASSES: Record<AlertTone, string> = {
-  error: 'border-red-200 bg-red-50 text-red-800',
-  success: 'border-emerald-200 bg-emerald-50 text-emerald-800',
-  info: 'border-brand-200 bg-brand-50 text-brand-800',
-  warning: 'border-amber-200 bg-amber-50 text-amber-900',
+  error: 'bg-danger-soft text-fg border-danger/30 before:bg-danger',
+  success: 'bg-success-soft text-fg border-success/30 before:bg-success',
+  info: 'bg-info-soft text-fg border-info/30 before:bg-info',
+  warning: 'bg-warning-soft text-fg border-warning/30 before:bg-warning',
 };
 
 export const Alert = ({
@@ -26,9 +27,14 @@ export const Alert = ({
 }: AlertProps): React.JSX.Element => (
   <div
     role={tone === 'error' ? 'alert' : 'status'}
-    className={cn('rounded-lg border px-4 py-3 text-sm', TONE_CLASSES[tone], className)}
+    className={cn(
+      'relative overflow-hidden rounded-[var(--radius-control)] border py-3 pr-4 pl-5 text-sm',
+      "before:absolute before:inset-y-0 before:left-0 before:w-1 before:content-['']",
+      TONE_CLASSES[tone],
+      className,
+    )}
   >
     {title !== undefined && <p className="mb-0.5 font-semibold">{title}</p>}
-    <div>{children}</div>
+    <div className="text-fg-muted">{children}</div>
   </div>
 );
