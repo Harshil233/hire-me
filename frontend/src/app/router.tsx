@@ -10,6 +10,8 @@ import { JobsPage } from '@/pages/JobsPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { MyApplicationsPage } from '@/pages/MyApplicationsPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { OutreachPage } from '@/pages/OutreachPage';
+import { UnsubscribePage } from '@/pages/UnsubscribePage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { useAuthStore } from '@/store/auth.store';
@@ -41,6 +43,7 @@ export const AppRoutes = (): React.JSX.Element => (
           <Route path={ROUTES.CANDIDATES} element={<CandidatesPage />} />
           <Route path={ROUTES.CANDIDATE_DETAIL} element={<CandidateDetailPage />} />
           <Route path={ROUTES.HR_JOBS} element={<HrJobsPage />} />
+          <Route path={ROUTES.OUTREACH} element={<OutreachPage />} />
           <Route path={ROUTES.HR_JOB_APPLICANTS} element={<JobApplicantsPage />} />
         </Route>
 
@@ -52,6 +55,9 @@ export const AppRoutes = (): React.JSX.Element => (
         <Route path={ROUTES.ROOT} element={<RootRedirect />} />
       </Route>
     </Route>
+
+    {/* Public: reached from an email, by someone with no session. */}
+    <Route path={ROUTES.UNSUBSCRIBE} element={<UnsubscribePage />} />
 
     <Route path="*" element={<NotFoundPage />} />
   </Routes>

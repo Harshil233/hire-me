@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { Alert } from '@/components/Alert';
@@ -9,6 +10,7 @@ import {
   AwardIcon,
   BriefcaseIcon,
   GraduationCapIcon,
+  MailIcon,
   MapPinIcon,
   SparkIcon,
   UsersIcon,
@@ -18,6 +20,9 @@ import { CandidateAvatar } from '@/features/candidates/components/CandidateAvata
 import { CandidateSection } from '@/features/candidates/components/CandidateSection';
 import { ResumeButton } from '@/features/candidates/components/ResumeButton';
 import { useCandidate } from '@/features/candidates/hooks/useCandidates';
+import { useMyJobs } from '@/features/jobs/hooks/useJobs';
+import { ComposeCampaignModal } from '@/features/outreach/components/ComposeCampaignModal';
+import { useSendCampaign } from '@/features/outreach/hooks/useOutreach';
 import { certificationConfig } from '@/features/sections/configs/certification.config';
 import { educationConfig } from '@/features/sections/configs/education.config';
 import { experienceConfig } from '@/features/sections/configs/experience.config';
@@ -29,6 +34,12 @@ const ICON = 'h-4 w-4';
 export const CandidateDetailPage = (): React.JSX.Element => {
   const { userId = '' } = useParams<{ userId: string }>();
   const query = useCandidate(userId);
+
+  const [isComposeOpen, setIsComposeOpen] = useState(false);
+  const send = useSendCampaign();
+  // Only your own published listings; the server refuses anything else.
+  const myJobs = useMyJobs({ status: 'published' });
+  const publishedJobs = useMemo(() => myJobs.data?.jobs ?? [], [myJobs.data]);
 
   const backLink = (
     <Link
@@ -81,7 +92,11 @@ export const CandidateDetailPage = (): React.JSX.Element => {
         {/* Stacks on a phone: side by side, the resume block starved the name of width. */}
         <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:gap-5 sm:p-7">
           <div className="flex min-w-0 flex-1 items-start gap-4">
-            <CandidateAvatar fullName={candidate.fullName} size="lg" />
+            <CandidateAvatar
+              fullName={candidate.fullName}
+              profilePicFileId={candidate.profilePicFileId}
+              size="lg"
+            />
 
             <div className="min-w-0 flex-1">
               <h1 className="text-[1.75rem] leading-[1.1] font-semibold tracking-[-0.02em] text-fg sm:text-[2.125rem]">
@@ -108,7 +123,17 @@ export const CandidateDetailPage = (): React.JSX.Element => {
             </div>
           </div>
 
-          <div className="shrink-0">
+          <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
+            <Button
+              leadingIcon={<MailIcon className="h-4 w-4" />}
+              onClick={() => {
+                send.reset();
+                setIsComposeOpen(true);
+              }}
+            >
+              Email {candidate.fullName.split(' ')[0] ?? 'them'}
+            </Button>
+
             {candidate.resumeFileId === undefined ? (
               <p className="text-sm text-fg-subtle">No resume uploaded</p>
             ) : (
@@ -169,6 +194,26 @@ export const CandidateDetailPage = (): React.JSX.Element => {
         emptyText="No certifications listed."
         present={certificationConfig.present}
       />
+
+      {isComposeOpen && (
+        <ComposeCampaignModal
+          isOpen={isComposeOpen}
+          audience={{ kind: 'selection', candidateUserIds: [candidate.userId] }}
+          jobs={publishedJobs}
+          isSending={send.isPending}
+          error={send.error}
+          onClose={() => {
+            setIsComposeOpen(false);
+          }}
+          onSend={(draft) => {
+            send.mutate(draft, {
+              onSuccess: () => {
+                setIsComposeOpen(false);
+              },
+            });
+          }}
+        />
+      )}
     </div>
   );
 };

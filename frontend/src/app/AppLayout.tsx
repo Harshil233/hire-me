@@ -1,7 +1,7 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
 
 import { Button } from '@/components/Button';
-import { BriefcaseIcon, InboxIcon, LogoutIcon, UsersIcon } from '@/components/icons';
+import { BriefcaseIcon, InboxIcon, LogoutIcon, MailIcon, UsersIcon } from '@/components/icons';
 import { ROLES, ROUTES, landingPathFor } from '@/config/constants';
 import { useLogout } from '@/features/auth/hooks/useAuthActions';
 import { NavAvatar } from '@/features/profile/components/NavAvatar';
@@ -20,6 +20,7 @@ const navItemsFor = (role: string | undefined): readonly NavItem[] => {
     return [
       { to: ROUTES.CANDIDATES, label: 'Candidates', icon: <UsersIcon className="h-4.5 w-4.5" /> },
       { to: ROUTES.HR_JOBS, label: 'Postings', icon: <BriefcaseIcon className="h-4.5 w-4.5" /> },
+      { to: ROUTES.OUTREACH, label: 'Campaigns', icon: <MailIcon className="h-4.5 w-4.5" /> },
     ];
   }
 
