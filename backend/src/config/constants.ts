@@ -107,6 +107,31 @@ export const NOTIFICATION_TYPES = {
 export const NOTIFICATION_RESOURCE_KINDS = ['application', 'job'] as const;
 export type NotificationResourceKind = (typeof NOTIFICATION_RESOURCE_KINDS)[number];
 
+export const OUTREACH_CAMPAIGN_STATUS_VALUES = ['queued', 'sending', 'sent', 'failed'] as const;
+export type OutreachCampaignStatus = (typeof OUTREACH_CAMPAIGN_STATUS_VALUES)[number];
+export const OUTREACH_CAMPAIGN_STATUSES = {
+  QUEUED: 'queued',
+  SENDING: 'sending',
+  SENT: 'sent',
+  FAILED: 'failed',
+} as const satisfies Record<string, OutreachCampaignStatus>;
+
+/** `skipped` is a candidate who unsubscribed between selection and send. */
+export const OUTREACH_RECIPIENT_STATUS_VALUES = ['queued', 'sent', 'failed', 'skipped'] as const;
+export type OutreachRecipientStatus = (typeof OUTREACH_RECIPIENT_STATUS_VALUES)[number];
+export const OUTREACH_RECIPIENT_STATUSES = {
+  QUEUED: 'queued',
+  SENT: 'sent',
+  FAILED: 'failed',
+  SKIPPED: 'skipped',
+} as const satisfies Record<string, OutreachRecipientStatus>;
+
+/** How often the worker looks for queued mail, and how many it takes per pass. */
+export const OUTREACH_WORKER = {
+  INTERVAL_MS: 5_000,
+  BATCH_SIZE: 20,
+} as const;
+
 export const COMPANY_ROLE_VALUES = ['owner', 'member'] as const;
 export type CompanyRole = (typeof COMPANY_ROLE_VALUES)[number];
 export const COMPANY_ROLES = {
@@ -140,6 +165,8 @@ export const COLLECTIONS = {
   JOBS: 'jobs',
   APPLICATIONS: 'applications',
   NOTIFICATIONS: 'notifications',
+  OUTREACH_CAMPAIGNS: 'outreach_campaigns',
+  OUTREACH_RECIPIENTS: 'outreach_recipients',
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -177,6 +204,8 @@ export const VALIDATION_LIMITS = {
   /* A responsibility or requirement is a sentence, not a tag. */
   BULLET_MAX_ITEMS: 20,
   BULLET_MAX_LENGTH: 300,
+  EMAIL_SUBJECT_MAX_LENGTH: 150,
+  EMAIL_BODY_MAX_LENGTH: 4000,
   MOBILE_MIN_DIGITS: 7,
   MOBILE_MAX_DIGITS: 15,
   MIN_AGE_YEARS: 16,

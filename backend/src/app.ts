@@ -19,6 +19,8 @@ import {
   AUTH_CONTROLLER,
   AUTH_RATE_LIMITER,
   CANDIDATE_CONTROLLER,
+  OUTREACH_CONTROLLER,
+  OUTREACH_RATE_LIMITER,
   CERTIFICATION_CONTROLLER,
   COMPANY_CONTROLLER,
   EDUCATION_CONTROLLER,
@@ -38,6 +40,7 @@ import {
 } from './modules/application/application.routes';
 import { createAuthRouter } from './modules/auth/auth.routes';
 import { createCandidateRouter } from './modules/candidate/candidate.routes';
+import { createOutreachRouter } from './modules/outreach/outreach.routes';
 import { createCertificationRouter } from './modules/certification/certification.routes';
 import { createCompanyRouter } from './modules/company/company.routes';
 import { createEducationRouter } from './modules/education/education.routes';
@@ -91,6 +94,15 @@ const createApiRouter = (container: Container): Router => {
     '/applications',
     createApplicationRouter({ controller: applicationController, authenticate }),
   );
+  router.use(
+    '/outreach',
+    createOutreachRouter({
+      controller: container.resolve(OUTREACH_CONTROLLER),
+      authenticate,
+      outreachRateLimiter: container.resolve(OUTREACH_RATE_LIMITER),
+    }),
+  );
+
   router.use(
     '/candidates',
     createCandidateRouter({

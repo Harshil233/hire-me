@@ -15,6 +15,7 @@ const USER: User = {
 };
 
 const createRepository = (overrides: Partial<IUserRepository> = {}): IUserRepository => ({
+  findManyByIds: vi.fn(async () => []),
   findById: vi.fn(async () => USER),
   findByEmail: vi.fn(async () => null),
   existsByEmail: vi.fn(async () => false),

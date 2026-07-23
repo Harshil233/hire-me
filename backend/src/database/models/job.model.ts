@@ -20,9 +20,10 @@ export interface JobDocument {
   postedByUserId: Types.ObjectId;
   title: string;
   description: string;
-  highlights: string[];
-  responsibilities: string[];
-  qualifications: string[];
+  /* Absent on listings written before these fields existed. */
+  highlights?: string[] | undefined;
+  responsibilities?: string[] | undefined;
+  qualifications?: string[] | undefined;
   role: JobRole;
   jobType: JobType;
   workMode: WorkMode;

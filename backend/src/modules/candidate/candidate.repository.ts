@@ -153,6 +153,8 @@ export class CandidateProfileRepository
       expectedCtc: document.expectedCtc,
       resumeFileId:
         document.resumeFileId === undefined ? undefined : toIdString(document.resumeFileId),
+      // Opt-out: a profile saved before the field existed is still contactable.
+      isOpenToOutreach: document.isOpenToOutreach ?? true,
       createdAt: document.createdAt,
       updatedAt: document.updatedAt,
     };

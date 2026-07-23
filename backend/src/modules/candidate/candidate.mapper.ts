@@ -22,6 +22,7 @@ export const toCandidateProfileResponse = (
   expectedCtc: profile.expectedCtc,
   currency: CTC_CURRENCY,
   resumeFileId: profile.resumeFileId,
+  isOpenToOutreach: profile.isOpenToOutreach,
   createdAt: profile.createdAt.toISOString(),
   updatedAt: profile.updatedAt.toISOString(),
 });

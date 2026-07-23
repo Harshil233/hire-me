@@ -8,6 +8,7 @@ import type { CandidateProfile, ICandidateProfileRepository } from '../candidate
 const PROFILE: CandidateProfile = {
   id: 'profile-1',
   userId: 'user-1',
+  isOpenToOutreach: true,
   firstName: 'Ada',
   lastName: 'Lovelace',
   preferredLocations: [],

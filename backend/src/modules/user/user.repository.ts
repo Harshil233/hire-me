@@ -20,6 +20,23 @@ export class UserRepository implements IUserRepository {
     return document === null ? null : UserRepository.toDomain(document);
   }
 
+  async findManyByIds(ids: readonly string[]): Promise<User[]> {
+    const objectIds = ids
+      .map((id) => toObjectIdOrNull(id))
+      .filter((id): id is NonNullable<typeof id> => id !== null);
+
+    if (objectIds.length === 0) {
+      return [];
+    }
+
+    const documents = await this.model
+      .find({ _id: { $in: objectIds } })
+      .lean<UserDocument[]>()
+      .exec();
+
+    return documents.map((document) => UserRepository.toDomain(document));
+  }
+
   async findByEmail(email: string): Promise<UserWithSecret | null> {
     const document = await this.model
       .findOne({ email: email.toLowerCase() })

@@ -30,6 +30,8 @@ export interface CandidateProfileDocument {
   currentCtc?: number | undefined;
   expectedCtc?: number | undefined;
   resumeFileId?: Types.ObjectId | undefined;
+  /* Absent on profiles written before the preference existed; those may be contacted. */
+  isOpenToOutreach?: boolean | undefined;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -59,6 +61,7 @@ const candidateProfileSchema = new Schema<CandidateProfileDocument>(
     currentCtc: { type: Number, required: false },
     expectedCtc: { type: Number, required: false },
     resumeFileId: { type: Schema.Types.ObjectId, required: false, ref: 'File' },
+    isOpenToOutreach: { type: Boolean, required: true, default: true },
   },
   { timestamps: true, collection: COLLECTIONS.CANDIDATE_PROFILES },
 );

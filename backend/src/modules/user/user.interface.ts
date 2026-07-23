@@ -26,6 +26,8 @@ export interface CreateUserInput {
 
 export interface IUserRepository {
   findById(id: string): Promise<User | null>;
+  /** Batched read, so addressing a campaign is one query rather than one per recipient. */
+  findManyByIds(ids: readonly string[]): Promise<User[]>;
   findByEmail(email: string): Promise<UserWithSecret | null>;
   existsByEmail(email: string): Promise<boolean>;
   create(input: CreateUserInput, context?: TransactionContext): Promise<User>;

@@ -92,6 +92,26 @@ import {
   EXPERIENCE_SERVICE,
 } from '../modules/experience/experience.interface';
 import { FileController } from '../modules/file/file.controller';
+import { LoggingEmailSender } from '../common/email/logging.sender';
+import { ResendEmailSender } from '../common/email/resend.sender';
+import { EMAIL_SENDER } from '../common/email/email.types';
+import { OutreachRepository } from '../modules/outreach/outreach.repository';
+import { OutreachService } from '../modules/outreach/outreach.service';
+import { OutreachDispatcher } from '../modules/outreach/outreach.dispatcher';
+import { OutreachController } from '../modules/outreach/outreach.controller';
+import {
+  CANDIDATE_AUDIENCE,
+  OUTREACH_DISPATCHER,
+  OUTREACH_REPOSITORY,
+  OUTREACH_SERVICE,
+  USER_EMAIL_DIRECTORY,
+} from '../modules/outreach/outreach.interface';
+import { CandidateAudienceAdapter } from '../modules/candidate/candidate-audience.adapter';
+import { UserEmailDirectoryAdapter } from '../modules/user/user-email-directory.adapter';
+import {
+  OutreachCampaignModel,
+  OutreachRecipientModel,
+} from '../database/models/outreach.model';
 import { FileRepository } from '../modules/file/file.repository';
 import { FileService } from '../modules/file/file.service';
 import {
@@ -130,6 +150,8 @@ import {
   FILE_CONTROLLER,
   APPLICATION_CONTROLLER,
   CANDIDATE_CONTROLLER,
+  OUTREACH_CONTROLLER,
+  OUTREACH_RATE_LIMITER,
   HEALTH_CONTROLLER,
   JOB_CONTROLLER,
   NOTIFICATION_CONTROLLER,
@@ -175,6 +197,10 @@ export const createContainer = (config: ContainerConfig): Container => {
   container.register(UPLOAD_MIDDLEWARE, createUploadMiddleware(env.MAX_UPLOAD_BYTES));
   container.register(
     AUTH_RATE_LIMITER,
+    createRateLimiter({ windowMs: env.RATE_LIMIT_WINDOW_MS, max: env.AUTH_RATE_LIMIT_MAX }),
+  );
+  container.register(
+    OUTREACH_RATE_LIMITER,
     createRateLimiter({ windowMs: env.RATE_LIMIT_WINDOW_MS, max: env.AUTH_RATE_LIMIT_MAX }),
   );
 
@@ -224,6 +250,20 @@ export const createContainer = (config: ContainerConfig): Container => {
   const certificationService = new OwnedResourceService(certificationRepository, 'Certification');
   const projectService = new OwnedResourceService(projectRepository, 'Project');
 
+  /* --------------------------------------------------------------- outreach */
+  const emailSender =
+    env.MAIL_DRIVER === 'resend'
+      ? new ResendEmailSender({
+          apiKey: env.RESEND_API_KEY,
+          fromEmail: env.MAIL_FROM_EMAIL,
+          fromName: env.MAIL_FROM_NAME,
+        })
+      : new LoggingEmailSender(logger);
+
+  const outreachRepository = new OutreachRepository(OutreachCampaignModel, OutreachRecipientModel);
+  const candidateAudience = new CandidateAudienceAdapter(candidateProfileRepository);
+  const userEmailDirectory = new UserEmailDirectoryAdapter(userRepository);
+
   const candidateDirectoryService = new CandidateDirectoryService(candidateProfileRepository, {
     experience: experienceService,
     education: educationService,
@@ -238,6 +278,32 @@ export const createContainer = (config: ContainerConfig): Container => {
 
   const companyDirectory = new CompanyDirectoryAdapter(companyRepository);
   const jobService = new JobService(jobRepository, companyMembership, companyDirectory, now);
+
+  const outreachService = new OutreachService(
+    outreachRepository,
+    companyMembership,
+    jobRepository,
+    candidateAudience,
+    candidateProfileService,
+    {
+      maxRecipients: env.OUTREACH_MAX_RECIPIENTS,
+      dailyLimit: env.OUTREACH_DAILY_LIMIT,
+      unsubscribeSecret: env.UNSUBSCRIBE_SECRET,
+    },
+    now,
+  );
+
+  const outreachDispatcher = new OutreachDispatcher(
+    outreachRepository,
+    userEmailDirectory,
+    emailSender,
+    jobService,
+    candidateProfileService,
+    userService,
+    { appBaseUrl: env.APP_BASE_URL, unsubscribeSecret: env.UNSUBSCRIBE_SECRET },
+    logger,
+    now,
+  );
 
   const candidateDirectory = new CandidateDirectoryAdapter(candidateProfileRepository);
   const notificationService = new NotificationService(notificationRepository, now);
@@ -284,6 +350,12 @@ export const createContainer = (config: ContainerConfig): Container => {
     .register(USER_SERVICE, userService)
     .register(CANDIDATE_PROFILE_SERVICE, candidateProfileService)
     .register(CANDIDATE_DIRECTORY_SERVICE, candidateDirectoryService)
+    .register(EMAIL_SENDER, emailSender)
+    .register(OUTREACH_REPOSITORY, outreachRepository)
+    .register(CANDIDATE_AUDIENCE, candidateAudience)
+    .register(USER_EMAIL_DIRECTORY, userEmailDirectory)
+    .register(OUTREACH_SERVICE, outreachService)
+    .register(OUTREACH_DISPATCHER, outreachDispatcher)
     .register(HR_PROFILE_SERVICE, hrProfileService)
     .register(COMPANY_MEMBERSHIP, companyMembership)
     .register(COMPANY_SERVICE, companyService)
@@ -313,6 +385,7 @@ export const createContainer = (config: ContainerConfig): Container => {
     .register(PROFILE_CONTROLLER, new ProfileController(profileService))
     .register(PROFILE_UPDATE_VALIDATOR, createProfileUpdateValidator(profileService))
     .register(CANDIDATE_CONTROLLER, new CandidateController(candidateDirectoryService))
+    .register(OUTREACH_CONTROLLER, new OutreachController(outreachService))
     .register(COMPANY_CONTROLLER, new CompanyController(companyService))
     .register(JOB_CONTROLLER, new JobController(jobService))
     .register(APPLICATION_CONTROLLER, new ApplicationController(applicationService))

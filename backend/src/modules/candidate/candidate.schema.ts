@@ -36,6 +36,7 @@ export const updateCandidateProfileSchema = z
     currentCtc: clearableField(ctcSchema),
     expectedCtc: clearableField(ctcSchema),
     resumeFileId: clearableField(objectIdSchema),
+    isOpenToOutreach: z.boolean().optional(),
   })
   .refine((value) => Object.keys(value).length > 0, 'Provide at least one field to update');
 export type UpdateCandidateProfileInput = z.infer<typeof updateCandidateProfileSchema>;
@@ -63,6 +64,7 @@ export const candidateProfileResponseSchema = z.object({
   expectedCtc: z.number().optional(),
   currency: z.string(),
   resumeFileId: z.string().optional(),
+  isOpenToOutreach: z.boolean(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 });

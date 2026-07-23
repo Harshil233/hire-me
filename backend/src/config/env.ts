@@ -60,7 +60,36 @@ export const envSchema = z.object({
   FILE_STORAGE_DRIVER: z.enum(['local']).default('local'),
   FILE_STORAGE_PATH: z.string().min(1).default('./uploads'),
   MAX_UPLOAD_BYTES: z.coerce.number().int().positive().default(5_242_880),
-});
+
+  /*
+   * Outreach. `log` prints the message instead of sending, which is the default so a
+   * developer without an API key still gets a working app. `resend` needs a key and a
+   * sender address Resend has verified for the account.
+   */
+  MAIL_DRIVER: z.enum(['log', 'resend']).default('log'),
+  RESEND_API_KEY: z.string().default(''),
+  MAIL_FROM_EMAIL: z.string().default('onboarding@resend.dev'),
+  MAIL_FROM_NAME: z.string().default('Hire Me'),
+  /** Public URL of the SPA, used for the links inside an email. */
+  APP_BASE_URL: z.url().default('http://localhost:5173'),
+  UNSUBSCRIBE_SECRET: z
+    .string()
+    .min(32, 'UNSUBSCRIBE_SECRET must be at least 32 characters')
+    .default('dev-unsubscribe-secret-at-least-32-chars'),
+  /** Ceilings on outreach, so one account cannot turn the product into a spam cannon. */
+  OUTREACH_MAX_RECIPIENTS: z.coerce.number().int().positive().default(200),
+  OUTREACH_DAILY_LIMIT: z.coerce.number().int().positive().default(500),
+})
+  .superRefine((value, ctx) => {
+    // A driver that cannot send is worse than one that says so at boot.
+    if (value.MAIL_DRIVER === 'resend' && value.RESEND_API_KEY.trim() === '') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['RESEND_API_KEY'],
+        message: 'RESEND_API_KEY is required when MAIL_DRIVER is "resend"',
+      });
+    }
+  });
 
 export type Env = Readonly<z.infer<typeof envSchema>>;
 

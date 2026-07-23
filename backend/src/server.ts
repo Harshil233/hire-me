@@ -3,6 +3,8 @@ import { env } from './config/env';
 import { logger } from './config/logger';
 import { createContainer } from './container';
 import { MongooseConnection, getConnection } from './database/connection';
+import { OUTREACH_DISPATCHER } from './modules/outreach/outreach.interface';
+import { startOutreachWorker } from './modules/outreach/outreach.worker';
 
 /** Bootstrap only: connect, listen, shut down cleanly. */
 const bootstrap = async (): Promise<void> => {
@@ -20,6 +22,9 @@ const bootstrap = async (): Promise<void> => {
     connection: getConnection(),
   });
 
+  // Campaigns are queued by the request and sent here, out of its way.
+  const outreach = startOutreachWorker(container.resolve(OUTREACH_DISPATCHER), logger);
+
   const app = createApp({ container, env, logger });
   const server = app.listen(env.PORT, () => {
     logger.info('API listening', { port: env.PORT, environment: env.NODE_ENV });
@@ -27,6 +32,7 @@ const bootstrap = async (): Promise<void> => {
 
   const shutdown = (signal: string): void => {
     logger.info('Shutting down', { signal });
+    outreach.stop();
     server.close(() => {
       void database.disconnect().finally(() => {
         process.exit(0);

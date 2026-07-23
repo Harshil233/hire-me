@@ -5,6 +5,7 @@ import type { ApplicationController } from '../modules/application/application.c
 import type { AuthController } from '../modules/auth/auth.controller';
 import type { CandidateController } from '../modules/candidate/candidate.controller';
 import type { CompanyController } from '../modules/company/company.controller';
+import type { OutreachController } from '../modules/outreach/outreach.controller';
 import type { FileController } from '../modules/file/file.controller';
 import type { HealthController } from '../modules/health/health.controller';
 import type { NotificationController } from '../modules/notification/notification.controller';
@@ -27,6 +28,7 @@ export const TRANSACTION_MANAGER: Token<ITransactionManager> = createToken('ITra
 export const AUTHENTICATE_MIDDLEWARE: Token<RequestHandler> = createToken('AuthenticateMiddleware');
 export const UPLOAD_MIDDLEWARE: Token<RequestHandler> = createToken('UploadMiddleware');
 export const AUTH_RATE_LIMITER: Token<RequestHandler> = createToken('AuthRateLimiter');
+export const OUTREACH_RATE_LIMITER: Token<RequestHandler> = createToken('OutreachRateLimiter');
 
 export const AUTH_CONTROLLER: Token<AuthController> = createToken('AuthController');
 export const PROFILE_CONTROLLER: Token<ProfileController> = createToken('ProfileController');
@@ -35,6 +37,7 @@ export const FILE_CONTROLLER: Token<FileController> = createToken('FileControlle
 export const JOB_CONTROLLER: Token<JobController> = createToken('JobController');
 export const CANDIDATE_CONTROLLER: Token<CandidateController> =
   createToken('CandidateController');
+export const OUTREACH_CONTROLLER: Token<OutreachController> = createToken('OutreachController');
 export const APPLICATION_CONTROLLER: Token<ApplicationController> =
   createToken('ApplicationController');
 export const NOTIFICATION_CONTROLLER: Token<NotificationController> =

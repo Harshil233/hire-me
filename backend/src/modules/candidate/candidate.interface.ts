@@ -32,6 +32,8 @@ export interface CandidateProfile {
   readonly currentCtc?: number | undefined;
   readonly expectedCtc?: number | undefined;
   readonly resumeFileId?: string | undefined;
+  /** Whether employers may contact this candidate. Opt-out, so it starts true. */
+  readonly isOpenToOutreach: boolean;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }

@@ -8,6 +8,7 @@ const NOW = new Date('2026-03-01T10:00:00.000Z');
 const profile = (overrides: Partial<CandidateProfile> = {}): CandidateProfile => ({
   id: 'profile-1',
   userId: 'candidate-1',
+  isOpenToOutreach: true,
   firstName: 'Ada',
   lastName: 'Lovelace',
   preferredLocations: ['Pune'],

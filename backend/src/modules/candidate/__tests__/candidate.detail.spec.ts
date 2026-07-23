@@ -17,6 +17,7 @@ const NOW = new Date('2026-03-01T10:00:00.000Z');
 const PROFILE: CandidateProfile = {
   id: 'profile-1',
   userId: 'candidate-1',
+  isOpenToOutreach: true,
   firstName: 'Ada',
   middleName: 'B',
   lastName: 'Lovelace',

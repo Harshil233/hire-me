@@ -60,6 +60,7 @@ interface Harness {
 
 const createHarness = (overrides: Partial<AuthServiceDependencies> = {}): Harness => {
   const userRepository: IUserRepository = {
+    findManyByIds: vi.fn(async () => []),
     findById: vi.fn(async () => USER),
     findByEmail: vi.fn(async () => USER),
     existsByEmail: vi.fn(async () => false),
