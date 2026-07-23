@@ -276,3 +276,6 @@ export const HR_COMPLETION_WEIGHTS = {
 } as const;
 
 export const API_PREFIX = '/api/v1' as const;
+
+/** Published as `info.version` in the OpenAPI document. */
+export const API_VERSION = '1.0.0' as const;

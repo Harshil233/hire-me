@@ -3,7 +3,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
 
-import { API_PREFIX } from './config/constants';
+import { API_PREFIX, API_VERSION } from './config/constants';
 import type { Env } from './config/env';
 import type { ILogger } from './common/types/logger';
 import {
@@ -40,6 +40,8 @@ import {
 } from './modules/application/application.routes';
 import { createAuthRouter } from './modules/auth/auth.routes';
 import { createCandidateRouter } from './modules/candidate/candidate.routes';
+import { createDocsRouter } from './modules/docs/docs.routes';
+import { buildOpenApiDocument } from './modules/docs/openapi.document';
 import { createOutreachRouter } from './modules/outreach/outreach.routes';
 import { createCertificationRouter } from './modules/certification/certification.routes';
 import { createCompanyRouter } from './modules/company/company.routes';
@@ -58,6 +60,11 @@ const createApiRouter = (container: Container): Router => {
   const authenticate: RequestHandler = container.resolve(AUTHENTICATE_MIDDLEWARE);
 
   router.use('/health', createHealthRouter(container.resolve(HEALTH_CONTROLLER)));
+
+  // The contract, served from the API itself: `/docs` for a human, `/openapi.json` for a
+  // generator. Built from the same Zod schemas the routes validate with, so it is
+  // regenerated on every boot and cannot drift from what the API actually accepts.
+  router.use(createDocsRouter({ document: buildOpenApiDocument({ version: API_VERSION }) }));
 
   router.use(
     createAuthRouter({
