@@ -81,6 +81,12 @@ export interface IJobRepository {
   /** Batched read so a page of rows referencing jobs never becomes a query per row. */
   findManyByIds(ids: readonly string[]): Promise<Job[]>;
   search(filter: JobFilter, page: number, pageSize: number): Promise<Page<Job>>;
+  /**
+   * The skills live listings actually ask for, most requested first. Derived from the
+   * data rather than kept as a separate vocabulary, so the filter can never offer a
+   * skill that matches nothing.
+   */
+  listPublishedSkills(limit: number): Promise<string[]>;
   create(data: CreateJobData): Promise<Job>;
   update(id: string, data: UpdateJobInput): Promise<Job | null>;
   setStatus(id: string, status: JobStatus, at: Date): Promise<Job | null>;
@@ -96,6 +102,8 @@ export interface IJobService {
   browse(query: JobQueryInput): Promise<JobListResult>;
   /** HR-facing list of their own company's postings, drafts included. */
   listForHr(userId: string, query: HrJobQueryInput): Promise<JobListResult>;
+  /** The skills worth offering as a filter, in the order they are worth offering. */
+  listSkills(): Promise<readonly string[]>;
   /** Reads one job, hiding unpublished listings from everyone but their own company. */
   getVisible(id: string, viewerUserId: string): Promise<JobWithCompany>;
   /**

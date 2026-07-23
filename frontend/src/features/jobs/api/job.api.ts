@@ -5,6 +5,7 @@ import { httpClient, request } from '@/services/api-client';
 import {
   jobDetailSchema,
   jobListSchema,
+  jobSkillsSchema,
   type Job,
   type JobFilters,
   type JobFormValues,
@@ -18,6 +19,7 @@ import {
 export interface IJobApi {
   browse(filters: JobFilters): Promise<JobList>;
   listMine(filters: JobFilters): Promise<JobList>;
+  listSkills(): Promise<readonly string[]>;
   getById(id: string): Promise<Job>;
   create(values: JobFormValues): Promise<Job>;
   update(id: string, values: JobFormValues): Promise<Job>;
@@ -72,6 +74,9 @@ export const createJobApi = (client: AxiosInstance = httpClient): IJobApi => ({
       { url: '/jobs/mine', method: 'GET', params: toQueryParams(filters) },
       jobListSchema,
     ),
+
+  listSkills: async () =>
+    (await request(client, { url: '/jobs/skills', method: 'GET' }, jobSkillsSchema)).skills,
 
   getById: async (id) =>
     (await request(client, { url: `/jobs/${id}`, method: 'GET' }, jobDetailSchema)).job,

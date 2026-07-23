@@ -27,6 +27,22 @@ export const useMyApplications = (
     queryFn: () => api.listMine(filters),
   });
 
+/**
+ * The listings this candidate has already applied to, as a set the caller can ask about
+ * per card. One small request for the whole list beats a per-job lookup, and applying
+ * invalidates it, so a card stops offering an action the server would refuse.
+ */
+export const useAppliedJobIds = (
+  isCandidate: boolean,
+  api: IApplicationApi = applicationApi,
+): UseQueryResult<ReadonlySet<string>, ApiError> =>
+  useQuery<ReadonlySet<string>, ApiError>({
+    queryKey: QUERY_KEYS.appliedJobIds,
+    queryFn: async () => new Set(await api.listAppliedJobIds()),
+    // The route is candidate-only; asking as an employer would just earn a 403.
+    enabled: isCandidate,
+  });
+
 /** The employer's applicant list for one job. */
 export const useJobApplicants = (
   jobId: string,

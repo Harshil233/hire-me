@@ -71,6 +71,7 @@ const createHarness = (): Harness => {
     findById: vi.fn(async () => JOB),
     findManyByIds: vi.fn(async () => [JOB]),
     search: vi.fn(async () => ({ items: [JOB], total: 1 })),
+    listPublishedSkills: vi.fn(async () => ['TypeScript', 'Node.js']),
     create: vi.fn(async () => JOB),
     update: vi.fn(async () => JOB),
     setStatus: vi.fn(async () => JOB),
@@ -388,5 +389,14 @@ describe('JobService.changeStatus', () => {
     await expect(
       harness.service.changeStatus('job-1', 'hr-1', JOB_STATUSES.PUBLISHED),
     ).rejects.toMatchObject({ statusCode: 404 });
+  });
+
+  it('offers the skills live listings ask for, bounded by the lookup ceiling', async () => {
+    const harness = createHarness();
+
+    await expect(harness.service.listSkills()).resolves.toEqual(['TypeScript', 'Node.js']);
+    expect(harness.repository.listPublishedSkills).toHaveBeenCalledWith(
+      PAGINATION.MAX_LOOKUP_RESULTS,
+    );
   });
 });

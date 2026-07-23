@@ -63,6 +63,7 @@ const createController = (): {
   const service: IApplicationService = {
     apply: vi.fn(async () => WITH_JOB),
     listMine: vi.fn(async () => ({ applications: [WITH_JOB], pagination: PAGINATION_META })),
+    listAppliedJobIds: vi.fn(async () => ['job-1']),
     listForJob: vi.fn(async () => ({
       applications: [WITH_CANDIDATE],
       pagination: PAGINATION_META,
@@ -211,5 +212,18 @@ describe('ApplicationController.changeStatus', () => {
       success: true,
       data: { application: { id: 'application-1', status: APPLICATION_STATUSES.APPLIED } },
     });
+  });
+
+  it('answers the applied-listing lookup for the signed-in candidate only', async () => {
+    const { controller, service } = createController();
+    const res = createMockResponse();
+
+    await controller.listMineJobIds(
+      createMockRequest({ auth: { userId: 'candidate-1', role: ROLES.CANDIDATE } }),
+      res,
+    );
+
+    expect(service.listAppliedJobIds).toHaveBeenCalledWith('candidate-1');
+    expect(res.capturedBody).toMatchObject({ data: { jobIds: ['job-1'] } });
   });
 });

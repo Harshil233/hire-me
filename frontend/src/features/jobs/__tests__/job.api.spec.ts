@@ -133,4 +133,18 @@ describe('createJobApi', () => {
 
     await expect(createJobApi(client).browse({})).rejects.toBeInstanceOf(ApiError);
   });
+
+  it('reads the skill facet', async () => {
+    mock
+      .onGet('/jobs/skills')
+      .reply(200, { success: true, data: { skills: ['TypeScript', 'React'] } });
+
+    await expect(createJobApi(client).listSkills()).resolves.toEqual(['TypeScript', 'React']);
+  });
+
+  it('rejects a skill facet that does not match the contract', async () => {
+    mock.onGet('/jobs/skills').reply(200, { success: true, data: { skills: [7] } });
+
+    await expect(createJobApi(client).listSkills()).rejects.toBeInstanceOf(ApiError);
+  });
 });

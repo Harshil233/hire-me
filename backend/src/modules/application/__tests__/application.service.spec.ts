@@ -84,6 +84,7 @@ const createHarness = (): Harness => {
   const repository: IApplicationRepository = {
     findById: vi.fn(async () => APPLICATION),
     search: vi.fn(async () => ({ items: [APPLICATION], total: 1 })),
+    findAppliedJobIds: vi.fn(async () => ['job-1']),
     create: vi.fn(async () => APPLICATION),
     setStatus: vi.fn(async () => APPLICATION),
   };
@@ -620,5 +621,12 @@ describe('ApplicationService.changeStatus — notifications', () => {
 
     expect(harness.notificationService.notify).not.toHaveBeenCalled();
     expect(harness.transactionManager.runInTransaction).not.toHaveBeenCalled();
+  });
+
+  it('reads the applied listings straight from the repository', async () => {
+    const harness = createHarness();
+
+    await expect(harness.service.listAppliedJobIds('candidate-1')).resolves.toEqual(['job-1']);
+    expect(harness.repository.findAppliedJobIds).toHaveBeenCalledWith('candidate-1');
   });
 });

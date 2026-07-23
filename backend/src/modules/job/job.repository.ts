@@ -1,6 +1,6 @@
 import type { FilterQuery, Model } from 'mongoose';
 
-import type { JobStatus } from '../../config/constants';
+import { JOB_STATUSES, type JobStatus } from '../../config/constants';
 import { toIdString, toObjectId, toObjectIdOrNull } from '../../common/persistence/object-id';
 import type { Page } from '../../common/persistence/page';
 import { escapeRegex } from '../../common/utils/regex';
@@ -72,6 +72,35 @@ export class JobRepository implements IJobRepository, IJobSummaryProvider {
     ]);
 
     return { items: documents.map((document) => JobRepository.toDomain(document)), total };
+  }
+
+  /**
+   * Counted rather than merely collected: a filter is more useful when the skills a
+   * hundred listings ask for come before the one a single listing mentions.
+   *
+   * Grouped case-insensitively, because "TypeScript" and "Typescript" are one skill to
+   * everyone but the database, and offering both as separate boxes reads as a bug. The
+   * spelling shown is the one from the most recent listing to ask for it.
+   */
+  async listPublishedSkills(limit: number): Promise<string[]> {
+    const rows = await this.model
+      .aggregate<{ label: string }>([
+        { $match: { status: JOB_STATUSES.PUBLISHED } },
+        { $unwind: '$skills' },
+        { $sort: { createdAt: -1 } },
+        {
+          $group: {
+            _id: { $toLower: '$skills' },
+            label: { $first: '$skills' },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { count: -1, _id: 1 } },
+        { $limit: limit },
+      ])
+      .exec();
+
+    return rows.map((row) => row.label);
   }
 
   async create(data: CreateJobData): Promise<Job> {

@@ -9,6 +9,8 @@ import {
   WORK_MODE_LABELS,
   WORK_MODE_VALUES,
 } from '@/config/constants';
+import { toggleCsvItem } from '@/lib/csv-list';
+import { SkillFilter } from './SkillFilter';
 import type { JobFilters } from '../schemas/job.schema';
 
 const toOptions = <TValue extends string>(
@@ -23,11 +25,17 @@ const WORK_MODE_OPTIONS = toOptions(WORK_MODE_VALUES, WORK_MODE_LABELS);
 
 export interface JobFilterFieldsProps {
   readonly value: JobFilters;
+  /** The skill vocabulary, fetched by the page so this stays presentational. */
+  readonly skills: readonly string[];
   readonly onChange: (filters: JobFilters) => void;
 }
 
 /** The controls inside the filter drawer. Purely presentational — the page owns state. */
-export const JobFilterFields = ({ value, onChange }: JobFilterFieldsProps): React.JSX.Element => {
+export const JobFilterFields = ({
+  value,
+  skills,
+  onChange,
+}: JobFilterFieldsProps): React.JSX.Element => {
   const set = (patch: Partial<JobFilters>): void => {
     onChange({ ...value, ...patch });
   };
@@ -75,6 +83,16 @@ export const JobFilterFields = ({ value, onChange }: JobFilterFieldsProps): Reac
           />
         )}
       </FormField>
+
+      {skills.length > 0 && (
+        <SkillFilter
+          skills={skills}
+          value={value.skills}
+          onToggle={(skill) => {
+            set({ skills: toggleCsvItem(value.skills, skill) });
+          }}
+        />
+      )}
 
       <FormField label="Location">
         {(fieldProps) => (

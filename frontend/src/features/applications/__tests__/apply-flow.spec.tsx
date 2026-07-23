@@ -15,6 +15,8 @@ let mock: MockAdapter;
 
 beforeEach(() => {
   mock = new MockAdapter(httpClient);
+  // Nothing applied to yet, unless a test says otherwise.
+  mock.onGet('/applications/job-ids').reply(200, { success: true, data: { jobIds: [] } });
   useAuthStore.setState({ user: candidateUser, accessToken: 'token', status: 'authenticated' });
 });
 
@@ -79,7 +81,7 @@ describe('applying from the job detail screen', () => {
         coverNote: 'Keen to join',
       });
     });
-    expect(await screen.findByText('Application sent')).toBeInTheDocument();
+    expect(await screen.findByText('Applied')).toBeInTheDocument();
   });
 
   it('applies without a cover note', async () => {
@@ -115,7 +117,19 @@ describe('applying from the job detail screen', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Submit application' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('already exists');
-    expect(screen.queryByText('Application sent')).not.toBeInTheDocument();
+    expect(screen.queryByText('Applied')).not.toBeInTheDocument();
+  });
+
+  it('says Applied instead of Apply on a listing already applied to', async () => {
+    mock.onGet('/jobs/job-1').reply(200, jobDetailResponse());
+    mock
+      .onGet('/applications/job-ids')
+      .reply(200, { success: true, data: { jobIds: ['job-1'] } });
+
+    renderDetail();
+
+    expect(await screen.findByText('Applied')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Apply' })).not.toBeInTheDocument();
   });
 
   it('closes the dialog without applying when cancelled', async () => {

@@ -12,12 +12,12 @@ import {
   ROUTES,
   WORK_MODE_LABELS,
 } from '@/config/constants';
-import { ArrowLeftIcon } from '@/components/icons';
+import { ArrowLeftIcon, CheckIcon } from '@/components/icons';
 import { CompanyLinks } from '@/features/jobs/components/CompanyLinks';
 import { JobBulletSection } from '@/features/jobs/components/JobBulletSection';
 import { SimilarJobs } from '@/features/jobs/components/SimilarJobs';
 import { ApplyModal } from '@/features/applications/components/ApplyModal';
-import { useApply } from '@/features/applications/hooks/useApplications';
+import { useAppliedJobIds, useApply } from '@/features/applications/hooks/useApplications';
 import { JobStatusBadge } from '@/features/jobs/components/JobStatusBadge';
 import { useJob } from '@/features/jobs/hooks/useJobs';
 import { formatCtcRange, formatExperienceRange } from '@/features/jobs/utils/job.format';
@@ -42,8 +42,11 @@ export const JobDetailPage = (): React.JSX.Element => {
   const query = useJob(id);
   const role = useAuthStore((state) => state.user?.role);
   const apply = useApply();
+  const appliedJobIds = useAppliedJobIds(role === ROLES.CANDIDATE);
   const [isApplyOpen, setIsApplyOpen] = useState(false);
-  const [hasApplied, setHasApplied] = useState(false);
+  // Held locally as well, so the button changes the moment the application lands rather
+  // than when the refetch it triggered comes back.
+  const [justApplied, setJustApplied] = useState(false);
 
   if (query.isPending) {
     return <Skeleton className="h-64" />;
@@ -63,6 +66,8 @@ export const JobDetailPage = (): React.JSX.Element => {
   const job = query.data;
   // Only a candidate can apply, and only while the listing is live.
   const canApply = role === ROLES.CANDIDATE && job.status === 'published';
+  // Applying twice is refused by the server, so it is never offered as if it were not.
+  const hasApplied = justApplied || (appliedJobIds.data?.has(job.id) ?? false);
 
   return (
     <div className="space-y-4">
@@ -92,7 +97,10 @@ export const JobDetailPage = (): React.JSX.Element => {
             <JobStatusBadge status={job.status} />
             {canApply &&
               (hasApplied ? (
-                <span className="text-sm font-medium text-success">Application sent</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-sm font-medium text-success">
+                  <CheckIcon className="h-4 w-4" />
+                  Applied
+                </span>
               ) : (
                 <Button
                   size="lg"
@@ -161,7 +169,7 @@ export const JobDetailPage = (): React.JSX.Element => {
               {
                 onSuccess: () => {
                   setIsApplyOpen(false);
-                  setHasApplied(true);
+                  setJustApplied(true);
                 },
               },
             );

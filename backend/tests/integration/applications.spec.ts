@@ -432,3 +432,54 @@ describe('PATCH /applications/:id/status', () => {
       .expect(422);
   });
 });
+
+describe('GET /applications/job-ids', () => {
+  it('reports the listings this candidate has already applied to', async () => {
+    const otherJobId = await postJob(hr, { title: 'Another role' });
+    await apply(candidate, jobId);
+
+    const response = await request(server.app)
+      .get(api('/applications/job-ids'))
+      .set('Authorization', bearer(candidate))
+      .expect(200);
+
+    expect(response.body.data.jobIds).toEqual([jobId]);
+    expect(response.body.data.jobIds).not.toContain(otherJobId);
+  });
+
+  it('still reports a listing the candidate withdrew from, because reapplying is barred', async () => {
+    const applicationId = await apply(candidate, jobId);
+
+    await request(server.app)
+      .patch(api(`/applications/${applicationId}/status`))
+      .set('Authorization', bearer(candidate))
+      .send({ status: APPLICATION_STATUSES.WITHDRAWN })
+      .expect(200);
+
+    const response = await request(server.app)
+      .get(api('/applications/job-ids'))
+      .set('Authorization', bearer(candidate))
+      .expect(200);
+
+    expect(response.body.data.jobIds).toEqual([jobId]);
+  });
+
+  it('never reports someone else’s applications', async () => {
+    await apply(candidate, jobId);
+    const other = await registerCandidate(server.app, { email: 'other@test.test' });
+
+    const response = await request(server.app)
+      .get(api('/applications/job-ids'))
+      .set('Authorization', bearer(other))
+      .expect(200);
+
+    expect(response.body.data.jobIds).toEqual([]);
+  });
+
+  it('refuses an employer with 403', async () => {
+    await request(server.app)
+      .get(api('/applications/job-ids'))
+      .set('Authorization', bearer(hr))
+      .expect(403);
+  });
+});

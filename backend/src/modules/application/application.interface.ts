@@ -41,6 +41,12 @@ export interface ApplicationFilter {
 export interface IApplicationRepository {
   findById(id: string): Promise<Application | null>;
   search(filter: ApplicationFilter, page: number, pageSize: number): Promise<Page<Application>>;
+  /**
+   * The listings this candidate has already applied to. Withdrawn applications count:
+   * the unique index keeps a second application out either way, so the listing must
+   * still read as applied.
+   */
+  findAppliedJobIds(candidateUserId: string): Promise<string[]>;
   create(data: CreateApplicationData): Promise<Application>;
   setStatus(
     id: string,
@@ -96,6 +102,11 @@ export interface IApplicationService {
     candidateUserId: string,
     query: MyApplicationQueryInput,
   ): Promise<MyApplicationListResult>;
+  /**
+   * Which listings the candidate has already applied to, so a job they cannot apply to
+   * again is never offered as if they could.
+   */
+  listAppliedJobIds(candidateUserId: string): Promise<readonly string[]>;
   /** The applicant list for one job, restricted to the company that owns it. */
   listForJob(
     jobId: string,

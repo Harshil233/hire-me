@@ -135,6 +135,8 @@ export const ROUTES = {
   JOB_DETAIL: '/jobs/:id',
   CANDIDATES: '/candidates',
   CANDIDATE_DETAIL: '/candidates/:userId',
+  OUTREACH: '/hr/outreach',
+  UNSUBSCRIBE: '/unsubscribe',
   HR_JOBS: '/hr/jobs',
   HR_JOB_APPLICANTS: '/hr/jobs/:id/applicants',
   APPLICATIONS: '/applications',
@@ -166,9 +168,15 @@ export const QUERY_KEYS = {
   similarJobs: (id: string) => ['job', id, 'similar'] as const,
   myApplications: (filters: Readonly<Record<string, unknown>>) =>
     ['applications', 'mine', filters] as const,
+  /* Under `applications` so applying invalidates it along with the lists. */
+  appliedJobIds: ['applications', 'job-ids'] as const,
+  jobSkills: ['jobs', 'skills'] as const,
   jobApplicants: (jobId: string, filters: Readonly<Record<string, unknown>>) =>
     ['applications', 'job', jobId, filters] as const,
   notifications: ['notifications'] as const,
   candidates: (filters: Readonly<Record<string, unknown>>) => ['candidates', filters] as const,
   candidate: (userId: string) => ['candidate', userId] as const,
+  campaigns: (filters: Readonly<Record<string, unknown>>) => ['campaigns', filters] as const,
+  audiencePreview: (audience: Readonly<Record<string, unknown>>) =>
+    ['campaigns', 'preview', audience] as const,
 };

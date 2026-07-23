@@ -51,6 +51,16 @@ export class ApplicationRepository implements IApplicationRepository {
     };
   }
 
+  async findAppliedJobIds(candidateUserId: string): Promise<string[]> {
+    const objectId = toObjectIdOrNull(candidateUserId);
+    if (objectId === null) {
+      return [];
+    }
+
+    const ids = await this.model.distinct('jobId', { candidateUserId: objectId }).exec();
+    return ids.map((id) => toIdString(id));
+  }
+
   /**
    * Relies on the unique `{ jobId, candidateUserId }` index to reject a second
    * application. The duplicate-key error surfaces as a 409 through the error middleware,

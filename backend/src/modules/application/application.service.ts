@@ -100,6 +100,10 @@ export class ApplicationService implements IApplicationService {
     };
   }
 
+  async listAppliedJobIds(candidateUserId: string): Promise<readonly string[]> {
+    return this.deps.applicationRepository.findAppliedJobIds(candidateUserId);
+  }
+
   async listForJob(
     jobId: string,
     actorUserId: string,

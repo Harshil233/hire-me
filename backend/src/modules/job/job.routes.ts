@@ -20,9 +20,9 @@ export interface JobRoutesDependencies {
 /**
  * Route table: path → guards → validator → controller method.
  *
- * `/mine` is declared before `/:id` so the literal segment is not swallowed by the
- * parameter route. Writes are HR-only; ownership is enforced in the service, which
- * answers 404 for another company's listing.
+ * `/mine` and `/skills` are declared before `/:id` so the literal segments are not
+ * swallowed by the parameter route. Writes are HR-only; ownership is enforced in the
+ * service, which answers 404 for another company's listing.
  */
 export const createJobRouter = ({
   controller,
@@ -33,6 +33,7 @@ export const createJobRouter = ({
 
   router.get('/', authenticate, validateJobQuery, controller.browse);
   router.get('/mine', ...hrOnly, validateHrJobQuery, controller.listMine);
+  router.get('/skills', authenticate, controller.listSkills);
   router.post('/', ...hrOnly, validateCreateJob, controller.create);
   router.get('/:id', authenticate, validateJobIdParam, controller.getById);
   router.put('/:id', ...hrOnly, validateUpdateJob, controller.update);

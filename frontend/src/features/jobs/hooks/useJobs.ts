@@ -31,6 +31,19 @@ export const useMyJobs = (
     queryFn: () => api.listMine(filters),
   });
 
+/**
+ * The skills worth filtering by, derived from live listings. Cached for the session:
+ * the vocabulary only moves when somebody posts a job.
+ */
+export const useJobSkills = (
+  api: IJobApi = jobApi,
+): UseQueryResult<readonly string[], ApiError> =>
+  useQuery<readonly string[], ApiError>({
+    queryKey: QUERY_KEYS.jobSkills,
+    queryFn: () => api.listSkills(),
+    staleTime: Infinity,
+  });
+
 export const useJob = (id: string, api: IJobApi = jobApi): UseQueryResult<Job, ApiError> =>
   useQuery<Job, ApiError>({
     queryKey: QUERY_KEYS.job(id),

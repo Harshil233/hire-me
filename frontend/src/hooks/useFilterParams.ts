@@ -37,9 +37,11 @@ export const useFilterParams = <TFilters extends FilterBag>(
     setSearchParams(writeFilters({ ...next, page: 1 }));
   };
 
+  // The search term is not chipped: it is already sitting in the search box above the
+  // list, with its own way to clear it, and repeating it below only reads as a bug.
   const chips = keys.flatMap((key) => {
     const value = filters[key];
-    return value === undefined || value === ''
+    return key === 'search' || value === undefined || value === ''
       ? []
       : [{ key, label: chipLabel(key, String(value)) }];
   });

@@ -64,6 +64,7 @@ export const createApplicationRouter = ({
     validateMyApplicationQuery,
     controller.listMine,
   );
+  router.get('/job-ids', authenticate, authorize(ROLES.CANDIDATE), controller.listMineJobIds);
   router.patch('/:id/status', authenticate, validateApplicationStatus, controller.changeStatus);
 
   return router;

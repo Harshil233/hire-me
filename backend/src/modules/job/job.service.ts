@@ -57,6 +57,10 @@ export class JobService implements IJobService {
     );
   }
 
+  async listSkills(): Promise<readonly string[]> {
+    return this.jobRepository.listPublishedSkills(PAGINATION.MAX_LOOKUP_RESULTS);
+  }
+
   async getVisible(id: string, viewerUserId: string): Promise<JobWithCompany> {
     const job = await this.requireJob(id);
 

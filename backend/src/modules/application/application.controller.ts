@@ -42,6 +42,11 @@ export class ApplicationController {
     });
   };
 
+  listMineJobIds = async (req: Request, res: Response): Promise<void> => {
+    const { userId } = requireAuth(req);
+    sendSuccess(res, { jobIds: await this.applicationService.listAppliedJobIds(userId) });
+  };
+
   listForJob = async (req: Request<JobIdParams>, res: Response): Promise<void> => {
     const { userId } = requireAuth(req);
     const query = validatedQuery<JobApplicantQueryInput>(req);

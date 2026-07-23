@@ -64,10 +64,14 @@ describe('useFilterParams', () => {
     expect(renderHook('/jobs').current.activeCount).toBe(0);
   });
 
-  it('labels a chip per active filter and none for the rest', () => {
-    const hook = renderHook('/jobs?search=react');
+  it('leaves the search term out of the chips, since the search box already shows it', () => {
+    const hook = renderHook('/jobs?search=react&role=engineering');
 
-    expect(hook.current.chips).toEqual([{ key: 'search', label: '“react”' }]);
+    expect(hook.current.chips).toEqual([{ key: 'role', label: 'Role: engineering' }]);
+  });
+
+  it('chips nothing when only the search term is set', () => {
+    expect(renderHook('/jobs?search=react').current.chips).toEqual([]);
   });
 
   it('labels each key through the supplied labeller', () => {

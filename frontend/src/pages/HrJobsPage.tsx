@@ -15,7 +15,6 @@ import { PageHeader } from '@/components/PageHeader';
 import { BriefcaseIcon, PencilIcon, PlusIcon, UsersIcon } from '@/components/icons';
 import { JOB_STATUS_LABELS, JOB_STATUS_VALUES, jobApplicantsPath } from '@/config/constants';
 import { JobCard } from '@/features/jobs/components/JobCard';
-import { payScaleOf } from '@/features/jobs/utils/pay-scale';
 import { JobFormModal } from '@/features/jobs/components/JobFormModal';
 import { useJobMutations, useMyJobs } from '@/features/jobs/hooks/useJobs';
 import type { Job, JobFilters } from '@/features/jobs/schemas/job.schema';
@@ -34,8 +33,9 @@ const nextAction = (job: Job): { label: string; status: (typeof JOB_STATUS_VALUE
     ? { label: 'Close', status: 'closed' }
     : { label: 'Publish', status: 'published' };
 
-const chipLabel = (key: string, value: string): string =>
-  key === 'status' ? JOB_STATUS_LABELS[value as keyof typeof JOB_STATUS_LABELS] : `“${value}”`;
+/* Only the status filter is chipped; the search term stays in the search box. */
+const chipLabel = (_key: string, value: string): string =>
+  JOB_STATUS_LABELS[value as keyof typeof JOB_STATUS_LABELS];
 
 export const HrJobsPage = (): React.JSX.Element => {
   const [editing, setEditing] = useState<Job | null>(null);
@@ -46,8 +46,6 @@ export const HrJobsPage = (): React.JSX.Element => {
     useFilterParams<JobFilters>(FILTER_KEYS, chipLabel);
   const query = useMyJobs(filters);
   const { save, changeStatus } = useJobMutations();
-  // One scale for the whole page, so the bands compare against each other.
-  const scale = payScaleOf(query.data?.jobs ?? []);
 
   const openCreate = (): void => {
     setEditing(null);
@@ -125,7 +123,6 @@ export const HrJobsPage = (): React.JSX.Element => {
             <JobCard
               key={job.id}
               job={job}
-              scale={scale}
               showStatus
               actions={
                 <>

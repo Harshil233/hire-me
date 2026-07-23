@@ -5,6 +5,7 @@ import { httpClient, request } from '@/services/api-client';
 import { toQueryParams } from '@/features/jobs/api/job.api';
 import {
   applicantListSchema,
+  appliedJobIdsSchema,
   applicationDetailSchema,
   applicationStatusResultSchema,
   myApplicationListSchema,
@@ -18,6 +19,7 @@ import {
 export interface IApplicationApi {
   apply(jobId: string, values: ApplyFormValues): Promise<MyApplication>;
   listMine(filters: ApplicationFilters): Promise<MyApplicationList>;
+  listAppliedJobIds(): Promise<readonly string[]>;
   listForJob(jobId: string, filters: ApplicationFilters): Promise<ApplicantList>;
   changeStatus(id: string, status: ApplicationStatus): Promise<ApplicationStatus>;
 }
@@ -42,6 +44,10 @@ export const createApplicationApi = (client: AxiosInstance = httpClient): IAppli
       { url: '/applications', method: 'GET', params: toQueryParams(filters) },
       myApplicationListSchema,
     ),
+
+  listAppliedJobIds: async () =>
+    (await request(client, { url: '/applications/job-ids', method: 'GET' }, appliedJobIdsSchema))
+      .jobIds,
 
   listForJob: (jobId, filters) =>
     request(

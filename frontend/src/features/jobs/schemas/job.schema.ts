@@ -65,6 +65,9 @@ export type JobList = z.infer<typeof jobListSchema>;
 
 export const jobDetailSchema = z.object({ job: jobSchema });
 
+/** The skills live listings ask for, most requested first — the filter's vocabulary. */
+export const jobSkillsSchema = z.object({ skills: z.array(z.string()) });
+
 /* -------------------------------------------------------------------------- */
 /* Filters                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -83,6 +86,8 @@ export type JobFilters = {
   readonly jobType?: string | undefined;
   readonly workMode?: string | undefined;
   readonly location?: string | undefined;
+  /** Comma-separated; a listing matches when it asks for any of them. */
+  readonly skills?: string | undefined;
   readonly minCtc?: string | undefined;
   readonly maxExperienceYears?: string | undefined;
   readonly status?: string | undefined;

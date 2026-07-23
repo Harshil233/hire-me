@@ -47,6 +47,9 @@ export type ApplicantList = z.infer<typeof applicantListSchema>;
 
 export const applicationDetailSchema = z.object({ application: myApplicationSchema });
 
+/** Which listings the signed-in candidate has already applied to. */
+export const appliedJobIdsSchema = z.object({ jobIds: z.array(z.string()) });
+
 export const applicationStatusResultSchema = z.object({
   application: z.object({ id: z.string(), status: z.enum(APPLICATION_STATUS_VALUES) }),
 });

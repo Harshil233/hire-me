@@ -108,3 +108,24 @@ describe('createApplicationApi.changeStatus', () => {
     ).rejects.toBeInstanceOf(ApiError);
   });
 });
+
+describe('createApplicationApi.listAppliedJobIds', () => {
+  it('reads the listings the candidate has already applied to', async () => {
+    mock
+      .onGet('/applications/job-ids')
+      .reply(200, { success: true, data: { jobIds: ['job-1', 'job-2'] } });
+
+    await expect(createApplicationApi(client).listAppliedJobIds()).resolves.toEqual([
+      'job-1',
+      'job-2',
+    ]);
+  });
+
+  it('rejects a response that does not match the contract', async () => {
+    mock.onGet('/applications/job-ids').reply(200, { success: true, data: { jobIds: [1] } });
+
+    await expect(createApplicationApi(client).listAppliedJobIds()).rejects.toBeInstanceOf(
+      ApiError,
+    );
+  });
+});

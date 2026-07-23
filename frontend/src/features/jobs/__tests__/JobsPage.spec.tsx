@@ -5,7 +5,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { httpClient } from '@/services/api-client';
 import { JobsPage } from '@/pages/JobsPage';
-import { job, jobListResponse } from '@/test/fixtures';
+import { useAuthStore } from '@/store/auth.store';
+import { candidateUser, job, jobListResponse } from '@/test/fixtures';
 import { renderWithProviders } from '@/test/render';
 
 let mock: MockAdapter;
@@ -16,6 +17,8 @@ beforeEach(() => {
 
 afterEach(() => {
   mock.restore();
+  // Browsing is the anonymous default; a test that signs in must not leak into the next.
+  useAuthStore.setState({ user: null, accessToken: null, status: 'anonymous' });
 });
 
 /** The filter controls live behind the filter button now, so tests open the drawer. */
@@ -257,5 +260,69 @@ describe('JobsPage', () => {
     await screen.findByText('No roles match these filters');
 
     expect(screen.queryByRole('navigation', { name: 'Pagination' })).not.toBeInTheDocument();
+  });
+
+  it('offers the skills live listings ask for', async () => {
+    mock.onGet('/jobs').reply(200, jobListResponse([job()]));
+    mock
+      .onGet('/jobs/skills')
+      .reply(200, { success: true, data: { skills: ['TypeScript', 'React'] } });
+
+    renderWithProviders(<JobsPage />);
+    await screen.findByText('Senior Backend Engineer');
+    await openFilters();
+
+    expect(await screen.findByRole('checkbox', { name: 'TypeScript' })).toBeInTheDocument();
+  });
+
+  it('narrows the list by a ticked skill', async () => {
+    mock.onGet('/jobs').reply(200, jobListResponse([job()]));
+    mock.onGet('/jobs/skills').reply(200, { success: true, data: { skills: ['TypeScript'] } });
+
+    renderWithProviders(<JobsPage />);
+    await screen.findByText('Senior Backend Engineer');
+    await openFilters();
+
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'TypeScript' }));
+
+    await waitFor(() => {
+      expect(lastRequestParams()).toMatchObject({ skills: 'TypeScript' });
+    });
+  });
+
+  it('leaves the skill filter out entirely when no listing names a skill', async () => {
+    mock.onGet('/jobs').reply(200, jobListResponse([job()]));
+    mock.onGet('/jobs/skills').reply(200, { success: true, data: { skills: [] } });
+
+    renderWithProviders(<JobsPage />);
+    await screen.findByText('Senior Backend Engineer');
+    await openFilters();
+
+    expect(screen.queryByRole('group', { name: /Skills/ })).not.toBeInTheDocument();
+  });
+
+  it('marks a listing the candidate has already applied to', async () => {
+    useAuthStore.setState({ user: candidateUser, accessToken: 'token', status: 'authenticated' });
+    mock
+      .onGet('/jobs')
+      .reply(200, jobListResponse([job(), job({ id: 'job-2', title: 'Designer' })]));
+    mock.onGet('/jobs/skills').reply(200, { success: true, data: { skills: [] } });
+    mock.onGet('/applications/job-ids').reply(200, { success: true, data: { jobIds: ['job-1'] } });
+
+    renderWithProviders(<JobsPage />);
+
+    const applied = await screen.findByText('Applied');
+    expect(applied).toBeInTheDocument();
+    expect(screen.getAllByText('Applied')).toHaveLength(1);
+  });
+
+  it('does not ask about applications when nobody is signed in as a candidate', async () => {
+    mock.onGet('/jobs').reply(200, jobListResponse([job()]));
+    mock.onGet('/jobs/skills').reply(200, { success: true, data: { skills: [] } });
+
+    renderWithProviders(<JobsPage />);
+    await screen.findByText('Senior Backend Engineer');
+
+    expect(mock.history.get.map((entry) => entry.url)).not.toContain('/applications/job-ids');
   });
 });

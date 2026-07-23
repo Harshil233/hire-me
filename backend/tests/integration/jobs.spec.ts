@@ -468,3 +468,63 @@ describe('HR without a company', () => {
     expect(response.body.error.code).toBe(ERROR_CODES.HR_HAS_NO_COMPANY);
   });
 });
+
+describe('GET /jobs/skills', () => {
+  it('lists the skills live listings ask for, most requested first', async () => {
+    await postJob(hr, { skills: ['TypeScript', 'MongoDB'] });
+    await postJob(hr, { skills: ['TypeScript'] });
+
+    const response = await request(server.app)
+      .get(api('/jobs/skills'))
+      .set('Authorization', bearer(candidate))
+      .expect(200);
+
+    expect(response.body.data.skills).toEqual(['TypeScript', 'MongoDB']);
+  });
+
+  it('leaves out skills that only a draft asks for', async () => {
+    await postJob(hr, { skills: ['TypeScript'] });
+    await postJob(hr, { skills: ['COBOL'] }, false);
+
+    const response = await request(server.app)
+      .get(api('/jobs/skills'))
+      .set('Authorization', bearer(candidate))
+      .expect(200);
+
+    expect(response.body.data.skills).toEqual(['TypeScript']);
+  });
+
+  it('counts spellings that differ only in case as one skill', async () => {
+    await postJob(hr, { skills: ['TypeScript'] });
+    await postJob(hr, { skills: ['typescript'] });
+
+    const response = await request(server.app)
+      .get(api('/jobs/skills'))
+      .set('Authorization', bearer(candidate))
+      .expect(200);
+
+    expect(response.body.data.skills).toHaveLength(1);
+  });
+
+  it('is not reachable without a session', async () => {
+    await request(server.app).get(api('/jobs/skills')).expect(401);
+  });
+});
+
+describe('GET /jobs?skills=', () => {
+  it('keeps listings asking for any of the named skills', async () => {
+    await postJob(hr, { title: 'Backend', skills: ['TypeScript'] });
+    await postJob(hr, { title: 'Data', skills: ['Python'] });
+    await postJob(hr, { title: 'Design', skills: ['Figma'] });
+
+    const response = await request(server.app)
+      .get(api('/jobs'))
+      .query({ skills: 'typescript,python' })
+      .set('Authorization', bearer(candidate))
+      .expect(200);
+
+    expect(
+      (response.body.data.jobs as { title: string }[]).map((job) => job.title).sort(),
+    ).toEqual(['Backend', 'Data']);
+  });
+});

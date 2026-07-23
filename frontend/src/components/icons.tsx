@@ -189,3 +189,16 @@ export const InstagramIcon = (props: IconProps): React.JSX.Element => (
     <path d="M17 7v.01" />
   </svg>
 );
+
+export const MailIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <rect x="3" y="5" width="18" height="14" rx="2" />
+    <path d="m3.5 7 8.5 6 8.5-6" />
+  </svg>
+);
+
+export const CheckIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="m5 12.5 4.5 4.5L19 7.5" />
+  </svg>
+);

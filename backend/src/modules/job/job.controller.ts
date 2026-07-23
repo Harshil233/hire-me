@@ -29,6 +29,10 @@ export class JobController {
     sendSuccess(res, JobController.present(await this.jobService.listForHr(userId, query)));
   };
 
+  listSkills = async (_req: Request, res: Response): Promise<void> => {
+    sendSuccess(res, { skills: await this.jobService.listSkills() });
+  };
+
   getById = async (req: Request<JobIdParams>, res: Response): Promise<void> => {
     const { userId } = requireAuth(req);
     const job = await this.jobService.getVisible(req.params.id, userId);

@@ -10,14 +10,16 @@ import { SearchBar } from '@/components/SearchBar';
 import { Skeleton } from '@/components/Skeleton';
 import { PageHeader } from '@/components/PageHeader';
 import { BriefcaseIcon } from '@/components/icons';
-import { JOB_ROLE_LABELS, JOB_TYPE_LABELS, WORK_MODE_LABELS } from '@/config/constants';
+import { JOB_ROLE_LABELS, JOB_TYPE_LABELS, ROLES, WORK_MODE_LABELS } from '@/config/constants';
+import { useAppliedJobIds } from '@/features/applications/hooks/useApplications';
 import { JobCard } from '@/features/jobs/components/JobCard';
-import { payScaleOf } from '@/features/jobs/utils/pay-scale';
 import { JobFilterFields } from '@/features/jobs/components/JobFilterFields';
-import { useJobs } from '@/features/jobs/hooks/useJobs';
+import { useJobSkills, useJobs } from '@/features/jobs/hooks/useJobs';
 import type { JobFilters } from '@/features/jobs/schemas/job.schema';
 import { useFilterParams } from '@/hooks/useFilterParams';
 import { useIsWideScreen } from '@/hooks/useMediaQuery';
+import { parseCsvList } from '@/lib/csv-list';
+import { useAuthStore } from '@/store/auth.store';
 
 const FILTER_KEYS = [
   'search',
@@ -25,6 +27,7 @@ const FILTER_KEYS = [
   'jobType',
   'workMode',
   'location',
+  'skills',
   'minCtc',
   'maxExperienceYears',
 ] as const;
@@ -36,7 +39,7 @@ const chipLabel = (key: string, value: string): string => {
   if (key === 'workMode') return WORK_MODE_LABELS[value as keyof typeof WORK_MODE_LABELS];
   if (key === 'minCtc') return `Min ₹${Number(value).toLocaleString('en-IN')}`;
   if (key === 'maxExperienceYears') return `${value} yrs experience`;
-  if (key === 'search') return `“${value}”`;
+  if (key === 'skills') return parseCsvList(value).join(', ');
   return value;
 };
 
@@ -47,10 +50,14 @@ export const JobsPage = (): React.JSX.Element => {
   const { filters, activeCount, chips, apply, search, remove, clear, goToPage } =
     useFilterParams<JobFilters>(FILTER_KEYS, chipLabel);
   const query = useJobs(filters);
-  // One scale for the whole page, so the bands compare against each other.
-  const scale = payScaleOf(query.data?.jobs ?? []);
+  const skillsQuery = useJobSkills();
 
-  const fields = <JobFilterFields value={filters} onChange={apply} />;
+  const isCandidate = useAuthStore((state) => state.user?.role) === ROLES.CANDIDATE;
+  const appliedQuery = useAppliedJobIds(isCandidate);
+
+  const fields = (
+    <JobFilterFields value={filters} skills={skillsQuery.data ?? []} onChange={apply} />
+  );
 
   return (
     <div className="space-y-6">
@@ -83,7 +90,8 @@ export const JobsPage = (): React.JSX.Element => {
             }}
           />
 
-          <FilterChips chips={chips} onRemove={remove} onClearAll={clear} />
+          {/* The rail already shows what is applied, with its own way to clear it. */}
+          {!isWide && <FilterChips chips={chips} onRemove={remove} onClearAll={clear} />}
 
           {query.isPending && (
             <div className="grid gap-3" data-testid="jobs-loading">
@@ -106,7 +114,11 @@ export const JobsPage = (): React.JSX.Element => {
           {query.isSuccess && query.data.jobs.length > 0 && (
             <div className="grid gap-3">
               {query.data.jobs.map((job) => (
-                <JobCard key={job.id} job={job} scale={scale} />
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  isApplied={appliedQuery.data?.has(job.id) ?? false}
+                />
               ))}
             </div>
           )}

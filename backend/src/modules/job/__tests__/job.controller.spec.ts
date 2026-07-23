@@ -40,6 +40,7 @@ const createController = (): { controller: JobController; service: IJobService }
   const service: IJobService = {
     browse: vi.fn(async () => ({ jobs: [JOB], pagination: PAGINATION_META })),
     listForHr: vi.fn(async () => ({ jobs: [JOB], pagination: PAGINATION_META })),
+    listSkills: vi.fn(async () => ['TypeScript']),
     findManyByIds: vi.fn(async () => new Map([[JOB.id, JOB]])),
     getVisible: vi.fn(async () => JOB),
     create: vi.fn(async () => JOB),
@@ -168,5 +169,15 @@ describe('JobController.getById / update / changeStatus', () => {
     );
 
     expect(service.changeStatus).toHaveBeenCalledWith('job-1', 'hr-1', JOB_STATUSES.CLOSED);
+  });
+
+  it('answers the skill facet with the list the service produced', async () => {
+    const { controller, service } = createController();
+    const res = createMockResponse();
+
+    await controller.listSkills(createMockRequest({ auth: AUTH }), res);
+
+    expect(service.listSkills).toHaveBeenCalledWith();
+    expect(res.capturedBody).toMatchObject({ data: { skills: ['TypeScript'] } });
   });
 });

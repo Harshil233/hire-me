@@ -1,7 +1,6 @@
 import { Skeleton } from '@/components/Skeleton';
 import { useSimilarJobs, type SimilarJobsInput } from '../hooks/useSimilarJobs';
 import { JobCard } from './JobCard';
-import { payScaleOf } from '../utils/pay-scale';
 
 export interface SimilarJobsProps {
   readonly job: SimilarJobsInput;
@@ -29,9 +28,6 @@ export const SimilarJobs = ({ job }: SimilarJobsProps): React.JSX.Element | null
     return null;
   }
 
-  // Measured across the suggestions themselves, so the bands compare within this strip.
-  const scale = payScaleOf(query.data);
-
   return (
     <section className="space-y-3">
       <div className="flex items-baseline justify-between gap-3">
@@ -41,7 +37,7 @@ export const SimilarJobs = ({ job }: SimilarJobsProps): React.JSX.Element | null
 
       <div className="grid gap-3">
         {query.data.map((similar) => (
-          <JobCard key={similar.id} job={similar} scale={scale} />
+          <JobCard key={similar.id} job={similar} />
         ))}
       </div>
     </section>
