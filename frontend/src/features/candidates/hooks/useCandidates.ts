@@ -3,7 +3,11 @@ import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@/config/constants';
 import type { ApiError } from '@/services/api-error';
 import { candidateApi, type ICandidateApi } from '../api/candidate.api';
-import type { CandidateFilters, CandidateList } from '../schemas/candidate.schema';
+import type {
+  CandidateDetail,
+  CandidateFilters,
+  CandidateList,
+} from '../schemas/candidate.schema';
 
 /** The employer-facing talent pool. */
 export const useCandidates = (
@@ -13,4 +17,14 @@ export const useCandidates = (
   useQuery<CandidateList, ApiError>({
     queryKey: QUERY_KEYS.candidates(filters),
     queryFn: () => api.browse(filters),
+  });
+
+/** One candidate, opened from the pool. */
+export const useCandidate = (
+  userId: string,
+  api: ICandidateApi = candidateApi,
+): UseQueryResult<CandidateDetail, ApiError> =>
+  useQuery<CandidateDetail, ApiError>({
+    queryKey: QUERY_KEYS.candidate(userId),
+    queryFn: () => api.detail(userId),
   });

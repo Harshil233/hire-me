@@ -1,9 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { PAGINATION } from '../../../config/constants';
-import { CandidateProfileService } from '../candidate.service';
+import { CandidateDirectoryService } from '../candidate.directory.service';
 import { candidateQuerySchema } from '../candidate.schema';
-import type { CandidateProfile, ICandidateProfileRepository } from '../candidate.interface';
+import type {
+  CandidateProfile,
+  CandidateSectionReaders,
+  ICandidateProfileRepository,
+} from '../candidate.interface';
 
 const NOW = new Date('2026-03-01T10:00:00.000Z');
 
@@ -31,7 +35,7 @@ const PROFILE: CandidateProfile = {
 const QUERY = { page: PAGINATION.DEFAULT_PAGE, pageSize: PAGINATION.DEFAULT_PAGE_SIZE };
 
 const createHarness = (): {
-  service: CandidateProfileService;
+  service: CandidateDirectoryService;
   repository: ICandidateProfileRepository;
 } => {
   const repository: ICandidateProfileRepository = {
@@ -42,10 +46,18 @@ const createHarness = (): {
     update: vi.fn(async () => PROFILE),
   };
 
-  return { service: new CandidateProfileService(repository), repository };
+  return { service: new CandidateDirectoryService(repository, emptySections()), repository };
 };
 
-describe('CandidateProfileService.browse', () => {
+/** Browse never reads the sections; detail has its own suite. */
+const emptySections = (): CandidateSectionReaders => ({
+  experience: { list: vi.fn(async () => []) },
+  education: { list: vi.fn(async () => []) },
+  project: { list: vi.fn(async () => []) },
+  certification: { list: vi.fn(async () => []) },
+});
+
+describe('CandidateDirectoryService.browse', () => {
   it('returns browse cards with a display name built from the parts', async () => {
     const { service } = createHarness();
 

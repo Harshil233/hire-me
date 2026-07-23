@@ -1,7 +1,8 @@
 import type { AxiosInstance } from 'axios';
 
 import type { FileKind } from '@/config/constants';
-import { httpClient, request, requestBlob } from '@/services/api-client';
+import { httpClient, request } from '@/services/api-client';
+import { createFileApi } from '@/services/file.api';
 import {
   companyResponseSchema,
   profileViewSchema,
@@ -52,7 +53,7 @@ export const createProfileApi = (client: AxiosInstance = httpClient): IProfileAp
     return { id: response.file.id, originalName: response.file.originalName };
   },
 
-  downloadFile: (fileId) => requestBlob(client, `/files/${fileId}`),
+  downloadFile: (fileId) => createFileApi(client).download(fileId),
 });
 
 export const profileApi: IProfileApi = createProfileApi();

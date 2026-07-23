@@ -34,9 +34,11 @@ import { AUTH_SERVICE, REFRESH_TOKEN_REPOSITORY } from '../modules/auth/auth.int
 import { CandidateCompletionCalculator } from '../modules/candidate/candidate.completion';
 import { CandidateProfileRepository } from '../modules/candidate/candidate.repository';
 import { CandidateProfileService } from '../modules/candidate/candidate.service';
+import { CandidateDirectoryService } from '../modules/candidate/candidate.directory.service';
 import { CandidateProfileStrategy } from '../modules/candidate/candidate.strategy';
 import { CandidateController } from '../modules/candidate/candidate.controller';
 import {
+  CANDIDATE_DIRECTORY_SERVICE,
   CANDIDATE_PROFILE_REPOSITORY,
   CANDIDATE_PROFILE_SERVICE,
 } from '../modules/candidate/candidate.interface';
@@ -92,6 +94,10 @@ import {
 import { FileController } from '../modules/file/file.controller';
 import { FileRepository } from '../modules/file/file.repository';
 import { FileService } from '../modules/file/file.service';
+import {
+  EmployerCandidateFileAccessPolicy,
+  OwnerFileAccessPolicy,
+} from '../modules/file/file.access-policy';
 import { LocalDiskFileStorage } from '../modules/file/file.storage';
 import { FILE_REPOSITORY, FILE_SERVICE, FILE_STORAGE } from '../modules/file/file.interface';
 import { HealthController } from '../modules/health/health.controller';
@@ -217,7 +223,18 @@ export const createContainer = (config: ContainerConfig): Container => {
   const educationService = new OwnedResourceService(educationRepository, 'Education');
   const certificationService = new OwnedResourceService(certificationRepository, 'Certification');
   const projectService = new OwnedResourceService(projectRepository, 'Project');
-  const fileService = new FileService(fileRepository, fileStorage);
+
+  const candidateDirectoryService = new CandidateDirectoryService(candidateProfileRepository, {
+    experience: experienceService,
+    education: educationService,
+    project: projectService,
+    certification: certificationService,
+  });
+  // Owner first: the common case is someone reading their own upload back.
+  const fileService = new FileService(fileRepository, fileStorage, [
+    new OwnerFileAccessPolicy(),
+    new EmployerCandidateFileAccessPolicy(),
+  ]);
 
   const companyDirectory = new CompanyDirectoryAdapter(companyRepository);
   const jobService = new JobService(jobRepository, companyMembership, companyDirectory, now);
@@ -266,6 +283,7 @@ export const createContainer = (config: ContainerConfig): Container => {
   container
     .register(USER_SERVICE, userService)
     .register(CANDIDATE_PROFILE_SERVICE, candidateProfileService)
+    .register(CANDIDATE_DIRECTORY_SERVICE, candidateDirectoryService)
     .register(HR_PROFILE_SERVICE, hrProfileService)
     .register(COMPANY_MEMBERSHIP, companyMembership)
     .register(COMPANY_SERVICE, companyService)
@@ -294,7 +312,7 @@ export const createContainer = (config: ContainerConfig): Container => {
     )
     .register(PROFILE_CONTROLLER, new ProfileController(profileService))
     .register(PROFILE_UPDATE_VALIDATOR, createProfileUpdateValidator(profileService))
-    .register(CANDIDATE_CONTROLLER, new CandidateController(candidateProfileService))
+    .register(CANDIDATE_CONTROLLER, new CandidateController(candidateDirectoryService))
     .register(COMPANY_CONTROLLER, new CompanyController(companyService))
     .register(JOB_CONTROLLER, new JobController(jobService))
     .register(APPLICATION_CONTROLLER, new ApplicationController(applicationService))

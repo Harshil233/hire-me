@@ -16,15 +16,14 @@ export class FileRepository implements IFileRepository {
     return FileRepository.toDomain(created.toObject<FileDocument>());
   }
 
-  async findByIdForOwner(id: string, ownerUserId: string): Promise<StoredFileRecord | null> {
+  async findById(id: string): Promise<StoredFileRecord | null> {
     const objectId = toObjectIdOrNull(id);
-    const ownerId = toObjectIdOrNull(ownerUserId);
-    if (objectId === null || ownerId === null) {
+    if (objectId === null) {
       return null;
     }
 
     const document = await this.model
-      .findOne({ _id: objectId, ownerUserId: ownerId })
+      .findOne({ _id: objectId })
       .lean<FileDocument | null>()
       .exec();
 

@@ -54,13 +54,21 @@ export const RoleRoute = ({ allow }: RoleRouteProps): React.JSX.Element => {
   return user.role === allow ? <Outlet /> : <Navigate to={landingPathFor(user.role)} replace />;
 };
 
-/** Keeps a signed-in user away from the sign-in and sign-up screens. */
+/**
+ * Keeps a signed-in user away from the sign-in and sign-up screens. Sends them to the
+ * list their role came for — not to their profile, which is somewhere you go on purpose
+ * rather than somewhere signing in should drop you.
+ */
 export const PublicOnlyRoute = (): React.JSX.Element => {
-  const { isRestoring, isAuthenticated } = useSession();
+  const { isRestoring, isAuthenticated, user } = useSession();
 
   if (isRestoring) {
     return <RestoringSession />;
   }
 
-  return isAuthenticated ? <Navigate to={ROUTES.PROFILE} replace /> : <Outlet />;
+  if (!isAuthenticated || user === null) {
+    return <Outlet />;
+  }
+
+  return <Navigate to={landingPathFor(user.role)} replace />;
 };

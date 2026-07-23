@@ -92,7 +92,7 @@ export const AppLayout = (): React.JSX.Element => {
               <Link
                 to={ROUTES.PROFILE}
                 title={user.email}
-                className="hidden h-9 w-9 items-center justify-center rounded-full bg-brand-soft text-xs font-semibold text-brand-text transition hover:brightness-95 sm:flex"
+                className="hidden h-9 w-9 items-center justify-center rounded-full bg-highlight-soft text-xs font-semibold text-highlight-text transition hover:brightness-95 sm:flex"
               >
                 {initialsOf(user.email)}
               </Link>
@@ -131,7 +131,7 @@ export const AppLayout = (): React.JSX.Element => {
           </NavLink>
         ))}
         <NavLink to={ROUTES.PROFILE} className={mobileLinkClasses}>
-          <span className="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-brand-soft text-[0.5rem] font-bold text-brand-text">
+          <span className="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-highlight-soft text-[0.5rem] font-bold text-highlight-text">
             {user === null ? '' : initialsOf(user.email)}
           </span>
           Profile

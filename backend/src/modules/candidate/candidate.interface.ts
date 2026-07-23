@@ -1,9 +1,14 @@
 import type { Gender, JobType } from '../../config/constants';
 import type { PaginationMeta } from '../../common/http/api-response';
 import type { Page } from '../../common/persistence/page';
+import type { IOwnedResourceLister } from '../../common/persistence/owned-resource.types';
 import type { TransactionContext } from '../../common/persistence/transaction.types';
 import { createToken, type Token } from '../../container/token';
 import type { MobileInput } from '../../common/validation/fields';
+import type { Certification } from '../certification/certification.interface';
+import type { Education } from '../education/education.interface';
+import type { Experience } from '../experience/experience.interface';
+import type { Project } from '../project/project.interface';
 import type {
   CandidateQueryInput,
   CreateCandidateProfileInput,
@@ -60,6 +65,33 @@ export interface CandidateListResult {
   readonly pagination: PaginationMeta;
 }
 
+/**
+ * A candidate opened from the talent pool. Adds the sections they filled in to be found
+ * by — history, study, work, credentials — and nothing more: date of birth, mobile and
+ * salary stay behind the same line the browse card draws. An employer who needs to reach
+ * someone does it through the resume the candidate chose to publish.
+ */
+export interface CandidateDetail extends CandidateBrowseItem {
+  readonly experience: readonly Experience[];
+  readonly education: readonly Education[];
+  readonly projects: readonly Project[];
+  readonly certifications: readonly Certification[];
+}
+
+/** The four section readers an employer-facing candidate view composes (ISP). */
+export interface CandidateSectionReaders {
+  readonly experience: IOwnedResourceLister<Experience>;
+  readonly education: IOwnedResourceLister<Education>;
+  readonly project: IOwnedResourceLister<Project>;
+  readonly certification: IOwnedResourceLister<Certification>;
+}
+
+/** Employer-facing reads of the candidate pool, separate from a candidate's own profile. */
+export interface ICandidateDirectoryService {
+  browse(query: CandidateQueryInput): Promise<CandidateListResult>;
+  getDetail(userId: string): Promise<CandidateDetail>;
+}
+
 export interface ICandidateProfileRepository {
   findByUserId(userId: string): Promise<CandidateProfile | null>;
   /** Batched read so an applicant list never becomes one query per applicant. */
@@ -86,8 +118,6 @@ export interface ICandidateProfileService {
   ): Promise<CandidateProfile>;
   getByUserId(userId: string): Promise<CandidateProfile>;
   update(userId: string, data: UpdateCandidateProfileInput): Promise<CandidateProfile>;
-  /** Employer-facing talent pool. Returns browse items, never full profiles. */
-  browse(query: CandidateQueryInput): Promise<CandidateListResult>;
 }
 
 export const CANDIDATE_PROFILE_REPOSITORY: Token<ICandidateProfileRepository> = createToken(
@@ -95,4 +125,7 @@ export const CANDIDATE_PROFILE_REPOSITORY: Token<ICandidateProfileRepository> = 
 );
 export const CANDIDATE_PROFILE_SERVICE: Token<ICandidateProfileService> = createToken(
   'ICandidateProfileService',
+);
+export const CANDIDATE_DIRECTORY_SERVICE: Token<ICandidateDirectoryService> = createToken(
+  'ICandidateDirectoryService',
 );

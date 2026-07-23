@@ -3,17 +3,20 @@ import { NotFoundError, ValidationError } from '../../common/errors/app-error';
 import { ERROR_CODES } from '../../common/errors/error-codes';
 import type {
   DownloadedFile,
+  FileRequester,
   IFileRepository,
   IFileService,
   StoredFileRecord,
   UploadFileInput,
 } from './file.interface';
+import type { IFileAccessPolicy } from './file.access-policy';
 import type { IFileStorage } from './file.storage';
 
 export class FileService implements IFileService {
   constructor(
     private readonly fileRepository: IFileRepository,
     private readonly storage: IFileStorage,
+    private readonly accessPolicies: readonly IFileAccessPolicy[],
   ) {}
 
   async upload(ownerUserId: string, input: UploadFileInput): Promise<StoredFileRecord> {
@@ -43,13 +46,23 @@ export class FileService implements IFileService {
     });
   }
 
-  async download(id: string, requesterUserId: string): Promise<DownloadedFile> {
-    const record = await this.fileRepository.findByIdForOwner(id, requesterUserId);
+  /**
+   * A file the requester may not open is reported as missing rather than forbidden, so
+   * the response never confirms that someone else's file exists.
+   */
+  async download(id: string, requester: FileRequester): Promise<DownloadedFile> {
+    const record = await this.fileRepository.findById(id);
 
-    if (record === null) {
+    if (record === null || !this.isPermitted(record, requester)) {
       throw new NotFoundError('File not found', ERROR_CODES.FILE_NOT_FOUND);
     }
 
     return { record, content: await this.storage.read(record.storageKey) };
+  }
+
+  private isPermitted(record: StoredFileRecord, requester: FileRequester): boolean {
+    return this.accessPolicies.some((policy) =>
+      policy.allows({ record, requesterUserId: requester.userId, requesterRole: requester.role }),
+    );
   }
 }

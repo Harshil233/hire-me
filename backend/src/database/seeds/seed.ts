@@ -8,12 +8,21 @@ import { CANDIDATE_PROFILE_SERVICE } from '../../modules/candidate/candidate.int
 import { JOB_SERVICE } from '../../modules/job/job.interface';
 import { USER_REPOSITORY } from '../../modules/user/user.interface';
 import { MongooseConnection, getConnection } from '../connection';
+import { CERTIFICATION_SERVICE } from '../../modules/certification/certification.interface';
+import { certificationInputSchema } from '../../modules/certification/certification.schema';
+import { EDUCATION_SERVICE } from '../../modules/education/education.interface';
+import { educationInputSchema } from '../../modules/education/education.schema';
+import { EXPERIENCE_SERVICE } from '../../modules/experience/experience.interface';
+import { experienceInputSchema } from '../../modules/experience/experience.schema';
+import { PROJECT_SERVICE } from '../../modules/project/project.interface';
+import { projectInputSchema } from '../../modules/project/project.schema';
 import {
   SEED_APPLICATIONS,
   SEED_CANDIDATES,
   SEED_HRS,
   SEED_JOBS,
   SEED_PASSWORD,
+  type SeedCandidateSections,
 } from './seed.data';
 
 /**
@@ -59,7 +68,45 @@ const seed = async (): Promise<void> => {
   const jobIdByTitle = new Map<string, string>();
   const hrEmailByJobTitle = new Map<string, string>();
 
-  let created = { employers: 0, candidates: 0, jobs: 0, applications: 0 };
+  const experiences = container.resolve(EXPERIENCE_SERVICE);
+  const educations = container.resolve(EDUCATION_SERVICE);
+  const projects = container.resolve(PROJECT_SERVICE);
+  const certifications = container.resolve(CERTIFICATION_SERVICE);
+
+  let created = { employers: 0, candidates: 0, sections: 0, jobs: 0, applications: 0 };
+
+  /**
+   * Writes the sections an employer sees on a candidate's detail page. Only reached for
+   * a freshly created account, so re-running the seed never duplicates them.
+   */
+  const addSections = async (
+    userId: string,
+    sections: SeedCandidateSections | undefined,
+  ): Promise<number> => {
+    if (sections === undefined) {
+      return 0;
+    }
+
+    // Parsed through the same schemas a request goes through, so seed data cannot drift
+    // from what the endpoints would accept.
+    const writes = [
+      ...(sections.experience ?? []).map((entry) =>
+        experiences.create(userId, experienceInputSchema.parse(entry)),
+      ),
+      ...(sections.education ?? []).map((entry) =>
+        educations.create(userId, educationInputSchema.parse(entry)),
+      ),
+      ...(sections.projects ?? []).map((entry) =>
+        projects.create(userId, projectInputSchema.parse(entry)),
+      ),
+      ...(sections.certifications ?? []).map((entry) =>
+        certifications.create(userId, certificationInputSchema.parse(entry)),
+      ),
+    ];
+
+    await Promise.all(writes);
+    return writes.length;
+  };
 
   /* ------------------------------------------------------------- employers */
   for (const hr of SEED_HRS) {
@@ -88,7 +135,11 @@ const seed = async (): Promise<void> => {
     userIdByEmail.set(candidate.account.email, session.user.id);
     // Fills in skills and location, so an employer's applicant list is not blank.
     await candidateProfiles.update(session.user.id, candidate.profile);
-    created = { ...created, candidates: created.candidates + 1 };
+    created = {
+      ...created,
+      candidates: created.candidates + 1,
+      sections: created.sections + (await addSections(session.user.id, candidate.sections)),
+    };
   }
 
   /* ------------------------------------------------------------------ jobs */

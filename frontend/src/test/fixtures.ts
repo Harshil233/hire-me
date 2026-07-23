@@ -11,6 +11,10 @@ import type {
   MyApplication,
 } from '@/features/applications/schemas/application.schema';
 import type { Job, Pagination } from '@/features/jobs/schemas/job.schema';
+import type {
+  Candidate,
+  CandidateDetail,
+} from '@/features/candidates/schemas/candidate.schema';
 import type { SessionUser } from '@/store/auth.store';
 
 export const candidateUser: SessionUser = {
@@ -152,4 +156,42 @@ export const applicationListResponse = <TItem>(
     applications: items,
     pagination: { page: 1, pageSize: 20, total: items.length, totalPages: 1, ...pagination },
   },
+});
+
+export const candidate = (overrides: Partial<Candidate> = {}): Candidate => ({
+  userId: 'user-1',
+  fullName: 'Ada Lovelace',
+  currentLocation: 'Pune',
+  preferredLocations: ['Pune', 'Remote'],
+  skills: ['TypeScript', 'Node.js'],
+  jobTypes: ['full_time'],
+  ...overrides,
+});
+
+/** Wraps candidates in the success envelope the API returns. */
+export const candidateListResponse = (
+  candidates: Candidate[],
+  pagination: Partial<Pagination> = {},
+): { success: true; data: { candidates: Candidate[]; pagination: Pagination } } => ({
+  success: true,
+  data: {
+    candidates,
+    pagination: { page: 1, pageSize: 20, total: candidates.length, totalPages: 1, ...pagination },
+  },
+});
+
+export const candidateDetail = (overrides: Partial<CandidateDetail> = {}): CandidateDetail => ({
+  ...candidate(),
+  experience: [],
+  education: [],
+  projects: [],
+  certifications: [],
+  ...overrides,
+});
+
+export const candidateDetailResponse = (
+  overrides: Partial<CandidateDetail> = {},
+): { success: true; data: { candidate: CandidateDetail } } => ({
+  success: true,
+  data: { candidate: candidateDetail(overrides) },
 });

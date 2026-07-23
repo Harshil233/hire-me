@@ -3,7 +3,7 @@ import { Router, type RequestHandler } from 'express';
 import { ROLES } from '../../config/constants';
 import { authorize } from '../../common/middlewares/authorize.middleware';
 import type { CandidateController } from './candidate.controller';
-import { validateCandidateQuery } from './candidate.validator';
+import { validateCandidateQuery, validateCandidateUserIdParam } from './candidate.validator';
 
 export interface CandidateRoutesDependencies {
   readonly controller: CandidateController;
@@ -21,6 +21,13 @@ export const createCandidateRouter = ({
   const router = Router();
 
   router.get('/', authenticate, authorize(ROLES.HR), validateCandidateQuery, controller.browse);
+  router.get(
+    '/:userId',
+    authenticate,
+    authorize(ROLES.HR),
+    validateCandidateUserIdParam,
+    controller.detail,
+  );
 
   return router;
 };

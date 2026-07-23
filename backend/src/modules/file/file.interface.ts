@@ -1,4 +1,4 @@
-import type { FileKind } from '../../config/constants';
+import type { FileKind, Role } from '../../config/constants';
 import { createToken, type Token } from '../../container/token';
 import type { IFileStorage } from './file.storage';
 
@@ -24,7 +24,8 @@ export interface CreateFileRecordData {
 
 export interface IFileRepository {
   create(data: CreateFileRecordData): Promise<StoredFileRecord>;
-  findByIdForOwner(id: string, ownerUserId: string): Promise<StoredFileRecord | null>;
+  /** Unscoped read; who may see the record is decided by the access policies. */
+  findById(id: string): Promise<StoredFileRecord | null>;
 }
 
 export interface UploadFileInput {
@@ -40,9 +41,15 @@ export interface DownloadedFile {
   readonly content: Buffer;
 }
 
+/** Who is asking for a file, which is all the access policies need to decide. */
+export interface FileRequester {
+  readonly userId: string;
+  readonly role: Role;
+}
+
 export interface IFileService {
   upload(ownerUserId: string, input: UploadFileInput): Promise<StoredFileRecord>;
-  download(id: string, requesterUserId: string): Promise<DownloadedFile>;
+  download(id: string, requester: FileRequester): Promise<DownloadedFile>;
 }
 
 export const FILE_REPOSITORY: Token<IFileRepository> = createToken('IFileRepository');

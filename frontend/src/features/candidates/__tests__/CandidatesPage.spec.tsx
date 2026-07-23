@@ -3,30 +3,20 @@ import userEvent from '@testing-library/user-event';
 import MockAdapter from 'axios-mock-adapter';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { candidateDetailPath } from '@/config/constants';
 import { httpClient } from '@/services/api-client';
 import { CandidatesPage } from '@/pages/CandidatesPage';
+import { candidate, candidateListResponse } from '@/test/fixtures';
 import { renderWithProviders } from '@/test/render';
 import type { Candidate } from '../schemas/candidate.schema';
 
 let mock: MockAdapter;
 
-const candidate = (overrides: Partial<Candidate> = {}): Candidate => ({
-  userId: 'user-1',
-  fullName: 'Ada Lovelace',
-  currentLocation: 'Pune',
-  preferredLocations: ['Pune', 'Remote'],
-  skills: ['TypeScript', 'Node.js'],
-  jobTypes: ['full_time'],
-  ...overrides,
-});
-
-const pool = (candidates: Candidate[], total = candidates.length): Record<string, unknown> => ({
-  success: true,
-  data: {
-    candidates,
-    pagination: { page: 1, pageSize: 20, total, totalPages: Math.max(Math.ceil(total / 20), 1) },
-  },
-});
+const pool = (candidates: Candidate[], total = candidates.length): Record<string, unknown> =>
+  candidateListResponse(candidates, {
+    total,
+    totalPages: Math.max(Math.ceil(total / 20), 1),
+  });
 
 const lastParams = (): Record<string, string> | undefined =>
   mock.history.get[mock.history.get.length - 1]?.params as Record<string, string> | undefined;
@@ -166,6 +156,34 @@ describe('CandidatesPage', () => {
     renderWithProviders(<CandidatesPage />);
 
     expect(await screen.findByText('+2 more')).toBeInTheDocument();
+  });
+
+  it('links each card through to that candidate', async () => {
+    mock.onGet('/candidates').reply(200, pool([candidate({ userId: 'user-42' })]));
+
+    renderWithProviders(<CandidatesPage />);
+
+    expect(await screen.findByRole('link', { name: 'Ada Lovelace' })).toHaveAttribute(
+      'href',
+      candidateDetailPath('user-42'),
+    );
+  });
+
+  it('offers the résumé straight from the card', async () => {
+    mock.onGet('/candidates').reply(200, pool([candidate({ resumeFileId: 'file-7' })]));
+
+    renderWithProviders(<CandidatesPage />);
+
+    expect(await screen.findByRole('button', { name: /Résumé/ })).toBeInTheDocument();
+  });
+
+  it('leaves the résumé button off a card without one', async () => {
+    mock.onGet('/candidates').reply(200, pool([candidate()]));
+
+    renderWithProviders(<CandidatesPage />);
+
+    await screen.findByText('Ada Lovelace');
+    expect(screen.queryByRole('button', { name: /Résumé/ })).not.toBeInTheDocument();
   });
 
   it('pages forward', async () => {

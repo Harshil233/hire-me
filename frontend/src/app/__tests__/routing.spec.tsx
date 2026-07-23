@@ -9,6 +9,7 @@ import { httpClient } from '@/services/api-client';
 import { useAuthStore } from '@/store/auth.store';
 import {
   applicationListResponse,
+  candidateListResponse,
   candidateProfileView,
   candidateUser,
   hrUser,
@@ -84,12 +85,23 @@ describe('route guards', () => {
     expect(screen.queryByRole('heading', { name: 'Ada Lovelace' })).not.toBeInTheDocument();
   });
 
-  it('keeps a signed-in user away from the sign-in screen', async () => {
+  it('sends a signed-in candidate from the sign-in screen to the job list', async () => {
     allowRestore();
+    mock.onGet('/jobs').reply(200, jobListResponse([]));
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.LOGIN });
 
-    expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument();
+    // The list they came for, not their profile — signing in is not a request to edit it.
+    expect(await screen.findByRole('heading', { name: 'Open roles' })).toBeInTheDocument();
+  });
+
+  it('sends a signed-in employer from the sign-in screen to the talent pool', async () => {
+    allowRestore(hrUser);
+    mock.onGet('/candidates').reply(200, candidateListResponse([]));
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.LOGIN });
+
+    expect(await screen.findByRole('heading', { name: 'Find candidates' })).toBeInTheDocument();
   });
 
   it('sends a candidate from the root to the job list', async () => {
@@ -103,7 +115,7 @@ describe('route guards', () => {
 
   it('sends an employer from the root to the talent pool', async () => {
     allowRestore(hrUser);
-    mock.onGet('/candidates').reply(200, { success: true, data: { candidates: [], pagination: { page: 1, pageSize: 20, total: 0, totalPages: 1 } } });
+    mock.onGet('/candidates').reply(200, candidateListResponse([]));
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.ROOT });
 
@@ -188,7 +200,7 @@ describe('role-scoped routes', () => {
   it('sends an employer away from the candidate-only applications screen', async () => {
     allowRestore(hrUser);
 
-    mock.onGet('/candidates').reply(200, { success: true, data: { candidates: [], pagination: { page: 1, pageSize: 20, total: 0, totalPages: 1 } } });
+    mock.onGet('/candidates').reply(200, candidateListResponse([]));
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.APPLICATIONS });
 
@@ -225,7 +237,7 @@ describe('role-scoped routes', () => {
 
   it('offers the talent pool to an employer', async () => {
     allowRestore(hrUser);
-    mock.onGet('/candidates').reply(200, { success: true, data: { candidates: [], pagination: { page: 1, pageSize: 20, total: 0, totalPages: 1 } } });
+    mock.onGet('/candidates').reply(200, candidateListResponse([]));
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.CANDIDATES });
 

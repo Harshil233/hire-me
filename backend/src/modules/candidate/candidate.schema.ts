@@ -106,6 +106,9 @@ export const candidateQuerySchema = z.object({
 });
 export type CandidateQueryInput = z.infer<typeof candidateQuerySchema>;
 
+export const candidateUserIdParamsSchema = z.object({ userId: objectIdSchema });
+export type CandidateUserIdParams = z.infer<typeof candidateUserIdParamsSchema>;
+
 export const candidateBrowseItemResponseSchema = z.object({
   userId: z.string(),
   fullName: z.string(),

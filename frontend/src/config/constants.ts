@@ -134,6 +134,7 @@ export const ROUTES = {
   JOBS: '/jobs',
   JOB_DETAIL: '/jobs/:id',
   CANDIDATES: '/candidates',
+  CANDIDATE_DETAIL: '/candidates/:userId',
   HR_JOBS: '/hr/jobs',
   HR_JOB_APPLICANTS: '/hr/jobs/:id/applicants',
   APPLICATIONS: '/applications',
@@ -150,6 +151,8 @@ export const landingPathFor = (role: Role): string =>
 /** Builds concrete paths from the `:id` patterns above. */
 export const jobDetailPath = (id: string): string => `${ROUTES.JOBS}/${id}`;
 export const jobApplicantsPath = (id: string): string => `${ROUTES.HR_JOBS}/${id}/applicants`;
+export const candidateDetailPath = (userId: string): string =>
+  `${ROUTES.CANDIDATES}/${userId}`;
 
 /** Query keys for the server-state cache, declared once to avoid typos. */
 export const QUERY_KEYS = {
@@ -166,4 +169,5 @@ export const QUERY_KEYS = {
     ['applications', 'job', jobId, filters] as const,
   notifications: ['notifications'] as const,
   candidates: (filters: Readonly<Record<string, unknown>>) => ['candidates', filters] as const,
+  candidate: (userId: string) => ['candidate', userId] as const,
 };

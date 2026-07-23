@@ -33,6 +33,11 @@ export interface IOwnedResourceCounter {
   countByUser(userId: string): Promise<number>;
 }
 
+/** Narrow port for reading another user's sections, e.g. an employer viewing a candidate. */
+export interface IOwnedResourceLister<TEntity extends OwnedEntity> {
+  list(userId: string): Promise<TEntity[]>;
+}
+
 export interface IOwnedResourceService<TEntity extends OwnedEntity, TInput>
   extends IOwnedResourceCounter {
   list(userId: string): Promise<TEntity[]>;

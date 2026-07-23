@@ -1,5 +1,15 @@
 import type { ReactNode } from 'react';
 
+import { cn } from '@/lib/cn';
+
+/** Marigold for listings and actions; iris for the people half of the product. */
+export type PageHeaderTone = 'accent' | 'highlight';
+
+const RULE_CLASSES: Record<PageHeaderTone, string> = {
+  accent: 'bg-accent-line',
+  highlight: 'bg-highlight-line',
+};
+
 export interface PageHeaderProps {
   /** Names the section in the product's vocabulary, not the system's. */
   readonly eyebrow: string;
@@ -8,11 +18,13 @@ export interface PageHeaderProps {
   readonly count?: string | undefined;
   readonly description?: string | undefined;
   readonly action?: ReactNode;
+  readonly tone?: PageHeaderTone;
 }
 
 /**
  * Every list opens the same way: a small mono label, a display heading, and the count
- * on the same baseline. The marigold rule under it is the page's one flash of accent.
+ * on the same baseline. The coloured rule under it is the page's one flash of accent,
+ * and which colour it is tells you whether you are looking at roles or at people.
  */
 export const PageHeader = ({
   eyebrow,
@@ -20,6 +32,7 @@ export const PageHeader = ({
   count,
   description,
   action,
+  tone = 'accent',
 }: PageHeaderProps): React.JSX.Element => (
   <header>
     <p className="eyebrow">{eyebrow}</p>
@@ -41,7 +54,7 @@ export const PageHeader = ({
     )}
 
     <div className="mt-4 h-px w-full bg-border">
-      <div className="h-px w-16 bg-accent-line" />
+      <div className={cn('h-px w-16', RULE_CLASSES[tone])} data-testid="page-header-rule" />
     </div>
   </header>
 );

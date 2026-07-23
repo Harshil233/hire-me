@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { ROLES, ROUTES, landingPathFor } from '@/config/constants';
+import { CandidateDetailPage } from '@/pages/CandidateDetailPage';
 import { CandidatesPage } from '@/pages/CandidatesPage';
 import { HrJobsPage } from '@/pages/HrJobsPage';
 import { JobApplicantsPage } from '@/pages/JobApplicantsPage';
@@ -38,6 +39,7 @@ export const AppRoutes = (): React.JSX.Element => (
         {/* Posting, applicant review and the talent pool are HR-only. */}
         <Route element={<RoleRoute allow={ROLES.HR} />}>
           <Route path={ROUTES.CANDIDATES} element={<CandidatesPage />} />
+          <Route path={ROUTES.CANDIDATE_DETAIL} element={<CandidateDetailPage />} />
           <Route path={ROUTES.HR_JOBS} element={<HrJobsPage />} />
           <Route path={ROUTES.HR_JOB_APPLICANTS} element={<JobApplicantsPage />} />
         </Route>

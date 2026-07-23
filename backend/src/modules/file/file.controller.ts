@@ -46,8 +46,8 @@ export class FileController {
   };
 
   download = async (req: Request<FileIdParams>, res: Response): Promise<void> => {
-    const { userId } = requireAuth(req);
-    const { record, content } = await this.fileService.download(req.params.id, userId);
+    const { userId, role } = requireAuth(req);
+    const { record, content } = await this.fileService.download(req.params.id, { userId, role });
 
     res.setHeader('Content-Type', record.mimeType);
     res.setHeader('Content-Length', record.sizeBytes);

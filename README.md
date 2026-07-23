@@ -117,13 +117,14 @@ Base path `/api/v1`. Every response uses one envelope:
 | GET | `/applications` | candidate | The caller's own applications |
 | PATCH | `/applications/:id/status` | both | HR shortlists/rejects; the candidate withdraws |
 | GET | `/candidates` | HR | The talent pool; filter by skill, location and job type |
+| GET | `/candidates/:userId` | HR | One candidate, with their experience, education, projects and certifications |
 | GET | `/notifications` | access | The caller's inbox plus an unread count |
 | PATCH | `/notifications/read` | access | Mark one notification read, or all of them |
 | GET/POST | `/experience` | candidate | List / create |
 | PUT/DELETE | `/experience/:id` | candidate | Update / delete |
 | … | `/education`, `/certification`, `/project` | candidate | Identical shape |
 | POST | `/files` | access | Multipart upload → `{ fileId }` |
-| GET | `/files/:id` | access | Stream the file to its owner |
+| GET | `/files/:id` | access | Stream the file to its owner; HR may also open a candidate's résumé or photo |
 | GET | `/health` | — | Liveness + database ping |
 
 Validation failures return **422** with per-field details. A record owned by another

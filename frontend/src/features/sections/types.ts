@@ -34,6 +34,7 @@ export interface SectionConfig<TItem, TValues extends FieldValues> {
   readonly emptyValues: TValues;
   toValues(item: TItem): TValues;
   toPayload(values: TValues): Record<string, unknown>;
-  present(item: TItem): SectionItemView;
+  /** A property rather than a method, so it can be passed to a read-only renderer. */
+  readonly present: (item: TItem) => SectionItemView;
   readonly FormFields: ComponentType<{ form: UseFormReturn<TValues> }>;
 }

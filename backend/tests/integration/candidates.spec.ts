@@ -125,6 +125,155 @@ describe('GET /candidates', () => {
   });
 });
 
+describe('GET /candidates/:userId', () => {
+  const detailUrl = (): string => api(`/candidates/${candidate.userId}`);
+
+  it('returns the candidate with their sections attached', async () => {
+    await request(server.app)
+      .post(api('/experience'))
+      .set('Authorization', bearer(candidate))
+      .send({
+        title: 'Senior Engineer',
+        companyName: 'Nimbus Labs',
+        startDate: '2022-01-01',
+        isCurrent: true,
+        skills: ['TypeScript'],
+      })
+      .expect(201);
+
+    const response = await request(server.app)
+      .get(detailUrl())
+      .set('Authorization', bearer(hr))
+      .expect(200);
+
+    expect(response.body.data.candidate).toMatchObject({
+      fullName: 'Ada Lovelace',
+      currentLocation: 'Pune',
+    });
+    expect(response.body.data.candidate.experience).toHaveLength(1);
+    expect(response.body.data.candidate.experience[0]).toMatchObject({
+      title: 'Senior Engineer',
+    });
+  });
+
+  it('returns empty sections for a candidate who has filled nothing in', async () => {
+    const response = await request(server.app)
+      .get(detailUrl())
+      .set('Authorization', bearer(hr))
+      .expect(200);
+
+    expect(response.body.data.candidate).toMatchObject({
+      experience: [],
+      education: [],
+      projects: [],
+      certifications: [],
+    });
+  });
+
+  it.each([['dob'], ['mobile'], ['expectedCtc'], ['currentCtc'], ['email']])(
+    'does not disclose %s on the detail view either',
+    async (field) => {
+      await profileOf(candidate, {
+        expectedCtc: 2_400_000,
+        mobile: { countryCode: '+91', number: '9876543210' },
+      });
+
+      const response = await request(server.app)
+        .get(detailUrl())
+        .set('Authorization', bearer(hr))
+        .expect(200);
+
+      expect(response.body.data.candidate).not.toHaveProperty(field);
+    },
+  );
+
+  it('refuses a candidate with 403', async () => {
+    const response = await request(server.app)
+      .get(detailUrl())
+      .set('Authorization', bearer(candidate))
+      .expect(403);
+
+    expect(response.body.error.code).toBe(ERROR_CODES.ROLE_FORBIDDEN);
+  });
+
+  it('requires authentication', async () => {
+    await request(server.app).get(detailUrl()).expect(401);
+  });
+
+  it('rejects a malformed id with 422 rather than reaching the database', async () => {
+    await request(server.app)
+      .get(api('/candidates/not-an-id'))
+      .set('Authorization', bearer(hr))
+      .expect(422);
+  });
+
+  it('reports an unknown candidate as 404', async () => {
+    const response = await request(server.app)
+      .get(api('/candidates/64b7f1d2c9e77a0012345678'))
+      .set('Authorization', bearer(hr))
+      .expect(404);
+
+    expect(response.body.error.code).toBe(ERROR_CODES.PROFILE_NOT_FOUND);
+  });
+});
+
+describe('resume access for an employer', () => {
+  /** Uploads a résumé as the candidate and returns its file id. */
+  const uploadResume = async (): Promise<string> => {
+    const response = await request(server.app)
+      .post(api('/files'))
+      .set('Authorization', bearer(candidate))
+      .field('kind', 'resume')
+      .attach('file', Buffer.from('%PDF-1.4 a resume'), {
+        filename: 'ada.pdf',
+        contentType: 'application/pdf',
+      })
+      .expect(201);
+
+    return response.body.data.file.id as string;
+  };
+
+  it('lets an employer download a candidate’s résumé', async () => {
+    const fileId = await uploadResume();
+
+    const response = await request(server.app)
+      .get(api(`/files/${fileId}`))
+      .set('Authorization', bearer(hr))
+      .expect(200);
+
+    expect(response.headers['content-type']).toContain('application/pdf');
+    expect(response.body.toString()).toContain('a resume');
+  });
+
+  it('surfaces the résumé id on the talent-pool card so the download is reachable', async () => {
+    const fileId = await uploadResume();
+    await profileOf(candidate, { resumeFileId: fileId });
+
+    const response = await request(server.app)
+      .get(api('/candidates'))
+      .set('Authorization', bearer(hr))
+      .expect(200);
+
+    expect(response.body.data.candidates[0].resumeFileId).toBe(fileId);
+  });
+
+  it('still hides the résumé from another candidate', async () => {
+    const fileId = await uploadResume();
+    const other = await registerCandidate(server.app, { email: 'other@example.com' });
+
+    await request(server.app)
+      .get(api(`/files/${fileId}`))
+      .set('Authorization', bearer(other))
+      .expect(404);
+  });
+
+  it('requires authentication to download anything', async () => {
+    const fileId = await uploadResume();
+
+    await request(server.app).get(api(`/files/${fileId}`)).expect(401);
+  });
+});
+
 describe('GET /jobs — widened search', () => {
   beforeEach(async () => {
     const created = await request(server.app)

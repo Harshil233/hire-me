@@ -35,6 +35,14 @@
   --marigold-500: oklch(0.75 0.155 70);
   --marigold-600: oklch(0.68 0.15 66);
 
+  /* Iris is the cool counterweight to marigold: the people half of the product. */
+  --iris-100: oklch(0.945 0.035 285);
+  --iris-200: oklch(0.89 0.07 285);
+  --iris-300: oklch(0.76 0.12 285);
+  --iris-400: oklch(0.63 0.16 285);
+  --iris-500: oklch(0.55 0.18 285);
+  --iris-600: oklch(0.47 0.165 285);
+
   --pine-100: oklch(0.94 0.045 168);
   --pine-500: oklch(0.52 0.09 168);
   --pine-300: oklch(0.72 0.11 168);
@@ -71,6 +79,19 @@
   --accent-strong: var(--marigold-600);
   --accent-soft: var(--marigold-100);
   --accent-line: var(--marigold-500);
+  /* Marigold is too light to read as body text; this is the same hue, taken darker. */
+  --accent-text: oklch(0.5 0.12 62);
+
+  /*
+   * `highlight` is iris: it marks people — candidate identity, the talent pool, profile
+   * sections — while marigold stays on actions and listings. Two halves of the product,
+   * two colours, so a screen tells you which one you are on before you read it.
+   */
+  --highlight: var(--iris-500);
+  --highlight-strong: var(--iris-600);
+  --highlight-soft: var(--iris-100);
+  --highlight-text: var(--iris-600);
+  --highlight-line: var(--iris-400);
 
   --success: var(--pine-500);
   --success-soft: var(--pine-100);
@@ -118,6 +139,14 @@
   --accent-strong: var(--marigold-400);
   --accent-soft: oklch(0.32 0.06 72);
   --accent-line: var(--marigold-400);
+  --accent-text: var(--marigold-200);
+
+  /* Iris inverts the same way the brand does: lighter, so it carries on a dark surface. */
+  --highlight: var(--iris-300);
+  --highlight-strong: var(--iris-200);
+  --highlight-soft: oklch(0.29 0.07 285);
+  --highlight-text: oklch(0.83 0.09 285);
+  --highlight-line: var(--iris-300);
 
   --success: var(--pine-300);
   --success-soft: oklch(0.3 0.05 168);
@@ -159,6 +188,13 @@
   --color-accent-strong: var(--accent-strong);
   --color-accent-soft: var(--accent-soft);
   --color-accent-line: var(--accent-line);
+  --color-accent-text: var(--accent-text);
+
+  --color-highlight: var(--highlight);
+  --color-highlight-strong: var(--highlight-strong);
+  --color-highlight-soft: var(--highlight-soft);
+  --color-highlight-text: var(--highlight-text);
+  --color-highlight-line: var(--highlight-line);
 
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);

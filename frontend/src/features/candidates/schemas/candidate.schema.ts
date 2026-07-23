@@ -2,6 +2,10 @@ import { z } from 'zod';
 
 import { JOB_TYPE_VALUES } from '@/config/constants';
 import { paginationSchema } from '@/features/jobs/schemas/job.schema';
+import { certificationItemSchema } from '@/features/sections/configs/certification.config';
+import { educationItemSchema } from '@/features/sections/configs/education.config';
+import { experienceItemSchema } from '@/features/sections/configs/experience.config';
+import { projectItemSchema } from '@/features/sections/configs/project.config';
 
 /** The talent-pool card. Deliberately narrow — the API sends nothing more than this. */
 export const candidateSchema = z.object({
@@ -21,6 +25,21 @@ export const candidateListSchema = z.object({
   pagination: paginationSchema,
 });
 export type CandidateList = z.infer<typeof candidateListSchema>;
+
+/**
+ * A candidate opened from the pool: the card plus the sections they filled in. The item
+ * schemas are the section configs' own, so the employer's read-only view and the
+ * candidate's editable one parse identically (CLAUDE.md §9).
+ */
+export const candidateDetailSchema = candidateSchema.extend({
+  experience: z.array(experienceItemSchema),
+  education: z.array(educationItemSchema),
+  projects: z.array(projectItemSchema),
+  certifications: z.array(certificationItemSchema),
+});
+export type CandidateDetail = z.infer<typeof candidateDetailSchema>;
+
+export const candidateDetailResponseSchema = z.object({ candidate: candidateDetailSchema });
 
 export type CandidateFilters = {
   readonly page?: number | undefined;

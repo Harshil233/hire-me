@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { FILE_KINDS } from '../../../config/constants';
+import { FILE_KINDS, ROLES } from '../../../config/constants';
 import { ERROR_CODES } from '../../../common/errors/error-codes';
+import {
+  EmployerCandidateFileAccessPolicy,
+  OwnerFileAccessPolicy,
+} from '../file.access-policy';
 import type { IFileRepository, StoredFileRecord } from '../file.interface';
 import { FileService } from '../file.service';
 import type { IFileStorage } from '../file.storage';
@@ -24,7 +28,7 @@ const createHarness = (): {
 } => {
   const repository: IFileRepository = {
     create: vi.fn(async () => RECORD),
-    findByIdForOwner: vi.fn(async () => RECORD),
+    findById: vi.fn(async () => RECORD),
   };
 
   const storage: IFileStorage = {
@@ -32,8 +36,18 @@ const createHarness = (): {
     read: vi.fn(async () => Buffer.from('file-bytes')),
   };
 
-  return { service: new FileService(repository, storage), repository, storage };
+  // The real policy set, so these tests exercise the wiring the app actually ships.
+  const service = new FileService(repository, storage, [
+    new OwnerFileAccessPolicy(),
+    new EmployerCandidateFileAccessPolicy(),
+  ]);
+
+  return { service, repository, storage };
 };
+
+const OWNER = { userId: 'user-1', role: ROLES.CANDIDATE };
+const EMPLOYER = { userId: 'hr-1', role: ROLES.HR };
+const STRANGER = { userId: 'intruder', role: ROLES.CANDIDATE };
 
 const UPLOAD = {
   kind: FILE_KINDS.PROFILE_PIC,
@@ -105,20 +119,75 @@ describe('FileService.download', () => {
   it('returns the record and its bytes to the owner', async () => {
     const { service, storage } = createHarness();
 
-    const result = await service.download('file-1', 'user-1');
+    const result = await service.download('file-1', OWNER);
 
     expect(storage.read).toHaveBeenCalledWith('stored-key.png');
     expect(result.content.toString()).toBe('file-bytes');
     expect(result.record).toEqual(RECORD);
   });
 
-  it('reports another user’s file as not found', async () => {
+  it('reports a missing record as not found', async () => {
     const { service, repository } = createHarness();
-    vi.mocked(repository.findByIdForOwner).mockResolvedValue(null);
+    vi.mocked(repository.findById).mockResolvedValue(null);
 
-    await expect(service.download('file-1', 'intruder')).rejects.toMatchObject({
+    await expect(service.download('file-1', OWNER)).rejects.toMatchObject({
       statusCode: 404,
       code: ERROR_CODES.FILE_NOT_FOUND,
+    });
+  });
+
+  it('reports another candidate’s file as not found rather than forbidden', async () => {
+    const { service, storage } = createHarness();
+
+    await expect(service.download('file-1', STRANGER)).rejects.toMatchObject({
+      statusCode: 404,
+      code: ERROR_CODES.FILE_NOT_FOUND,
+    });
+    // Never touched the disk for a file the caller may not see.
+    expect(storage.read).not.toHaveBeenCalled();
+  });
+
+  it('lets an employer open a candidate’s résumé', async () => {
+    const { service, repository } = createHarness();
+    vi.mocked(repository.findById).mockResolvedValue({ ...RECORD, kind: FILE_KINDS.RESUME });
+
+    await expect(service.download('file-1', EMPLOYER)).resolves.toMatchObject({
+      record: { kind: FILE_KINDS.RESUME },
+    });
+  });
+
+  it.each([[FILE_KINDS.PROFILE_PIC], [FILE_KINDS.COMPANY_LOGO]])(
+    'does not widen an employer to a %s they do not own',
+    async (kind) => {
+      const { service, repository } = createHarness();
+      vi.mocked(repository.findById).mockResolvedValue({ ...RECORD, kind });
+
+      await expect(service.download('file-1', EMPLOYER)).rejects.toMatchObject({
+        statusCode: 404,
+        code: ERROR_CODES.FILE_NOT_FOUND,
+      });
+    },
+  );
+
+  it('does not let one candidate open another candidate’s resume', async () => {
+    const { service, repository } = createHarness();
+    vi.mocked(repository.findById).mockResolvedValue({ ...RECORD, kind: FILE_KINDS.RESUME });
+
+    await expect(service.download('file-1', STRANGER)).rejects.toMatchObject({
+      statusCode: 404,
+    });
+  });
+
+  it('still serves an employer their own upload of any kind', async () => {
+    const { service, repository } = createHarness();
+    vi.mocked(repository.findById).mockResolvedValue({
+      ...RECORD,
+      ownerUserId: EMPLOYER.userId,
+      kind: FILE_KINDS.COMPANY_LOGO,
+    });
+
+    await expect(service.download('file-1', EMPLOYER)).resolves.toMatchObject({
+      record: { ownerUserId: EMPLOYER.userId },
     });
   });
 
@@ -126,6 +195,6 @@ describe('FileService.download', () => {
     const { service, storage } = createHarness();
     vi.mocked(storage.read).mockRejectedValue(new Error('ENOENT'));
 
-    await expect(service.download('file-1', 'user-1')).rejects.toThrow('ENOENT');
+    await expect(service.download('file-1', OWNER)).rejects.toThrow('ENOENT');
   });
 });

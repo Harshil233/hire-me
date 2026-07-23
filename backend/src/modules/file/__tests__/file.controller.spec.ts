@@ -85,7 +85,11 @@ describe('FileController.download', () => {
       res,
     );
 
-    expect(service.download).toHaveBeenCalledWith('file-1', 'user-1');
+    // The role travels with the request, because it decides what the caller may open.
+    expect(service.download).toHaveBeenCalledWith('file-1', {
+      userId: 'user-1',
+      role: ROLES.CANDIDATE,
+    });
     expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/pdf');
     expect(res.setHeader).toHaveBeenCalledWith('Content-Length', 2048);
     expect(res.setHeader).toHaveBeenCalledWith(

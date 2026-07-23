@@ -114,3 +114,39 @@ export const PlusIcon = (props: IconProps): React.JSX.Element => (
     <path d="M12 5v14M5 12h14" />
   </svg>
 );
+
+export const DownloadIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M12 3v12" />
+    <path d="m7 11 5 5 5-5" />
+    <path d="M4 20h16" />
+  </svg>
+);
+
+export const ArrowLeftIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M19 12H5" />
+    <path d="m11 18-6-6 6-6" />
+  </svg>
+);
+
+export const GraduationCapIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M12 4 2 9l10 5 10-5-10-5Z" />
+    <path d="M6 11.5V17c0 1.1 2.7 2.5 6 2.5s6-1.4 6-2.5v-5.5" />
+  </svg>
+);
+
+export const SparkIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M12 3v4M12 17v4M3 12h4M17 12h4" />
+    <path d="M12 8.5 13.4 11l2.6 1-2.6 1-1.4 2.5L10.6 13 8 12l2.6-1L12 8.5Z" />
+  </svg>
+);
+
+export const AwardIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <circle cx="12" cy="9" r="6" />
+    <path d="m8.5 14.5-1 6.5 4.5-2.6 4.5 2.6-1-6.5" />
+  </svg>
+);

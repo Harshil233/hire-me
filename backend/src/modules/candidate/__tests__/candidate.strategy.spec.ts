@@ -41,7 +41,6 @@ const createStrategy = (): {
   const profileService: ICandidateProfileService = {
     createForUser: vi.fn(async () => PROFILE),
     getByUserId: vi.fn(async () => PROFILE),
-    browse: vi.fn(),
     update: vi.fn(async () => PROFILE),
   };
 

@@ -46,6 +46,7 @@ export const CandidatesPage = (): React.JSX.Element => {
       <PageHeader
         eyebrow="Talent pool"
         title="Find candidates"
+        tone="highlight"
         count={
           query.isSuccess
             ? `${String(query.data.pagination.total)} ${query.data.pagination.total === 1 ? 'person' : 'people'}`
