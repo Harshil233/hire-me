@@ -99,7 +99,7 @@ export const JobCard = ({
             {job.skills.slice(0, SKILLS_SHOWN).map((skill) => (
               <li
                 key={skill}
-                className="rounded border border-border bg-surface-inset px-2 py-0.5 text-xs text-fg-muted"
+                className="chip chip-sm"
               >
                 {skill}
               </li>

@@ -105,9 +105,7 @@ describe('candidate detail', () => {
   });
 
   it('still shows a section the candidate left empty, so a gap is visible', async () => {
-    mock
-      .onGet(/\/candidates\//)
-      .reply(200, candidateDetailResponse({ experience: [EXPERIENCE] }));
+    mock.onGet(/\/candidates\//).reply(200, candidateDetailResponse({ experience: [EXPERIENCE] }));
 
     renderPage();
 
@@ -138,10 +136,9 @@ describe('candidate detail', () => {
   });
 
   it('says so when no location is shared', async () => {
-    mock.onGet(/\/candidates\//).reply(
-      200,
-      candidateDetailResponse({ currentLocation: undefined, preferredLocations: [] }),
-    );
+    mock
+      .onGet(/\/candidates\//)
+      .reply(200, candidateDetailResponse({ currentLocation: undefined, preferredLocations: [] }));
 
     renderPage();
 
@@ -150,9 +147,7 @@ describe('candidate detail', () => {
   });
 
   it('never offers editing controls on someone else’s profile', async () => {
-    mock
-      .onGet(/\/candidates\//)
-      .reply(200, candidateDetailResponse({ experience: [EXPERIENCE] }));
+    mock.onGet(/\/candidates\//).reply(200, candidateDetailResponse({ experience: [EXPERIENCE] }));
 
     renderPage();
 
@@ -162,9 +157,7 @@ describe('candidate detail', () => {
   });
 
   it('offers reading and keeping the résumé when there is one', async () => {
-    mock
-      .onGet(/\/candidates\//)
-      .reply(200, candidateDetailResponse({ resumeFileId: 'file-7' }));
+    mock.onGet(/\/candidates\//).reply(200, candidateDetailResponse({ resumeFileId: 'file-7' }));
 
     renderPage();
 
@@ -185,11 +178,13 @@ describe('candidate detail', () => {
 
   it('fetches the résumé only once asked', async () => {
     const user = userEvent.setup();
-    vi.stubGlobal('URL', { ...URL, createObjectURL: () => 'blob:x', revokeObjectURL: () => undefined });
+    vi.stubGlobal('URL', {
+      ...URL,
+      createObjectURL: () => 'blob:x',
+      revokeObjectURL: () => undefined,
+    });
     vi.stubGlobal('open', vi.fn());
-    mock
-      .onGet(/\/candidates\//)
-      .reply(200, candidateDetailResponse({ resumeFileId: 'file-7' }));
+    mock.onGet(/\/candidates\//).reply(200, candidateDetailResponse({ resumeFileId: 'file-7' }));
     mock.onGet('/files/file-7').reply(200, new Blob(['pdf']));
 
     renderPage();

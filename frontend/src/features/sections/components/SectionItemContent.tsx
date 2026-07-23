@@ -38,10 +38,7 @@ export const SectionItemContent = ({ view }: SectionItemContentProps): React.JSX
     {view.tags !== undefined && view.tags.length > 0 && (
       <ul className="mt-2 flex flex-wrap gap-1.5">
         {view.tags.map((tag) => (
-          <li
-            key={tag}
-            className="rounded-md bg-surface-inset px-2 py-0.5 text-xs font-medium text-fg-muted"
-          >
+          <li key={tag} className="chip chip-sm">
             {tag}
           </li>
         ))}

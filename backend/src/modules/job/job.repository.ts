@@ -4,6 +4,7 @@ import type { JobStatus } from '../../config/constants';
 import { toIdString, toObjectId, toObjectIdOrNull } from '../../common/persistence/object-id';
 import type { Page } from '../../common/persistence/page';
 import { escapeRegex } from '../../common/utils/regex';
+import { matchEverySearchWord } from '../../common/persistence/search-query';
 import type { JobDocument } from '../../database/models/job.model';
 import type {
   CreateJobData,
@@ -195,22 +196,26 @@ export class JobRepository implements IJobRepository, IJobSummaryProvider {
      * not appear inside `$or`, and matching the company requires exactly that.
      */
     if (filter.search !== undefined) {
-      const term = new RegExp(escapeRegex(filter.search), 'i');
-      const alternatives: FilterQuery<JobDocument>[] = [
-        { title: term },
-        { description: term },
-        { skills: term },
-        { locations: term },
-        { role: term },
-      ];
+      // Every word must land somewhere, so "backend pune" matches a title plus a
+      // location rather than being hunted for as one string in each field.
+      and.push(
+        ...matchEverySearchWord<FilterQuery<JobDocument>>(filter.search, (term, word) => {
+          const alternatives: FilterQuery<JobDocument>[] = [
+            { title: term },
+            { description: term },
+            { skills: term },
+            { locations: term },
+            { role: term },
+          ];
 
-      if (filter.searchCompanyIds !== undefined && filter.searchCompanyIds.length > 0) {
-        alternatives.push({
-          companyId: { $in: filter.searchCompanyIds.map((id) => toObjectId(id)) },
-        });
-      }
+          const companyIds = filter.searchCompanyIds?.get(word) ?? [];
+          if (companyIds.length > 0) {
+            alternatives.push({ companyId: { $in: companyIds.map((id) => toObjectId(id)) } });
+          }
 
-      and.push({ $or: alternatives });
+          return alternatives;
+        }),
+      );
     }
 
     if (and.length > 0) {

@@ -17,7 +17,11 @@ export interface RoleTabsProps {
 }
 
 export const RoleTabs = ({ value, onChange, label }: RoleTabsProps): React.JSX.Element => (
-  <div role="tablist" aria-label={label} className="mb-6 flex gap-2 rounded-lg bg-surface-inset p-1">
+  <div
+    role="tablist"
+    aria-label={label}
+    className="mb-6 flex gap-2 rounded-lg bg-surface-inset p-1"
+  >
     {ROLE_TABS.map((tab) => (
       <button
         key={tab.role}
@@ -31,9 +35,7 @@ export const RoleTabs = ({ value, onChange, label }: RoleTabsProps): React.JSX.E
         // and these labels push the whole auth panel wider than a phone screen.
         className={[
           'min-w-0 flex-1 truncate rounded-md px-2 py-2 text-sm font-medium transition sm:px-3',
-          value === tab.role
-            ? 'bg-surface text-fg shadow-sm'
-            : 'text-fg-muted hover:text-fg',
+          value === tab.role ? 'bg-surface text-fg shadow-sm' : 'text-fg-muted hover:text-fg',
         ].join(' ')}
       >
         {tab.label}

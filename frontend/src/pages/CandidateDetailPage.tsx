@@ -82,9 +82,7 @@ export const CandidateDetailPage = (): React.JSX.Element => {
           <CandidateAvatar fullName={candidate.fullName} size="lg" />
 
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-semibold tracking-tight text-fg">
-              {candidate.fullName}
-            </h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-fg">{candidate.fullName}</h1>
 
             <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-fg-muted">
               <span className="inline-flex items-center gap-1.5">
@@ -124,10 +122,7 @@ export const CandidateDetailPage = (): React.JSX.Element => {
           ) : (
             <ul className="mt-2 flex flex-wrap gap-1.5">
               {candidate.skills.map((skill) => (
-                <li
-                  key={skill}
-                  className="rounded-full bg-surface-inset px-2.5 py-1 text-xs font-medium text-fg-muted"
-                >
+                <li key={skill} className="chip">
                   {skill}
                 </li>
               ))}

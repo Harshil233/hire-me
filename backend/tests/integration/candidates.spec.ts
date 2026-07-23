@@ -108,6 +108,49 @@ describe('GET /candidates', () => {
     expect(response.body.data.candidates).toHaveLength(expected);
   });
 
+  it.each([
+    ['ada lovelace', 1],
+    ['lovelace ada', 1],
+    ['ada pune', 1],
+    ['typescript pune', 1],
+    ['ada berlin', 0],
+    ['ada cobol', 0],
+  ])('matches every word of "%s" across the profile', async (term, expected) => {
+    const response = await request(server.app)
+      .get(api(`/candidates?search=${encodeURIComponent(term)}`))
+      .set('Authorization', bearer(hr))
+      .expect(200);
+
+    expect(response.body.data.candidates).toHaveLength(expected);
+  });
+
+  it('matches a middle name when the candidate has one', async () => {
+    await profileOf(candidate, { middleName: 'Byron' });
+
+    const response = await request(server.app)
+      .get(api('/candidates?search=ada%20byron%20lovelace'))
+      .set('Authorization', bearer(hr))
+      .expect(200);
+
+    expect(response.body.data.candidates).toHaveLength(1);
+  });
+
+  it('finds a candidate by first name and surname together', async () => {
+    await registerCandidate(server.app, {
+      email: 'neel@example.com',
+      firstName: 'Neel',
+      lastName: 'Chatterjee',
+    });
+
+    const response = await request(server.app)
+      .get(api('/candidates?search=neel%20ch'))
+      .set('Authorization', bearer(hr))
+      .expect(200);
+
+    expect(response.body.data.candidates).toHaveLength(1);
+    expect(response.body.data.candidates[0].fullName).toBe('Neel Chatterjee');
+  });
+
   it('treats a regex metacharacter as a literal', async () => {
     const response = await request(server.app)
       .get(api('/candidates?location=.*'))

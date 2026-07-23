@@ -42,9 +42,7 @@ export const PageHeader = ({
         <h1 className="text-[1.75rem] leading-none font-semibold text-fg sm:text-[2rem]">
           {title}
         </h1>
-        {count !== undefined && (
-          <span className="numeric text-sm text-fg-subtle">{count}</span>
-        )}
+        {count !== undefined && <span className="numeric text-sm text-fg-subtle">{count}</span>}
       </div>
       {action}
     </div>

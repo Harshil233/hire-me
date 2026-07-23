@@ -38,9 +38,7 @@ describe('payScaleOf', () => {
 
 describe('PayBand', () => {
   it('places a mid-range role in the middle of the axis', () => {
-    render(
-      <PayBand ctcMin={1_500_000} ctcMax={2_500_000} scale={SCALE} label="Pay range" />,
-    );
+    render(<PayBand ctcMin={1_500_000} ctcMax={2_500_000} scale={SCALE} label="Pay range" />);
 
     const style = fillStyle();
     expect(style.left).toBe('25%');
@@ -48,9 +46,7 @@ describe('PayBand', () => {
   });
 
   it('fills the axis for a role spanning the whole range', () => {
-    render(
-      <PayBand ctcMin={SCALE.min} ctcMax={SCALE.max} scale={SCALE} label="Pay range" />,
-    );
+    render(<PayBand ctcMin={SCALE.min} ctcMax={SCALE.max} scale={SCALE} label="Pay range" />);
 
     expect(fillStyle().left).toBe('0%');
     expect(fillStyle().width).toBe('100%');
@@ -64,17 +60,13 @@ describe('PayBand', () => {
   });
 
   it('stays visible when the range is a single figure', () => {
-    render(
-      <PayBand ctcMin={2_000_000} ctcMax={2_000_000} scale={SCALE} label="Pay range" />,
-    );
+    render(<PayBand ctcMin={2_000_000} ctcMax={2_000_000} scale={SCALE} label="Pay range" />);
 
     expect(Number.parseFloat(fillStyle().width)).toBeGreaterThan(0);
   });
 
   it('clamps a figure that sits outside the page axis', () => {
-    render(
-      <PayBand ctcMin={0} ctcMax={9_000_000} scale={SCALE} label="Pay range" />,
-    );
+    render(<PayBand ctcMin={0} ctcMax={9_000_000} scale={SCALE} label="Pay range" />);
 
     expect(fillStyle().left).toBe('0%');
     expect(fillStyle().width).toBe('100%');

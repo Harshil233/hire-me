@@ -114,10 +114,7 @@ export const JobDetailPage = (): React.JSX.Element => {
             <h2 className="text-sm font-semibold text-fg">Skills</h2>
             <ul className="mt-2 flex flex-wrap gap-1.5">
               {job.skills.map((skill) => (
-                <li
-                  key={skill}
-                  className="rounded-full bg-surface-inset px-2.5 py-0.5 text-xs font-medium text-fg-muted"
-                >
+                <li key={skill} className="chip chip-sm">
                   {skill}
                 </li>
               ))}

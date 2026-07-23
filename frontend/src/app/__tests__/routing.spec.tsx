@@ -176,7 +176,11 @@ describe('role-scoped routes', () => {
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.JOBS });
 
-    expect(within(await screen.findByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Postings' })).toBeInTheDocument();
+    expect(
+      within(await screen.findByRole('navigation', { name: 'Main' })).getByRole('link', {
+        name: 'Postings',
+      }),
+    ).toBeInTheDocument();
   });
 
   it('hides the postings link from a candidate', async () => {
@@ -185,7 +189,11 @@ describe('role-scoped routes', () => {
     renderWithProviders(<AppRoutes />, { route: ROUTES.JOBS });
 
     await screen.findByRole('heading', { name: 'Open roles' });
-    expect(within(screen.getByRole('navigation', { name: 'Main' })).queryByRole('link', { name: 'Postings' })).not.toBeInTheDocument();
+    expect(
+      within(screen.getByRole('navigation', { name: 'Main' })).queryByRole('link', {
+        name: 'Postings',
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it('lets a candidate reach their applications', async () => {
@@ -223,7 +231,11 @@ describe('role-scoped routes', () => {
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.APPLICATIONS });
 
-    expect(within(await screen.findByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Applications' })).toBeInTheDocument();
+    expect(
+      within(await screen.findByRole('navigation', { name: 'Main' })).getByRole('link', {
+        name: 'Applications',
+      }),
+    ).toBeInTheDocument();
   });
 
   it('hides the applications link from an employer', async () => {
@@ -232,7 +244,11 @@ describe('role-scoped routes', () => {
     renderWithProviders(<AppRoutes />, { route: ROUTES.JOBS });
 
     await screen.findByRole('heading', { name: 'Open roles' });
-    expect(within(screen.getByRole('navigation', { name: 'Main' })).queryByRole('link', { name: 'Applications' })).not.toBeInTheDocument();
+    expect(
+      within(screen.getByRole('navigation', { name: 'Main' })).queryByRole('link', {
+        name: 'Applications',
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it('offers the talent pool to an employer', async () => {
@@ -276,7 +292,11 @@ describe('sign-in screen', () => {
   ])('sends the "%s" tab to %s', async (tabName, expectedPath) => {
     mock.onPost(expectedPath).reply(401, {
       success: false,
-      error: { code: 'INVALID_CREDENTIALS', message: 'Email or password is incorrect', details: [] },
+      error: {
+        code: 'INVALID_CREDENTIALS',
+        message: 'Email or password is incorrect',
+        details: [],
+      },
     });
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.LOGIN });
@@ -295,7 +315,11 @@ describe('sign-in screen', () => {
   it('clears a failed attempt when the account type is switched', async () => {
     mock.onPost('/candidate/login').reply(401, {
       success: false,
-      error: { code: 'INVALID_CREDENTIALS', message: 'Email or password is incorrect', details: [] },
+      error: {
+        code: 'INVALID_CREDENTIALS',
+        message: 'Email or password is incorrect',
+        details: [],
+      },
     });
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.LOGIN });

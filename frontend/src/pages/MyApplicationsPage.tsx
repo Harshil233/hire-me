@@ -27,11 +27,7 @@ export const MyApplicationsPage = (): React.JSX.Element => {
       <PageHeader
         eyebrow="Your activity"
         title="Applications"
-        count={
-          query.isSuccess
-            ? `${String(query.data.pagination.total)} sent`
-            : undefined
-        }
+        count={query.isSuccess ? `${String(query.data.pagination.total)} sent` : undefined}
         description="Every role you have applied to, and where each one stands."
       />
 

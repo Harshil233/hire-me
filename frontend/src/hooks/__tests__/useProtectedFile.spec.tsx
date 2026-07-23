@@ -144,9 +144,7 @@ describe('useProtectedFile', () => {
     render(<Harness api={api} />);
     await user.click(screen.getByRole('button', { name: 'View' }));
 
-    expect(await screen.findByTestId('error')).toHaveTextContent(
-      'That file could not be opened.',
-    );
+    expect(await screen.findByTestId('error')).toHaveTextContent('That file could not be opened.');
   });
 
   it('stops reporting itself as busy once a failure settles', async () => {

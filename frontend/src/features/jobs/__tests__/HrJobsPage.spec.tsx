@@ -221,9 +221,7 @@ describe('HrJobsPage', () => {
     renderWithProviders(<HrJobsPage />, { route: '/hr/jobs?status=closed' });
 
     expect(await screen.findByText('No postings match')).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Post your first job' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Post your first job' })).not.toBeInTheDocument();
   });
 
   it('links each posting to its applicants', async () => {
@@ -239,9 +237,7 @@ describe('HrJobsPage', () => {
   });
 
   it('pages through its postings', async () => {
-    mock
-      .onGet('/jobs/mine')
-      .reply(200, jobListResponse([job()], { total: 45, totalPages: 3 }));
+    mock.onGet('/jobs/mine').reply(200, jobListResponse([job()], { total: 45, totalPages: 3 }));
 
     renderWithProviders(<HrJobsPage />);
     await screen.findByText('Senior Backend Engineer');

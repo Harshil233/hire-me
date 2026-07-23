@@ -26,9 +26,7 @@ const Harness = ({ onReady }: { onReady: (api: FilterParams<Filters>) => void })
 
 const Search = (): React.JSX.Element => <span data-testid="url">{useLocation().search}</span>;
 
-const renderHook = (
-  initialUrl: string,
-): { current: FilterParams<Filters>; url: () => string } => {
+const renderHook = (initialUrl: string): { current: FilterParams<Filters>; url: () => string } => {
   const ref = { current: null as FilterParams<Filters> | null };
 
   render(

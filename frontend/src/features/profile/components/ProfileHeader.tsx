@@ -95,7 +95,7 @@ export const ProfileHeader = ({
                   <li key={item.key}>
                     <a
                       href={`#section-${item.key}`}
-                      className="inline-block rounded-md bg-surface-inset px-2 py-1 text-xs font-medium text-fg-muted transition hover:bg-surface-hover hover:text-fg"
+                      className="inline-block chip chip-sm transition hover:bg-surface-hover hover:text-fg"
                     >
                       + {item.label}
                     </a>

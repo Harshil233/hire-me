@@ -115,10 +115,9 @@ describe('MyApplicationsPage', () => {
   });
 
   it('still shows an application whose listing has since closed', async () => {
-    mock.onGet('/applications').reply(
-      200,
-      applicationListResponse([myApplication({ job: job({ status: 'closed' }) })]),
-    );
+    mock
+      .onGet('/applications')
+      .reply(200, applicationListResponse([myApplication({ job: job({ status: 'closed' }) })]));
 
     renderWithProviders(<MyApplicationsPage />);
 

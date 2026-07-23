@@ -68,8 +68,7 @@ export const AuthLayout = ({
       </div>
 
       <p className="max-w-sm text-sm text-fg-subtle">
-        Compensation, experience and location up front — on every listing, before you
-        click.
+        Compensation, experience and location up front — on every listing, before you click.
       </p>
     </aside>
 
@@ -96,9 +95,7 @@ export const AuthLayout = ({
 
         {children}
 
-        {footer !== undefined && (
-          <div className="mt-8 border-t border-border pt-6">{footer}</div>
-        )}
+        {footer !== undefined && <div className="mt-8 border-t border-border pt-6">{footer}</div>}
       </div>
     </main>
   </div>

@@ -64,9 +64,7 @@ describe('NotificationBell', () => {
     renderWithProviders(<NotificationBell />);
 
     expect(await screen.findByTestId('notification-badge')).toHaveTextContent('3');
-    expect(
-      screen.getByRole('button', { name: 'Notifications, 3 unread' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Notifications, 3 unread' })).toBeInTheDocument();
   });
 
   it('caps a large unread count', async () => {

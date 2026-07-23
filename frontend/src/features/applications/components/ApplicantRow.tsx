@@ -30,9 +30,7 @@ export const ApplicantRow = ({
             {applicant.candidate.fullName}
           </h3>
           {applicant.candidate.currentLocation !== undefined && (
-            <p className="mt-0.5 text-sm text-fg-muted">
-              {applicant.candidate.currentLocation}
-            </p>
+            <p className="mt-0.5 text-sm text-fg-muted">{applicant.candidate.currentLocation}</p>
           )}
         </div>
         <ApplicationStatusBadge status={applicant.status} />
@@ -41,10 +39,7 @@ export const ApplicantRow = ({
       {applicant.candidate.skills.length > 0 && (
         <ul className="mt-3 flex flex-wrap gap-1.5">
           {applicant.candidate.skills.map((skill) => (
-            <li
-              key={skill}
-              className="rounded-full bg-surface-inset px-2.5 py-0.5 text-xs font-medium text-fg-muted"
-            >
+            <li key={skill} className="chip chip-sm">
               {skill}
             </li>
           ))}

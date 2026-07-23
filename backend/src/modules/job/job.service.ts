@@ -12,6 +12,7 @@ import {
 } from '../../common/errors/app-error';
 import { ERROR_CODES } from '../../common/errors/error-codes';
 import { toPaginationMeta } from '../../common/http/api-response';
+import { toSearchTerms } from '../../common/utils/search-terms';
 import type { ICompanyMembership } from '../company/company.interface';
 import type {
   CompanySummary,
@@ -129,19 +130,33 @@ export class JobService implements IJobService {
     const page = query.page || PAGINATION.DEFAULT_PAGE;
     const pageSize = query.pageSize || PAGINATION.DEFAULT_PAGE_SIZE;
 
-    // The employer's name is searchable too, but only this module may read companies —
-    // so the ids are resolved here and handed to the repository as plain values.
-    const withCompanyMatches: JobFilter =
-      filter.search === undefined
-        ? filter
-        : { ...filter, searchCompanyIds: await this.companyDirectory.findIdsByName(filter.search) };
-
-    const { items, total } = await this.jobRepository.search(withCompanyMatches, page, pageSize);
+    const { items, total } = await this.jobRepository.search(
+      await this.withCompanyMatches(filter),
+      page,
+      pageSize,
+    );
 
     return {
       jobs: await this.attachCompanies(items),
       pagination: toPaginationMeta(total, page, pageSize),
     };
+  }
+
+  /**
+   * The employer's name is searchable too, but only this module may read companies — so
+   * the ids are resolved here, per search word, and handed to the repository as values.
+   */
+  private async withCompanyMatches(filter: JobFilter): Promise<JobFilter> {
+    if (filter.search === undefined) {
+      return filter;
+    }
+
+    const words = toSearchTerms(filter.search);
+    const matches = await Promise.all(
+      words.map(async (word) => [word, await this.companyDirectory.findIdsByName(word)] as const),
+    );
+
+    return { ...filter, searchCompanyIds: new Map(matches) };
   }
 
   /** One directory call for the whole page, so a list never becomes a query per row. */

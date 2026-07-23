@@ -68,9 +68,7 @@ export const SearchBar = ({
       <button
         type="button"
         onClick={onOpenFilters}
-        aria-label={
-          activeFilterCount > 0 ? `Filters, ${activeFilterCount} active` : 'Filters'
-        }
+        aria-label={activeFilterCount > 0 ? `Filters, ${activeFilterCount} active` : 'Filters'}
         className="relative inline-flex shrink-0 items-center gap-2 rounded-[var(--radius-control)] border border-border bg-surface px-4 text-sm font-medium text-fg transition hover:border-border-strong hover:bg-surface-hover"
       >
         <SlidersIcon className="h-4.5 w-4.5" />

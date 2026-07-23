@@ -148,10 +148,7 @@ describe('CandidatesPage', () => {
   it('truncates a long skill list rather than overflowing the card', async () => {
     mock
       .onGet('/candidates')
-      .reply(
-        200,
-        pool([candidate({ skills: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] })]),
-      );
+      .reply(200, pool([candidate({ skills: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] })]));
 
     renderWithProviders(<CandidatesPage />);
 

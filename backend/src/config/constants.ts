@@ -147,6 +147,11 @@ export const COLLECTIONS = {
 /* -------------------------------------------------------------------------- */
 
 /** `MAX_PAGE_SIZE` is a hard ceiling: an uncapped page size is a DoS vector. */
+/** A search box is matched word by word; this bounds how many words are honoured. */
+export const SEARCH = {
+  MAX_TERMS: 6,
+} as const;
+
 export const PAGINATION = {
   DEFAULT_PAGE: 1,
   DEFAULT_PAGE_SIZE: 20,

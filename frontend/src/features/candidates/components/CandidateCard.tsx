@@ -42,10 +42,7 @@ export const CandidateCard = ({ candidate }: CandidateCardProps): React.JSX.Elem
         {candidate.skills.length > 0 && (
           <ul className="mt-3 flex flex-wrap gap-1.5">
             {candidate.skills.slice(0, SKILLS_SHOWN).map((skill) => (
-              <li
-                key={skill}
-                className="rounded-full bg-surface-inset px-2.5 py-1 text-xs font-medium text-fg-muted"
-              >
+              <li key={skill} className="chip">
                 {skill}
               </li>
             ))}

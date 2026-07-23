@@ -9,6 +9,7 @@ import type { TransactionContext } from '../../common/persistence/transaction.ty
 import type { CandidateProfileDocument } from '../../database/models/candidate-profile.model';
 import type { Page } from '../../common/persistence/page';
 import { escapeRegex } from '../../common/utils/regex';
+import { matchEverySearchWord } from '../../common/persistence/search-query';
 import type {
   CandidateFilter,
   CandidateProfile,
@@ -76,17 +77,18 @@ export class CandidateProfileRepository
     const and: FilterQuery<CandidateProfileDocument>[] = [];
 
     if (filter.search !== undefined) {
-      const term = new RegExp(escapeRegex(filter.search), 'i');
-      // A single box that searches the name, the skills and either location.
-      and.push({
-        $or: [
+      // Every word must land somewhere, so "neel ch" matches a first name plus a
+      // surname rather than being hunted for as one string in each field.
+      and.push(
+        ...matchEverySearchWord<FilterQuery<CandidateProfileDocument>>(filter.search, (term) => [
           { firstName: term },
+          { middleName: term },
           { lastName: term },
           { skills: term },
           { currentLocation: term },
           { preferredLocations: term },
-        ],
-      });
+        ]),
+      );
     }
 
     if (filter.skills !== undefined && filter.skills.length > 0) {

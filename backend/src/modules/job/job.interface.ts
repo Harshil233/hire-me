@@ -37,10 +37,12 @@ export interface JobFilter extends Omit<JobQueryInput, 'page' | 'pageSize'> {
   readonly status?: JobStatus | undefined;
   readonly companyId?: string | undefined;
   /**
-   * Companies whose name matched the search term. Resolved by the service, because the
-   * job repository must not reach into the companies collection itself (CLAUDE.md §5).
+   * Companies whose name matched, keyed by the search word that matched them. Resolved
+   * by the service, because the job repository must not reach into the companies
+   * collection itself (CLAUDE.md §5). A map rather than an object, so a word like
+   * `constructor` cannot collide with a prototype key.
    */
-  readonly searchCompanyIds?: readonly string[] | undefined;
+  readonly searchCompanyIds?: ReadonlyMap<string, readonly string[]> | undefined;
 }
 
 /**
