@@ -147,27 +147,30 @@ describe('FileService.download', () => {
     expect(storage.read).not.toHaveBeenCalled();
   });
 
-  it('lets an employer open a candidate’s resume', async () => {
-    const { service, repository } = createHarness();
-    vi.mocked(repository.findById).mockResolvedValue({ ...RECORD, kind: FILE_KINDS.RESUME });
-
-    await expect(service.download('file-1', EMPLOYER)).resolves.toMatchObject({
-      record: { kind: FILE_KINDS.RESUME },
-    });
-  });
-
-  it.each([[FILE_KINDS.PROFILE_PIC], [FILE_KINDS.COMPANY_LOGO]])(
-    'does not widen an employer to a %s they do not own',
+  it.each([[FILE_KINDS.RESUME], [FILE_KINDS.PROFILE_PIC]])(
+    'lets an employer open a candidate’s %s, both of which the talent pool shows',
     async (kind) => {
       const { service, repository } = createHarness();
       vi.mocked(repository.findById).mockResolvedValue({ ...RECORD, kind });
 
-      await expect(service.download('file-1', EMPLOYER)).rejects.toMatchObject({
-        statusCode: 404,
-        code: ERROR_CODES.FILE_NOT_FOUND,
+      await expect(service.download('file-1', EMPLOYER)).resolves.toMatchObject({
+        record: { kind },
       });
     },
   );
+
+  it('does not widen an employer to a company logo they do not own', async () => {
+    const { service, repository } = createHarness();
+    vi.mocked(repository.findById).mockResolvedValue({
+      ...RECORD,
+      kind: FILE_KINDS.COMPANY_LOGO,
+    });
+
+    await expect(service.download('file-1', EMPLOYER)).rejects.toMatchObject({
+      statusCode: 404,
+      code: ERROR_CODES.FILE_NOT_FOUND,
+    });
+  });
 
   it('does not let one candidate open another candidate’s resume', async () => {
     const { service, repository } = createHarness();

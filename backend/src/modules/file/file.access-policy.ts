@@ -24,17 +24,21 @@ export class OwnerFileAccessPolicy implements IFileAccessPolicy {
 }
 
 /**
- * An employer may open a resume — the one thing a candidate uploads in order to be
- * found, and whose id is already on every talent-pool card. Nothing else widens: profile
- * pictures are only ever rendered on a user's own profile, so granting them here would
- * hand out access no screen asks for.
+ * An employer may open the two things a candidate publishes in order to be found: their
+ * resume and their profile picture. Both ids are already on the talent-pool card, and the
+ * card renders the photo, so withholding the bytes would only ever show initials.
+ *
+ * A company logo stays out — that belongs to whoever uploaded it.
  *
  * The check is on kind, not on who owns the record, so any resume is readable by any
  * employer. That matches `GET /candidates`, which already shows every candidate to every
  * employer; it is a deliberate boundary rather than an oversight.
  */
 export class EmployerCandidateFileAccessPolicy implements IFileAccessPolicy {
-  private static readonly VISIBLE_KINDS: readonly FileKind[] = [FILE_KINDS.RESUME];
+  private static readonly VISIBLE_KINDS: readonly FileKind[] = [
+    FILE_KINDS.RESUME,
+    FILE_KINDS.PROFILE_PIC,
+  ];
 
   allows({ record, requesterRole }: FileAccessRequest): boolean {
     return (
