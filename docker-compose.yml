@@ -1,3 +1,45 @@
+# One command brings up the whole stack:
+#
+#   docker compose up --build
+#
+# Frontend  → http://localhost:5173
+# API       → http://localhost:8080/api/v1
+# API docs  → http://localhost:8080/api/v1/docs
+#
+# The database is seeded automatically with the demo accounts documented in README.md.
+
+# Shared by the API and the one-shot seeder, so the two can never disagree about which
+# database they are talking to. Secrets fall back to development values: fine on a
+# laptop, overridden by the real environment or a root `.env` anywhere else.
+x-api-environment: &api-environment
+  PORT: 8080
+  LOG_LEVEL: info
+  MONGO_URI: mongodb://mongo:27017/?replicaSet=rs0
+  MONGO_DB_NAME: hire_me
+  JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-dev-access-secret-change-me-at-least-32-chars}
+  JWT_ACCESS_TTL: 15m
+  JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret-change-me-at-least-32-chars}
+  JWT_REFRESH_TTL: 7d
+  BCRYPT_ROUNDS: 12
+  CORS_ORIGINS: http://localhost:5173
+  COOKIE_SECURE: 'false'
+  COOKIE_SAME_SITE: lax
+  RATE_LIMIT_WINDOW_MS: 900000
+  RATE_LIMIT_MAX: 1500
+  AUTH_RATE_LIMIT_MAX: 10
+  FILE_STORAGE_DRIVER: local
+  FILE_STORAGE_PATH: /app/uploads
+  MAX_UPLOAD_BYTES: 5242880
+  # Outreach email is logged rather than sent unless a provider key is supplied, so the
+  # feature stays fully explorable offline. See README → "Outreach email".
+  MAIL_DRIVER: ${MAIL_DRIVER:-log}
+  RESEND_API_KEY: ${RESEND_API_KEY:-}
+  MAIL_FROM_EMAIL: ${MAIL_FROM_EMAIL:-onboarding@resend.dev}
+  MAIL_FROM_NAME: Hire Me
+  MAIL_REDIRECT_TO: ${MAIL_REDIRECT_TO:-}
+  APP_BASE_URL: http://localhost:5173
+  UNSUBSCRIBE_SECRET: ${UNSUBSCRIBE_SECRET:-dev-unsubscribe-secret-change-me-at-least-32-chars}
+
 services:
   # MongoDB runs as a single-node replica set: the HR registration flow writes the
   # user, the company and the HR profile in one transaction, and transactions are
@@ -38,34 +80,39 @@ services:
   backend:
     build:
       context: ./backend
+    image: hire-me-backend:local
     container_name: hire-me-backend
     depends_on:
       mongo-init:
         condition: service_completed_successfully
     environment:
+      <<: *api-environment
       NODE_ENV: production
-      PORT: 8080
-      LOG_LEVEL: info
-      MONGO_URI: mongodb://mongo:27017/?replicaSet=rs0
-      MONGO_DB_NAME: hire_me
-      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-dev-access-secret-change-me-at-least-32-chars}
-      JWT_ACCESS_TTL: 15m
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret-change-me-at-least-32-chars}
-      JWT_REFRESH_TTL: 7d
-      BCRYPT_ROUNDS: 12
-      CORS_ORIGINS: http://localhost:5173
-      COOKIE_SECURE: 'false'
-      COOKIE_SAME_SITE: lax
-      RATE_LIMIT_WINDOW_MS: 900000
-      RATE_LIMIT_MAX: 100
-      AUTH_RATE_LIMIT_MAX: 10
-      FILE_STORAGE_DRIVER: local
-      FILE_STORAGE_PATH: /app/uploads
-      MAX_UPLOAD_BYTES: 5242880
     ports:
       - '8080:8080'
     volumes:
       - uploads:/app/uploads
+
+  # One-shot: fills the database with the demo dataset the README documents, then exits.
+  # Re-runnable — an account that already exists is reused and nothing is ever deleted,
+  # so a second `docker compose up` is harmless.
+  #
+  # It shares the API image (same context and tag, so it is built once) but runs with
+  # NODE_ENV=development on purpose: the seeder refuses to touch a production
+  # environment, because every demo account shares one publicly documented password.
+  seed:
+    build:
+      context: ./backend
+    image: hire-me-backend:local
+    container_name: hire-me-seed
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: 'no'
+    environment:
+      <<: *api-environment
+      NODE_ENV: development
+    command: ['node', 'dist/database/seeds/seed.js']
 
   frontend:
     build:
@@ -73,8 +120,11 @@ services:
       args:
         VITE_API_BASE_URL: http://localhost:8080/api/v1
     container_name: hire-me-frontend
+    # Waits for the API's healthcheck, not merely for its container to exist, so the
+    # first page load never races the backend's boot.
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - '5173:8080'
 

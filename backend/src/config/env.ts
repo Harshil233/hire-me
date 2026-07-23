@@ -57,7 +57,12 @@ export const envSchema = z.object({
   COOKIE_SECURE: booleanFromString.prefault('false'),
   COOKIE_SAME_SITE: z.enum(['lax', 'strict', 'none']).default('lax'),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(900_000),
-  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
+  /**
+   * Generous, because this ceiling is per IP and a single page of a browsing session is
+   * a dozen requests: anything tighter throttles an office before it throttles an abuser.
+   * The credential routes get their own, much lower, ceiling below.
+   */
+  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(1_500),
   AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
 
   FILE_STORAGE_DRIVER: z.enum(['local']).default('local'),
