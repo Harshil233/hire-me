@@ -71,7 +71,7 @@ jobSchema.index({ status: 1, role: 1, jobType: 1, workMode: 1 });
 jobSchema.index({ companyId: 1, status: 1, createdAt: -1 });
 // Multikey index backing the skills filter.
 jobSchema.index({ skills: 1 });
-// Keyword search. Mongo permits only one text index per collection.
-jobSchema.index({ title: 'text', description: 'text' });
+// No text index: search spans the employer's name as well, which means an `$or`, and
+// `$text` may not appear inside one. The search is a case-insensitive regex instead.
 
 export const JobModel = model<JobDocument>('Job', jobSchema);

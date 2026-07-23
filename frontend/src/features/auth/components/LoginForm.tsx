@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 
 import { Alert } from '@/components/Alert';
 import type { Role } from '@/config/constants';
+import type { SessionUser } from '@/store/auth.store';
 import { Button } from '@/components/Button';
 import { FormField } from '@/components/FormField';
 import { TextInput } from '@/components/TextInput';
@@ -14,7 +15,7 @@ import { loginFormSchema, type LoginFormValues } from '../schemas/auth.schema';
 export interface LoginFormProps {
   /** Which role's sign-in path this submission goes to. */
   readonly role: Role;
-  readonly onSuccess: () => void;
+  readonly onSuccess: (user: SessionUser) => void;
 }
 
 export const LoginForm = ({ role, onSuccess }: LoginFormProps): React.JSX.Element => {
@@ -32,7 +33,14 @@ export const LoginForm = ({ role, onSuccess }: LoginFormProps): React.JSX.Elemen
   useServerFieldErrors(login.error, setError);
 
   const submit = handleSubmit((values) => {
-    login.mutate({ role, values }, { onSuccess });
+    login.mutate(
+      { role, values },
+      {
+        onSuccess: (session) => {
+          onSuccess(session.user);
+        },
+      },
+    );
   });
 
   // Credential failures are deliberately not tied to a field: the server does not say

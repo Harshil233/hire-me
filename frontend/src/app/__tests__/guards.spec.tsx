@@ -20,6 +20,7 @@ const renderGuard = (allow: typeof ROLES.HR | typeof ROLES.CANDIDATE): void => {
         <Route path="/guarded" element={<h1>Guarded content</h1>} />
       </Route>
       <Route path={ROUTES.PROFILE} element={<h1>Profile</h1>} />
+      <Route path={ROUTES.JOBS} element={<h1>Open roles</h1>} />
       <Route path={ROUTES.LOGIN} element={<h1>Sign in</h1>} />
     </Routes>,
     { route: '/guarded' },
@@ -35,12 +36,12 @@ describe('RoleRoute', () => {
     expect(screen.getByRole('heading', { name: 'Guarded content' })).toBeInTheDocument();
   });
 
-  it('redirects a signed-in user whose role does not match', () => {
+  it('redirects a signed-in user whose role does not match to their own list', () => {
     useAuthStore.setState({ user: candidateUser, accessToken: 'token', status: 'authenticated' });
 
     renderGuard(ROLES.HR);
 
-    expect(screen.getByRole('heading', { name: 'Profile' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Open roles' })).toBeInTheDocument();
   });
 
   it('waits while the session is still being restored', () => {

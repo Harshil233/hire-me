@@ -169,4 +169,88 @@ describe('HrJobsPage', () => {
     });
     expect(mock.history.post).toHaveLength(0);
   });
+
+  it('searches its own postings on submit', async () => {
+    mock.onGet('/jobs/mine').reply(200, jobListResponse([job()]));
+
+    renderWithProviders(<HrJobsPage />);
+    await screen.findByText('Senior Backend Engineer');
+
+    await userEvent.type(screen.getByRole('searchbox'), 'backend{Enter}');
+
+    await waitFor(() => {
+      const last = mock.history.get[mock.history.get.length - 1];
+      expect(last?.params).toMatchObject({ search: 'backend' });
+    });
+  });
+
+  it('keeps the status filter behind the filter button', async () => {
+    mock.onGet('/jobs/mine').reply(200, jobListResponse([job()]));
+
+    renderWithProviders(<HrJobsPage />);
+    await screen.findByText('Senior Backend Engineer');
+
+    expect(screen.queryByLabelText('Status')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /Filters/ }));
+    await userEvent.selectOptions(await screen.findByLabelText('Status'), 'draft');
+
+    await waitFor(() => {
+      const last = mock.history.get[mock.history.get.length - 1];
+      expect(last?.params).toMatchObject({ status: 'draft' });
+    });
+  });
+
+  it('shows the status filter as a removable chip', async () => {
+    mock.onGet('/jobs/mine').reply(200, jobListResponse([job()]));
+
+    renderWithProviders(<HrJobsPage />, { route: '/hr/jobs?status=draft' });
+    await screen.findByText('Senior Backend Engineer');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Remove Draft filter' }));
+
+    await waitFor(() => {
+      const last = mock.history.get[mock.history.get.length - 1];
+      expect(last?.params).not.toHaveProperty('status');
+    });
+  });
+
+  it('tells the employer when a filter hides everything, without offering "first job"', async () => {
+    mock.onGet('/jobs/mine').reply(200, jobListResponse([]));
+
+    renderWithProviders(<HrJobsPage />, { route: '/hr/jobs?status=closed' });
+
+    expect(await screen.findByText('No postings match')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Post your first job' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('links each posting to its applicants', async () => {
+    mock.onGet('/jobs/mine').reply(200, jobListResponse([job()]));
+
+    renderWithProviders(<HrJobsPage />);
+    await screen.findByText('Senior Backend Engineer');
+
+    expect(screen.getByRole('link', { name: /View applicants/ })).toHaveAttribute(
+      'href',
+      '/hr/jobs/job-1/applicants',
+    );
+  });
+
+  it('pages through its postings', async () => {
+    mock
+      .onGet('/jobs/mine')
+      .reply(200, jobListResponse([job()], { total: 45, totalPages: 3 }));
+
+    renderWithProviders(<HrJobsPage />);
+    await screen.findByText('Senior Backend Engineer');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    await waitFor(() => {
+      const last = mock.history.get[mock.history.get.length - 1];
+      expect(last?.params).toMatchObject({ page: '2' });
+    });
+  });
 });

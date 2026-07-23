@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { Spinner } from '@/components/Spinner';
-import { ROUTES, type Role } from '@/config/constants';
+import { ROUTES, landingPathFor, type Role } from '@/config/constants';
 import { useSession } from '@/features/auth/hooks/useSession';
 
 const RestoringSession = (): React.JSX.Element => (
@@ -46,7 +46,12 @@ export const RoleRoute = ({ allow }: RoleRouteProps): React.JSX.Element => {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
-  return user?.role === allow ? <Outlet /> : <Navigate to={ROUTES.PROFILE} replace />;
+  if (user === null) {
+    return <Navigate to={ROUTES.LOGIN} replace />;
+  }
+
+  // Sent to their own landing list rather than a screen the API would refuse.
+  return user.role === allow ? <Outlet /> : <Navigate to={landingPathFor(user.role)} replace />;
 };
 
 /** Keeps a signed-in user away from the sign-in and sign-up screens. */

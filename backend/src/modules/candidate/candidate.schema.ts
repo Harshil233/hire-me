@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { JOB_TYPE_VALUES } from '../../config/constants';
+import { JOB_TYPE_VALUES, PAGINATION, VALIDATION_LIMITS } from '../../config/constants';
 import {
   clearableField,
   ctcSchema,
@@ -75,3 +75,45 @@ export const createCandidateProfileSchema = z.object({
   lastName: requiredName('Last name'),
 });
 export type CreateCandidateProfileInput = z.infer<typeof createCandidateProfileSchema>;
+
+/**
+ * Employer-facing talent pool filters. Every value is coerced and bounded here, so the
+ * repository only ever sees whitelisted scalars.
+ */
+export const candidateQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(PAGINATION.DEFAULT_PAGE),
+  pageSize: z.coerce
+    .number()
+    .int()
+    .positive()
+    .max(PAGINATION.MAX_PAGE_SIZE, `Page size cannot exceed ${PAGINATION.MAX_PAGE_SIZE}`)
+    .default(PAGINATION.DEFAULT_PAGE_SIZE),
+  /** Matches a name, a skill or a location. */
+  search: z.string().trim().min(1).max(VALIDATION_LIMITS.SHORT_TEXT_MAX_LENGTH).optional(),
+  skills: z
+    .string()
+    .trim()
+    .transform((value) =>
+      value
+        .split(',')
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0)
+        .slice(0, VALIDATION_LIMITS.LIST_MAX_ITEMS),
+    )
+    .optional(),
+  location: z.string().trim().min(1).max(VALIDATION_LIMITS.LIST_ITEM_MAX_LENGTH).optional(),
+  jobType: z.enum(JOB_TYPE_VALUES).optional(),
+});
+export type CandidateQueryInput = z.infer<typeof candidateQuerySchema>;
+
+export const candidateBrowseItemResponseSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  currentLocation: z.string().optional(),
+  preferredLocations: z.array(z.string()),
+  skills: z.array(z.string()),
+  jobTypes: z.array(z.enum(JOB_TYPE_VALUES)),
+  profilePicFileId: z.string().optional(),
+  resumeFileId: z.string().optional(),
+});
+export type CandidateBrowseItemResponse = z.infer<typeof candidateBrowseItemResponseSchema>;

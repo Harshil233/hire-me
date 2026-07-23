@@ -27,11 +27,14 @@ export const RoleTabs = ({ value, onChange, label }: RoleTabsProps): React.JSX.E
         onClick={() => {
           onChange(tab.role);
         }}
-        className={
+        // `min-w-0` matters: without it a flex item refuses to shrink below its text,
+        // and these labels push the whole auth panel wider than a phone screen.
+        className={[
+          'min-w-0 flex-1 truncate rounded-md px-2 py-2 text-sm font-medium transition sm:px-3',
           value === tab.role
-            ? 'flex-1 rounded-md bg-surface px-3 py-2 text-sm font-medium text-fg shadow-sm'
-            : 'flex-1 rounded-md px-3 py-2 text-sm font-medium text-fg-muted transition hover:text-fg'
-        }
+            ? 'bg-surface text-fg shadow-sm'
+            : 'text-fg-muted hover:text-fg',
+        ].join(' ')}
       >
         {tab.label}
       </button>

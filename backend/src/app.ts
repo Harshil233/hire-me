@@ -18,6 +18,7 @@ import {
   AUTHENTICATE_MIDDLEWARE,
   AUTH_CONTROLLER,
   AUTH_RATE_LIMITER,
+  CANDIDATE_CONTROLLER,
   CERTIFICATION_CONTROLLER,
   COMPANY_CONTROLLER,
   EDUCATION_CONTROLLER,
@@ -36,6 +37,7 @@ import {
   createJobApplicationRouter,
 } from './modules/application/application.routes';
 import { createAuthRouter } from './modules/auth/auth.routes';
+import { createCandidateRouter } from './modules/candidate/candidate.routes';
 import { createCertificationRouter } from './modules/certification/certification.routes';
 import { createCompanyRouter } from './modules/company/company.routes';
 import { createEducationRouter } from './modules/education/education.routes';
@@ -89,6 +91,14 @@ const createApiRouter = (container: Container): Router => {
     '/applications',
     createApplicationRouter({ controller: applicationController, authenticate }),
   );
+  router.use(
+    '/candidates',
+    createCandidateRouter({
+      controller: container.resolve(CANDIDATE_CONTROLLER),
+      authenticate,
+    }),
+  );
+
   router.use(
     '/notifications',
     createNotificationRouter({

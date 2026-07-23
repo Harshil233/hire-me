@@ -5,6 +5,7 @@ import { Alert } from '@/components/Alert';
 import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/Card';
 import { Pagination } from '@/components/Pagination';
+import { PageHeader } from '@/components/PageHeader';
 import { Skeleton } from '@/components/Skeleton';
 import { ROUTES, jobDetailPath } from '@/config/constants';
 import { ApplicationStatusBadge } from '@/features/applications/components/ApplicationStatusBadge';
@@ -23,12 +24,16 @@ export const MyApplicationsPage = (): React.JSX.Element => {
 
   return (
     <div className="space-y-5">
-      <header>
-        <h1 className="text-xl font-semibold text-fg">Your applications</h1>
-        <p className="mt-0.5 text-sm text-fg-muted">
-          Every role you have applied to, and where each one stands.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Your activity"
+        title="Applications"
+        count={
+          query.isSuccess
+            ? `${String(query.data.pagination.total)} sent`
+            : undefined
+        }
+        description="Every role you have applied to, and where each one stands."
+      />
 
       {query.isPending && (
         <div className="space-y-3" data-testid="applications-loading">

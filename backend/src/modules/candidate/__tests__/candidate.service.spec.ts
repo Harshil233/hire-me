@@ -22,6 +22,7 @@ const createRepository = (
 ): ICandidateProfileRepository => ({
   findByUserId: vi.fn(async () => PROFILE),
   findManyByUserIds: vi.fn(async () => [PROFILE]),
+  search: vi.fn(async () => ({ items: [PROFILE], total: 1 })),
   create: vi.fn(async () => PROFILE),
   update: vi.fn(async () => PROFILE),
   ...overrides,

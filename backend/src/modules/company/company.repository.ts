@@ -1,7 +1,9 @@
 import type { Model } from 'mongoose';
 
+import { PAGINATION } from '../../config/constants';
 import { toIdString, toObjectId, toObjectIdOrNull } from '../../common/persistence/object-id';
 import type { TransactionContext } from '../../common/persistence/transaction.types';
+import { escapeRegex } from '../../common/utils/regex';
 import { getSession } from '../../database/mongoose-transaction-manager';
 import type { CompanyDocument } from '../../database/models/company.model';
 import type { Company, CreateCompanyData, ICompanyRepository } from './company.interface';
@@ -31,6 +33,19 @@ export class CompanyRepository implements ICompanyRepository {
 
     const documents = await this.model
       .find({ _id: { $in: objectIds } })
+      .lean<CompanyDocument[]>()
+      .exec();
+
+    return documents.map((document) => CompanyRepository.toDomain(document));
+  }
+
+  /** Escaped so a search term can never alter the pattern it is compiled into. */
+  async searchByName(term: string): Promise<Company[]> {
+    const pattern = new RegExp(escapeRegex(term), 'i');
+
+    const documents = await this.model
+      .find({ name: pattern })
+      .limit(PAGINATION.MAX_LOOKUP_RESULTS)
       .lean<CompanyDocument[]>()
       .exec();
 

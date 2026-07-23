@@ -1,4 +1,3 @@
-import { Button } from '@/components/Button';
 import { FormField } from '@/components/FormField';
 import { Select } from '@/components/Select';
 import { TextInput } from '@/components/TextInput';
@@ -10,7 +9,7 @@ import {
   WORK_MODE_LABELS,
   WORK_MODE_VALUES,
 } from '@/config/constants';
-import type { JobFilters as Filters } from '../schemas/job.schema';
+import type { JobFilters } from '../schemas/job.schema';
 
 const toOptions = <TValue extends string>(
   values: readonly TValue[],
@@ -22,54 +21,19 @@ const ROLE_OPTIONS = toOptions(JOB_ROLE_VALUES, JOB_ROLE_LABELS);
 const JOB_TYPE_OPTIONS = toOptions(JOB_TYPE_VALUES, JOB_TYPE_LABELS);
 const WORK_MODE_OPTIONS = toOptions(WORK_MODE_VALUES, WORK_MODE_LABELS);
 
-export interface JobFiltersProps {
-  readonly value: Filters;
-  readonly onChange: (filters: Filters) => void;
+export interface JobFilterFieldsProps {
+  readonly value: JobFilters;
+  readonly onChange: (filters: JobFilters) => void;
 }
 
-/**
- * Presentational filter panel. It owns no state: the page holds the filters so they can
- * live in the URL, and every change resets to page one.
- */
-export const JobFiltersPanel = ({ value, onChange }: JobFiltersProps): React.JSX.Element => {
-  const set = (patch: Partial<Filters>): void => {
-    onChange({ ...value, ...patch, page: 1 });
+/** The controls inside the filter drawer. Purely presentational — the page owns state. */
+export const JobFilterFields = ({ value, onChange }: JobFilterFieldsProps): React.JSX.Element => {
+  const set = (patch: Partial<JobFilters>): void => {
+    onChange({ ...value, ...patch });
   };
 
-  const hasFilters = Object.entries(value).some(
-    ([key, entry]) => key !== 'page' && entry !== undefined && String(entry) !== '',
-  );
-
   return (
-    <aside className="surface-card space-y-4 px-5 py-5" aria-label="Job filters">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-fg">Filters</h2>
-        {hasFilters && (
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => {
-              onChange({ page: 1 });
-            }}
-          >
-            Clear
-          </Button>
-        )}
-      </div>
-
-      <FormField label="Search">
-        {(fieldProps) => (
-          <TextInput
-            {...fieldProps}
-            value={value.search ?? ''}
-            placeholder="Title or description"
-            onChange={(event) => {
-              set({ search: event.target.value });
-            }}
-          />
-        )}
-      </FormField>
-
+    <>
       <FormField label="Role">
         {(fieldProps) => (
           <Select
@@ -78,7 +42,7 @@ export const JobFiltersPanel = ({ value, onChange }: JobFiltersProps): React.JSX
             placeholder="Any role"
             value={value.role ?? ''}
             onChange={(event) => {
-              set({ role: event.target.value });
+              set({ role: event.target.value || undefined });
             }}
           />
         )}
@@ -92,7 +56,7 @@ export const JobFiltersPanel = ({ value, onChange }: JobFiltersProps): React.JSX
             placeholder="Any type"
             value={value.jobType ?? ''}
             onChange={(event) => {
-              set({ jobType: event.target.value });
+              set({ jobType: event.target.value || undefined });
             }}
           />
         )}
@@ -106,7 +70,7 @@ export const JobFiltersPanel = ({ value, onChange }: JobFiltersProps): React.JSX
             placeholder="Any mode"
             value={value.workMode ?? ''}
             onChange={(event) => {
-              set({ workMode: event.target.value });
+              set({ workMode: event.target.value || undefined });
             }}
           />
         )}
@@ -119,39 +83,39 @@ export const JobFiltersPanel = ({ value, onChange }: JobFiltersProps): React.JSX
             value={value.location ?? ''}
             placeholder="e.g. Pune"
             onChange={(event) => {
-              set({ location: event.target.value });
+              set({ location: event.target.value || undefined });
             }}
           />
         )}
       </FormField>
 
-      <FormField label="Minimum CTC">
+      <FormField label="Minimum CTC" hint="Annual, in rupees">
         {(fieldProps) => (
           <TextInput
             {...fieldProps}
             inputMode="numeric"
             value={value.minCtc ?? ''}
-            placeholder="e.g. 1800000"
+            placeholder="1800000"
             onChange={(event) => {
-              set({ minCtc: event.target.value });
+              set({ minCtc: event.target.value || undefined });
             }}
           />
         )}
       </FormField>
 
-      <FormField label="My experience (years)">
+      <FormField label="My experience (years)" hint="Hides roles asking for more">
         {(fieldProps) => (
           <TextInput
             {...fieldProps}
             inputMode="numeric"
             value={value.maxExperienceYears ?? ''}
-            placeholder="e.g. 5"
+            placeholder="5"
             onChange={(event) => {
-              set({ maxExperienceYears: event.target.value });
+              set({ maxExperienceYears: event.target.value || undefined });
             }}
           />
         )}
       </FormField>
-    </aside>
+    </>
   );
 };

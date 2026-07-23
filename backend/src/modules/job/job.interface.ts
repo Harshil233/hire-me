@@ -36,6 +36,11 @@ export interface CreateJobData extends CreateJobInput {
 export interface JobFilter extends Omit<JobQueryInput, 'page' | 'pageSize'> {
   readonly status?: JobStatus | undefined;
   readonly companyId?: string | undefined;
+  /**
+   * Companies whose name matched the search term. Resolved by the service, because the
+   * job repository must not reach into the companies collection itself (CLAUDE.md §5).
+   */
+  readonly searchCompanyIds?: readonly string[] | undefined;
 }
 
 /**
@@ -52,6 +57,8 @@ export interface CompanySummary {
 
 export interface ICompanyDirectory {
   findSummaries(ids: readonly string[]): Promise<ReadonlyMap<string, CompanySummary>>;
+  /** Ids of companies whose name matches, so job search can span the employer too. */
+  findIdsByName(term: string): Promise<string[]>;
 }
 
 /** A job as it goes out on the wire, with its company resolved. */

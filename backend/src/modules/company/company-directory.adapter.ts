@@ -9,6 +9,11 @@ import type { ICompanyRepository } from './company.interface';
 export class CompanyDirectoryAdapter implements ICompanyDirectory {
   constructor(private readonly companyRepository: ICompanyRepository) {}
 
+  async findIdsByName(term: string): Promise<string[]> {
+    const companies = await this.companyRepository.searchByName(term);
+    return companies.map((company) => company.id);
+  }
+
   async findSummaries(ids: readonly string[]): Promise<ReadonlyMap<string, CompanySummary>> {
     const unique = [...new Set(ids)];
     const companies = await this.companyRepository.findManyByIds(unique);

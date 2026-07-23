@@ -78,6 +78,7 @@ const createHarness = (): Harness => {
 
   const directory: ICompanyDirectory = {
     findSummaries: vi.fn(async () => new Map([[COMPANY.id, COMPANY]])),
+    findIdsByName: vi.fn(async () => [COMPANY.id]),
   };
 
   return {

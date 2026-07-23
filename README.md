@@ -29,6 +29,7 @@ owns its `package.json`, `tsconfig.json`, lint config, test config and `Dockerfi
 | Job listings | HR posts jobs for their company; candidates browse and filter by role, type, work mode, location, skills, CTC and experience |
 | Applications | Candidates apply once per job and track status; HR reviews applicants and shortlists or rejects |
 | Notifications | A candidate is told when their application status changes; read on page load, no polling |
+| Talent pool | Employers browse and filter every candidate open to work |
 | Theming | Light and dark, following the OS until the user picks one, then remembered |
 
 Deferred to a later phase: email verification, forgot/reset password, HR joining an
@@ -115,6 +116,7 @@ Base path `/api/v1`. Every response uses one envelope:
 | GET | `/jobs/:id/applications` | HR owner | Applicant list for that listing |
 | GET | `/applications` | candidate | The caller's own applications |
 | PATCH | `/applications/:id/status` | both | HR shortlists/rejects; the candidate withdraws |
+| GET | `/candidates` | HR | The talent pool; filter by skill, location and job type |
 | GET | `/notifications` | access | The caller's inbox plus an unread count |
 | PATCH | `/notifications/read` | access | Mark one notification read, or all of them |
 | GET/POST | `/experience` | candidate | List / create |
@@ -212,6 +214,13 @@ Notable decisions:
   without a rebuild.
 - **Notifications are durable rows, not a live feed** — the bell reads them when the
   shell mounts, so they appear on load and on reload. No interval, no socket.
+- **Each role lands on what it came for** — a candidate on the job list, an employer on
+  the talent pool. `landingPathFor` decides it once and drives sign-in, sign-up, the
+  root redirect and the wrong-role bounce.
+- **One search box, filters behind a drawer** — job search spans the title, description,
+  skills, locations, role *and* the employer's name; the employer ids are resolved by
+  the job service, since only the company module may read companies. Active filters
+  appear as removable chips so a narrow result never looks like a bug.
 
 ---
 

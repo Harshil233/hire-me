@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { ROLES, ROUTES, type Role } from '@/config/constants';
+import { ROLES, ROUTES, landingPathFor, type Role } from '@/config/constants';
 import { CandidateRegisterForm } from '@/features/auth/components/CandidateRegisterForm';
 import { HrRegisterForm } from '@/features/auth/components/HrRegisterForm';
 import { RoleTabs } from '@/features/auth/components/RoleTabs';
@@ -12,7 +12,7 @@ export const RegisterPage = (): React.JSX.Element => {
   const navigate = useNavigate();
 
   const goToProfile = (): void => {
-    void navigate(ROUTES.PROFILE, { replace: true });
+    void navigate(landingPathFor(role), { replace: true });
   };
 
   return (

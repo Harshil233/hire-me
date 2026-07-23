@@ -128,7 +128,15 @@ export class JobService implements IJobService {
   private async search(filter: JobFilter, query: JobQueryInput): Promise<JobListResult> {
     const page = query.page || PAGINATION.DEFAULT_PAGE;
     const pageSize = query.pageSize || PAGINATION.DEFAULT_PAGE_SIZE;
-    const { items, total } = await this.jobRepository.search(filter, page, pageSize);
+
+    // The employer's name is searchable too, but only this module may read companies —
+    // so the ids are resolved here and handed to the repository as plain values.
+    const withCompanyMatches: JobFilter =
+      filter.search === undefined
+        ? filter
+        : { ...filter, searchCompanyIds: await this.companyDirectory.findIdsByName(filter.search) };
+
+    const { items, total } = await this.jobRepository.search(withCompanyMatches, page, pageSize);
 
     return {
       jobs: await this.attachCompanies(items),

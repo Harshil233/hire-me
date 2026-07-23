@@ -33,6 +33,8 @@ export interface ICompanyRepository {
   findById(id: string): Promise<Company | null>;
   /** Batched read so a page of results never turns into one query per row. */
   findManyByIds(ids: readonly string[]): Promise<Company[]>;
+  /** Name match, used so a job search can also find an employer by name. */
+  searchByName(term: string): Promise<Company[]>;
   existsBySlug(slug: string): Promise<boolean>;
   existsByDomain(domain: string): Promise<boolean>;
   create(data: CreateCompanyData, context?: TransactionContext): Promise<Company>;

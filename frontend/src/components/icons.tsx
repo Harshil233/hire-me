@@ -44,24 +44,73 @@ export const BriefcaseIcon = (props: IconProps): React.JSX.Element => (
   </svg>
 );
 
-export const SparkleIcon = (props: IconProps): React.JSX.Element => (
-  <svg {...base(props)}>
-    <path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Z" />
-  </svg>
-);
-
-
-
-export const CheckIcon = (props: IconProps): React.JSX.Element => (
-  <svg {...base(props)}>
-    <path d="m20 6-11 11-5-5" />
-  </svg>
-);
-
-
 export const LogoutIcon = (props: IconProps): React.JSX.Element => (
   <svg {...base(props)}>
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
     <path d="m16 17 5-5-5-5M21 12H9" />
+  </svg>
+);
+
+export const SearchIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" />
+  </svg>
+);
+
+export const SlidersIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h10M18 18h2" />
+    <circle cx="16" cy="6" r="2" />
+    <circle cx="10" cy="12" r="2" />
+    <circle cx="16" cy="18" r="2" />
+  </svg>
+);
+
+export const CloseIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M18 6 6 18M6 6l12 12" />
+  </svg>
+);
+
+export const MapPinIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+
+export const ClockIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </svg>
+);
+
+export const UsersIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M22 20v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" />
+  </svg>
+);
+
+export const PencilIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+  </svg>
+);
+
+export const InboxIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M22 12h-6l-2 3h-4l-2-3H2" />
+    <path d="M5.5 5.5 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.5A2 2 0 0 0 16.7 4H7.3a2 2 0 0 0-1.8 1.5Z" />
+  </svg>
+);
+
+export const PlusIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M12 5v14M5 12h14" />
   </svg>
 );

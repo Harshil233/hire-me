@@ -151,6 +151,8 @@ export const PAGINATION = {
   DEFAULT_PAGE: 1,
   DEFAULT_PAGE_SIZE: 20,
   MAX_PAGE_SIZE: 100,
+  /** Ceiling on an internal lookup that feeds a filter rather than a page of results. */
+  MAX_LOOKUP_RESULTS: 50,
 } as const;
 
 /* -------------------------------------------------------------------------- */

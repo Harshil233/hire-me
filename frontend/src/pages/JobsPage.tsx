@@ -1,82 +1,121 @@
-import { useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
 
 import { Alert } from '@/components/Alert';
 import { EmptyState } from '@/components/Card';
+import { FilterChips } from '@/components/FilterChips';
+import { FilterDrawer } from '@/components/FilterDrawer';
 import { Pagination } from '@/components/Pagination';
+import { SearchBar } from '@/components/SearchBar';
 import { Skeleton } from '@/components/Skeleton';
+import { PageHeader } from '@/components/PageHeader';
+import { BriefcaseIcon } from '@/components/icons';
+import { JOB_ROLE_LABELS, JOB_TYPE_LABELS, WORK_MODE_LABELS } from '@/config/constants';
 import { JobCard } from '@/features/jobs/components/JobCard';
-import { JobFiltersPanel } from '@/features/jobs/components/JobFilters';
+import { payScaleOf } from '@/features/jobs/utils/pay-scale';
+import { JobFilterFields } from '@/features/jobs/components/JobFilterFields';
 import { useJobs } from '@/features/jobs/hooks/useJobs';
 import type { JobFilters } from '@/features/jobs/schemas/job.schema';
+import { useFilterParams } from '@/hooks/useFilterParams';
 
-/** Filters live in the URL so a filtered search survives a reload and can be shared. */
-const toFilters = (params: URLSearchParams): JobFilters => ({
-  page: Number(params.get('page') ?? '1'),
-  search: params.get('search') ?? undefined,
-  role: params.get('role') ?? undefined,
-  jobType: params.get('jobType') ?? undefined,
-  workMode: params.get('workMode') ?? undefined,
-  location: params.get('location') ?? undefined,
-  minCtc: params.get('minCtc') ?? undefined,
-  maxExperienceYears: params.get('maxExperienceYears') ?? undefined,
-});
+const FILTER_KEYS = [
+  'search',
+  'role',
+  'jobType',
+  'workMode',
+  'location',
+  'minCtc',
+  'maxExperienceYears',
+] as const;
 
-const toSearchParams = (filters: JobFilters): Record<string, string> => {
-  const next: Record<string, string> = {};
-
-  for (const [key, value] of Object.entries(filters)) {
-    if (value !== undefined && String(value).trim() !== '' && !(key === 'page' && value === 1)) {
-      next[key] = String(value);
-    }
-  }
-
-  return next;
+/** Human labels for the chips, so a chip reads "Remote" rather than "workMode: remote". */
+const chipLabel = (key: string, value: string): string => {
+  if (key === 'role') return JOB_ROLE_LABELS[value as keyof typeof JOB_ROLE_LABELS];
+  if (key === 'jobType') return JOB_TYPE_LABELS[value as keyof typeof JOB_TYPE_LABELS];
+  if (key === 'workMode') return WORK_MODE_LABELS[value as keyof typeof WORK_MODE_LABELS];
+  if (key === 'minCtc') return `Min ₹${Number(value).toLocaleString('en-IN')}`;
+  if (key === 'maxExperienceYears') return `${value} yrs experience`;
+  if (key === 'search') return `“${value}”`;
+  return value;
 };
 
 export const JobsPage = (): React.JSX.Element => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const filters = toFilters(searchParams);
-  const query = useJobs(filters);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const apply = (next: JobFilters): void => {
-    setSearchParams(toSearchParams(next));
-  };
+  const { filters, activeCount, chips, apply, search, remove, clear, goToPage } =
+    useFilterParams<JobFilters>(FILTER_KEYS, chipLabel);
+  const query = useJobs(filters);
+  // One scale for the whole page, so the bands compare against each other.
+  const scale = payScaleOf(query.data?.jobs ?? []);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[18rem_1fr]">
-      <JobFiltersPanel value={filters} onChange={apply} />
+    <div className="space-y-5">
+      <PageHeader
+        eyebrow="Hiring now"
+        title="Open roles"
+        count={
+          query.isSuccess
+            ? `${String(query.data.pagination.total)} ${query.data.pagination.total === 1 ? 'role' : 'roles'}`
+            : undefined
+        }
+      />
 
-      <section aria-label="Job results" className="space-y-4">
-        {query.isPending && (
-          <div className="space-y-3" data-testid="jobs-loading">
-            <Skeleton className="h-28" />
-            <Skeleton className="h-28" />
-          </div>
-        )}
+      <SearchBar
+        value={filters.search ?? ''}
+        placeholder="Search by role, company, skill or location"
+        activeFilterCount={activeCount}
+        onSearch={search}
+        onOpenFilters={() => {
+          setIsFilterOpen(true);
+        }}
+      />
 
-        {query.isError && <Alert tone="error">{query.error.message}</Alert>}
+      <FilterChips chips={chips} onRemove={remove} onClearAll={clear} />
 
-        {query.isSuccess && query.data.jobs.length === 0 && (
-          <EmptyState
-            title="No jobs match these filters"
-            description="Try widening your search or clearing a filter."
-          />
-        )}
+      {query.isPending && (
+        <div className="grid gap-4" data-testid="jobs-loading">
+          <Skeleton className="h-36" />
+          <Skeleton className="h-36" />
+          <Skeleton className="h-36" />
+        </div>
+      )}
 
-        {query.isSuccess &&
-          query.data.jobs.map((job) => <JobCard key={job.id} job={job} />)}
+      {query.isError && <Alert tone="error">{query.error.message}</Alert>}
 
-        {query.isSuccess && (
-          <Pagination
-            page={query.data.pagination.page}
-            totalPages={query.data.pagination.totalPages}
-            total={query.data.pagination.total}
-            onChange={(page) => {
-              apply({ ...filters, page });
-            }}
-          />
-        )}
-      </section>
+      {query.isSuccess && query.data.jobs.length === 0 && (
+        <EmptyState
+          icon={<BriefcaseIcon className="h-6 w-6" />}
+          title="No roles match these filters"
+          description="Try a broader search, or clear a filter or two to see more."
+        />
+      )}
+
+      {query.isSuccess && query.data.jobs.length > 0 && (
+        <div className="grid gap-3">
+          {query.data.jobs.map((job) => (
+            <JobCard key={job.id} job={job} scale={scale} />
+          ))}
+        </div>
+      )}
+
+      {query.isSuccess && (
+        <Pagination
+          page={query.data.pagination.page}
+          totalPages={query.data.pagination.totalPages}
+          total={query.data.pagination.total}
+          onChange={goToPage}
+        />
+      )}
+
+      <FilterDrawer
+        isOpen={isFilterOpen}
+        activeFilterCount={activeCount}
+        onClose={() => {
+          setIsFilterOpen(false);
+        }}
+        onClear={clear}
+      >
+        <JobFilterFields value={filters} onChange={apply} />
+      </FilterDrawer>
     </div>
   );
 };

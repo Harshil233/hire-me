@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import MockAdapter from 'axios-mock-adapter';
@@ -92,12 +92,22 @@ describe('route guards', () => {
     expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument();
   });
 
-  it('sends the root path to the profile', async () => {
-    allowRestore();
+  it('sends a candidate from the root to the job list', async () => {
+    allowRestore(candidateUser);
+    mock.onGet('/jobs').reply(200, jobListResponse([]));
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.ROOT });
 
-    expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Open roles' })).toBeInTheDocument();
+  });
+
+  it('sends an employer from the root to the talent pool', async () => {
+    allowRestore(hrUser);
+    mock.onGet('/candidates').reply(200, { success: true, data: { candidates: [], pagination: { page: 1, pageSize: 20, total: 0, totalPages: 1 } } });
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.ROOT });
+
+    expect(await screen.findByRole('heading', { name: 'Find candidates' })).toBeInTheDocument();
   });
 
   it('renders a 404 for an unknown path', async () => {
@@ -120,7 +130,7 @@ describe('role-scoped routes', () => {
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.HR_JOBS });
 
-    expect(await screen.findByRole('heading', { name: 'Your postings' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Postings' })).toBeInTheDocument();
   });
 
   it('sends a candidate away from the HR-only postings screen', async () => {
@@ -128,9 +138,9 @@ describe('role-scoped routes', () => {
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.HR_JOBS });
 
-    // Redirected to the profile rather than shown a screen the API would refuse.
-    expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Your postings' })).not.toBeInTheDocument();
+    // Redirected to their own list rather than shown a screen the API would refuse.
+    expect(await screen.findByRole('heading', { name: 'Open roles' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Postings' })).not.toBeInTheDocument();
   });
 
   it('sends an anonymous visitor to sign in', async () => {
@@ -146,7 +156,7 @@ describe('role-scoped routes', () => {
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.JOBS });
 
-    expect(await screen.findByRole('complementary', { name: 'Job filters' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Open roles' })).toBeInTheDocument();
   });
 
   it('shows the postings link in the nav only to HR', async () => {
@@ -154,7 +164,7 @@ describe('role-scoped routes', () => {
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.JOBS });
 
-    expect(await screen.findByRole('link', { name: 'My postings' })).toBeInTheDocument();
+    expect(within(await screen.findByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Postings' })).toBeInTheDocument();
   });
 
   it('hides the postings link from a candidate', async () => {
@@ -162,8 +172,8 @@ describe('role-scoped routes', () => {
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.JOBS });
 
-    await screen.findByRole('complementary', { name: 'Job filters' });
-    expect(screen.queryByRole('link', { name: 'My postings' })).not.toBeInTheDocument();
+    await screen.findByRole('heading', { name: 'Open roles' });
+    expect(within(screen.getByRole('navigation', { name: 'Main' })).queryByRole('link', { name: 'Postings' })).not.toBeInTheDocument();
   });
 
   it('lets a candidate reach their applications', async () => {
@@ -172,16 +182,18 @@ describe('role-scoped routes', () => {
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.APPLICATIONS });
 
-    expect(await screen.findByRole('heading', { name: 'Your applications' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Applications' })).toBeInTheDocument();
   });
 
   it('sends an employer away from the candidate-only applications screen', async () => {
     allowRestore(hrUser);
 
+    mock.onGet('/candidates').reply(200, { success: true, data: { candidates: [], pagination: { page: 1, pageSize: 20, total: 0, totalPages: 1 } } });
+
     renderWithProviders(<AppRoutes />, { route: ROUTES.APPLICATIONS });
 
-    expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Your applications' })).not.toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Find candidates' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Applications' })).not.toBeInTheDocument();
   });
 
   it('sends a candidate away from the employer-only applicants screen', async () => {
@@ -189,7 +201,7 @@ describe('role-scoped routes', () => {
 
     renderWithProviders(<AppRoutes />, { route: '/hr/jobs/job-1/applicants' });
 
-    expect(await screen.findByRole('heading', { name: 'Ada Lovelace' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Open roles' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /Applicants/ })).not.toBeInTheDocument();
   });
 
@@ -199,7 +211,7 @@ describe('role-scoped routes', () => {
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.APPLICATIONS });
 
-    expect(await screen.findByRole('link', { name: 'My applications' })).toBeInTheDocument();
+    expect(within(await screen.findByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Applications' })).toBeInTheDocument();
   });
 
   it('hides the applications link from an employer', async () => {
@@ -207,8 +219,26 @@ describe('role-scoped routes', () => {
 
     renderWithProviders(<AppRoutes />, { route: ROUTES.JOBS });
 
-    await screen.findByRole('complementary', { name: 'Job filters' });
-    expect(screen.queryByRole('link', { name: 'My applications' })).not.toBeInTheDocument();
+    await screen.findByRole('heading', { name: 'Open roles' });
+    expect(within(screen.getByRole('navigation', { name: 'Main' })).queryByRole('link', { name: 'Applications' })).not.toBeInTheDocument();
+  });
+
+  it('offers the talent pool to an employer', async () => {
+    allowRestore(hrUser);
+    mock.onGet('/candidates').reply(200, { success: true, data: { candidates: [], pagination: { page: 1, pageSize: 20, total: 0, totalPages: 1 } } });
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.CANDIDATES });
+
+    expect(await screen.findByRole('heading', { name: 'Find candidates' })).toBeInTheDocument();
+  });
+
+  it('sends a candidate away from the talent pool', async () => {
+    allowRestore(candidateUser);
+    mock.onGet('/jobs').reply(200, jobListResponse([]));
+
+    renderWithProviders(<AppRoutes />, { route: ROUTES.CANDIDATES });
+
+    expect(await screen.findByRole('heading', { name: 'Open roles' })).toBeInTheDocument();
   });
 });
 

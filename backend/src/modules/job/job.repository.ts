@@ -3,6 +3,7 @@ import type { FilterQuery, Model } from 'mongoose';
 import type { JobStatus } from '../../config/constants';
 import { toIdString, toObjectId, toObjectIdOrNull } from '../../common/persistence/object-id';
 import type { Page } from '../../common/persistence/page';
+import { escapeRegex } from '../../common/utils/regex';
 import type { JobDocument } from '../../database/models/job.model';
 import type {
   CreateJobData,
@@ -132,6 +133,9 @@ export class JobRepository implements IJobRepository, IJobSummaryProvider {
    */
   private buildFilter(filter: JobFilter): FilterQuery<JobDocument> {
     const query: FilterQuery<JobDocument> = {};
+    // Conditions that are themselves an `$or` are collected here, because several of
+    // them can apply at once and a bare `query.$or` would let the last one win.
+    const and: FilterQuery<JobDocument>[] = [];
 
     if (filter.status !== undefined) {
       query.status = filter.status;
@@ -140,7 +144,7 @@ export class JobRepository implements IJobRepository, IJobSummaryProvider {
     if (filter.companyId !== undefined) {
       const companyId = toObjectIdOrNull(filter.companyId);
       // A malformed id must match nothing rather than every document.
-      query.companyId = companyId ?? toObjectId('000000000000000000000000');
+      query.companyId = companyId ?? JobRepository.IMPOSSIBLE_ID;
     }
 
     if (filter.role !== undefined) {
@@ -156,13 +160,13 @@ export class JobRepository implements IJobRepository, IJobSummaryProvider {
     }
 
     if (filter.location !== undefined) {
-      query.locations = new RegExp(`^${JobRepository.escapeRegex(filter.location)}$`, 'i');
+      query.locations = new RegExp(`^${escapeRegex(filter.location)}$`, 'i');
     }
 
     if (filter.skills !== undefined && filter.skills.length > 0) {
       query.skills = {
         $in: filter.skills.map(
-          (skill) => new RegExp(`^${JobRepository.escapeRegex(skill)}$`, 'i'),
+          (skill) => new RegExp(`^${escapeRegex(skill)}$`, 'i'),
         ),
       };
     }
@@ -170,32 +174,55 @@ export class JobRepository implements IJobRepository, IJobSummaryProvider {
     // Range overlap, not equality: "pays at least X" keeps jobs whose ceiling clears X,
     // and open-ended listings (no ceiling recorded) stay in the results.
     if (filter.minCtc !== undefined) {
-      query.$or = [{ ctcMax: { $gte: filter.minCtc } }, { ctcMax: { $exists: false } }];
+      and.push({
+        $or: [{ ctcMax: { $gte: filter.minCtc } }, { ctcMax: { $exists: false } }],
+      });
     }
 
     // "I have N years" keeps jobs asking for no more than N, plus those with no floor.
     if (filter.maxExperienceYears !== undefined) {
-      query.$and = [
-        {
-          $or: [
-            { experienceMinYears: { $lte: filter.maxExperienceYears } },
-            { experienceMinYears: { $exists: false } },
-          ],
-        },
-      ];
+      and.push({
+        $or: [
+          { experienceMinYears: { $lte: filter.maxExperienceYears } },
+          { experienceMinYears: { $exists: false } },
+        ],
+      });
     }
 
+    /*
+     * One search box spanning the title, the description, the skills, the locations, the
+     * role and the employer's name. Regex rather than a text index because `$text` may
+     * not appear inside `$or`, and matching the company requires exactly that.
+     */
     if (filter.search !== undefined) {
-      query.$text = { $search: filter.search };
+      const term = new RegExp(escapeRegex(filter.search), 'i');
+      const alternatives: FilterQuery<JobDocument>[] = [
+        { title: term },
+        { description: term },
+        { skills: term },
+        { locations: term },
+        { role: term },
+      ];
+
+      if (filter.searchCompanyIds !== undefined && filter.searchCompanyIds.length > 0) {
+        alternatives.push({
+          companyId: { $in: filter.searchCompanyIds.map((id) => toObjectId(id)) },
+        });
+      }
+
+      and.push({ $or: alternatives });
+    }
+
+    if (and.length > 0) {
+      query.$and = and;
     }
 
     return query;
   }
 
-  /** Neutralises regex metacharacters so a filter value cannot alter the pattern. */
-  private static escapeRegex(value: string): string {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
+  /** A well-formed id that no document will ever carry. */
+  private static readonly IMPOSSIBLE_ID = toObjectId('000000000000000000000000');
+
 
   private static toDomain(document: JobDocument): Job {
     return {

@@ -3,6 +3,7 @@ import type { RequestHandler } from 'express';
 import type { ITransactionManager } from '../common/persistence/transaction.types';
 import type { ApplicationController } from '../modules/application/application.controller';
 import type { AuthController } from '../modules/auth/auth.controller';
+import type { CandidateController } from '../modules/candidate/candidate.controller';
 import type { CompanyController } from '../modules/company/company.controller';
 import type { FileController } from '../modules/file/file.controller';
 import type { HealthController } from '../modules/health/health.controller';
@@ -32,6 +33,8 @@ export const PROFILE_CONTROLLER: Token<ProfileController> = createToken('Profile
 export const COMPANY_CONTROLLER: Token<CompanyController> = createToken('CompanyController');
 export const FILE_CONTROLLER: Token<FileController> = createToken('FileController');
 export const JOB_CONTROLLER: Token<JobController> = createToken('JobController');
+export const CANDIDATE_CONTROLLER: Token<CandidateController> =
+  createToken('CandidateController');
 export const APPLICATION_CONTROLLER: Token<ApplicationController> =
   createToken('ApplicationController');
 export const NOTIFICATION_CONTROLLER: Token<NotificationController> =

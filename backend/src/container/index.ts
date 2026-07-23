@@ -35,6 +35,7 @@ import { CandidateCompletionCalculator } from '../modules/candidate/candidate.co
 import { CandidateProfileRepository } from '../modules/candidate/candidate.repository';
 import { CandidateProfileService } from '../modules/candidate/candidate.service';
 import { CandidateProfileStrategy } from '../modules/candidate/candidate.strategy';
+import { CandidateController } from '../modules/candidate/candidate.controller';
 import {
   CANDIDATE_PROFILE_REPOSITORY,
   CANDIDATE_PROFILE_SERVICE,
@@ -122,6 +123,7 @@ import {
   EXPERIENCE_CONTROLLER,
   FILE_CONTROLLER,
   APPLICATION_CONTROLLER,
+  CANDIDATE_CONTROLLER,
   HEALTH_CONTROLLER,
   JOB_CONTROLLER,
   NOTIFICATION_CONTROLLER,
@@ -292,6 +294,7 @@ export const createContainer = (config: ContainerConfig): Container => {
     )
     .register(PROFILE_CONTROLLER, new ProfileController(profileService))
     .register(PROFILE_UPDATE_VALIDATOR, createProfileUpdateValidator(profileService))
+    .register(CANDIDATE_CONTROLLER, new CandidateController(candidateProfileService))
     .register(COMPANY_CONTROLLER, new CompanyController(companyService))
     .register(JOB_CONTROLLER, new JobController(jobService))
     .register(APPLICATION_CONTROLLER, new ApplicationController(applicationService))

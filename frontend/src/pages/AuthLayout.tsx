@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 
-import { BriefcaseIcon, CheckIcon, SparkleIcon } from '@/components/icons';
 import { ThemeToggle } from '@/features/theme/ThemeToggle';
 
 export interface AuthLayoutProps {
@@ -11,17 +10,17 @@ export interface AuthLayoutProps {
   readonly wide?: boolean;
 }
 
-const HIGHLIGHTS = [
-  'One profile, every application',
-  'Filter roles by pay, mode and skills',
-  'Track every application in one place',
+/**
+ * The brand panel states the product's premise the way the product itself works: as a
+ * pay band. Three real bands on a shared axis say "roles are ranges, and you can see
+ * them at a glance" before the visitor has read a word.
+ */
+const SAMPLE_ROLES = [
+  { title: 'Senior Backend Engineer', pay: '₹18–28L', start: 34, width: 30 },
+  { title: 'Product Designer', pay: '₹15–26L', start: 24, width: 30 },
+  { title: 'Data Engineer', pay: '₹19–30L', start: 38, width: 34 },
 ];
 
-/**
- * Split shell for sign-in and sign-up: a brand panel that sets the tone on large
- * screens, and the form itself. The panel collapses away below `lg` so small screens
- * get straight to the form rather than a wall of marketing.
- */
 export const AuthLayout = ({
   title,
   subtitle,
@@ -29,72 +28,77 @@ export const AuthLayout = ({
   footer,
   wide = false,
 }: AuthLayoutProps): React.JSX.Element => (
-  <div className="relative min-h-screen lg:grid lg:grid-cols-[1.05fr_1fr]">
+  <div className="min-h-screen lg:grid lg:grid-cols-[1fr_1.05fr]">
     {/* ---------------------------------------------------------- brand panel */}
-    <aside className="relative hidden overflow-hidden bg-bg-subtle lg:flex lg:flex-col lg:justify-between lg:p-12">
-      <div className="aurora" />
-
-      <div className="relative">
-        <span className="inline-flex items-center gap-2.5 text-lg font-bold tracking-tight text-fg">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-fg-on-brand shadow-[var(--shadow-glow)]">
-            <BriefcaseIcon className="h-5 w-5" />
-          </span>
+    <aside className="relative hidden overflow-hidden bg-bg-subtle lg:flex lg:flex-col lg:justify-between lg:p-12 xl:p-16">
+      <span className="flex items-center gap-2.5">
+        <span className="h-6 w-1.5 rounded-full bg-accent" />
+        <span className="font-display text-lg font-semibold tracking-tight text-fg">
           Hire&nbsp;Me
         </span>
-      </div>
+      </span>
 
-      <div className="relative max-w-md">
-        <h2 className="text-4xl leading-tight font-bold tracking-tight text-fg">
-          Where good work
+      <div className="max-w-lg">
+        <p className="eyebrow">Two sides, one shortlist</p>
+        <h2 className="mt-4 font-display text-[2.75rem] leading-[1.05] font-semibold tracking-tight text-fg xl:text-[3.25rem]">
+          Every role is a range.
           <br />
-          <span className="brand-gradient-text">finds good people.</span>
+          See where yours sits.
         </h2>
-        <p className="mt-4 text-base leading-relaxed text-fg-muted">
-          A job portal built for both sides of the table — candidates looking for their next
-          role, and the teams hoping to meet them.
-        </p>
 
-        <ul className="mt-8 space-y-3">
-          {HIGHLIGHTS.map((highlight) => (
-            <li key={highlight} className="flex items-center gap-3 text-sm text-fg-muted">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-text">
-                <CheckIcon className="h-3.5 w-3.5" />
-              </span>
-              {highlight}
+        <ul className="mt-10 space-y-5">
+          {SAMPLE_ROLES.map((role) => (
+            <li key={role.title} className="max-w-md">
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="text-sm text-fg-muted">{role.title}</span>
+                <span className="numeric text-sm text-fg">{role.pay}</span>
+              </div>
+              <div
+                aria-hidden="true"
+                className="relative mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-border"
+              >
+                <span
+                  className="absolute inset-y-0 rounded-full bg-accent"
+                  style={{ left: `${String(role.start)}%`, width: `${String(role.width)}%` }}
+                />
+              </div>
             </li>
           ))}
         </ul>
       </div>
 
-      <p className="relative flex items-center gap-2 text-sm text-fg-subtle">
-        <SparkleIcon className="h-4 w-4" />
-        Built for candidates and employers alike.
+      <p className="max-w-sm text-sm text-fg-subtle">
+        Compensation, experience and location up front — on every listing, before you
+        click.
       </p>
     </aside>
 
     {/* ----------------------------------------------------------- form panel */}
-    <main className="relative flex min-h-screen flex-col justify-center px-5 py-10 sm:px-8 lg:px-14">
+    <main className="relative flex min-h-screen flex-col justify-center px-5 py-10 sm:px-10 lg:px-16">
       <div className="absolute top-5 right-5 sm:top-6 sm:right-6">
         <ThemeToggle />
       </div>
 
-      <div className={`mx-auto w-full ${wide ? 'max-w-2xl' : 'max-w-md'}`}>
-        {/* The wordmark only appears here once the brand panel is hidden. */}
-        <span className="mb-8 inline-flex items-center gap-2.5 text-lg font-bold tracking-tight text-fg lg:hidden">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-fg-on-brand">
-            <BriefcaseIcon className="h-5 w-5" />
+      <div className={`mx-auto w-full ${wide ? 'max-w-xl' : 'max-w-sm'}`}>
+        <span className="mb-10 flex items-center gap-2.5 lg:hidden">
+          <span className="h-5 w-1.5 rounded-full bg-accent" />
+          <span className="font-display text-base font-semibold tracking-tight text-fg">
+            Hire&nbsp;Me
           </span>
-          Hire&nbsp;Me
         </span>
 
-        <header className="mb-7">
-          <h1 className="text-3xl font-bold tracking-tight text-fg">{title}</h1>
-          <p className="mt-2 text-sm text-fg-muted">{subtitle}</p>
+        <header className="mb-8">
+          <h1 className="font-display text-[2rem] leading-none font-semibold tracking-tight text-fg">
+            {title}
+          </h1>
+          <p className="mt-2.5 text-sm text-fg-muted">{subtitle}</p>
         </header>
 
         {children}
 
-        {footer !== undefined && <div className="mt-7">{footer}</div>}
+        {footer !== undefined && (
+          <div className="mt-8 border-t border-border pt-6">{footer}</div>
+        )}
       </div>
     </main>
   </div>

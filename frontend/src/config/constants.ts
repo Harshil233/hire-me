@@ -133,11 +133,19 @@ export const ROUTES = {
   PROFILE: '/profile',
   JOBS: '/jobs',
   JOB_DETAIL: '/jobs/:id',
+  CANDIDATES: '/candidates',
   HR_JOBS: '/hr/jobs',
   HR_JOB_APPLICANTS: '/hr/jobs/:id/applicants',
   APPLICATIONS: '/applications',
   ROOT: '/',
 } as const;
+
+/**
+ * Where each role lands after signing in: the thing they came to look for. A
+ * candidate wants roles; an employer wants people.
+ */
+export const landingPathFor = (role: Role): string =>
+  role === ROLES.HR ? ROUTES.CANDIDATES : ROUTES.JOBS;
 
 /** Builds concrete paths from the `:id` patterns above. */
 export const jobDetailPath = (id: string): string => `${ROUTES.JOBS}/${id}`;
@@ -157,4 +165,5 @@ export const QUERY_KEYS = {
   jobApplicants: (jobId: string, filters: Readonly<Record<string, unknown>>) =>
     ['applications', 'job', jobId, filters] as const,
   notifications: ['notifications'] as const,
+  candidates: (filters: Readonly<Record<string, unknown>>) => ['candidates', filters] as const,
 };

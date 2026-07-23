@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import { ROLES, ROUTES, type Role } from '@/config/constants';
+import { ROLES, ROUTES, landingPathFor, type Role } from '@/config/constants';
 import { LoginForm } from '@/features/auth/components/LoginForm';
 import { RoleTabs } from '@/features/auth/components/RoleTabs';
 import { AuthLayout } from './AuthLayout';
@@ -35,8 +35,9 @@ export const LoginPage = (): React.JSX.Element => {
       <LoginForm
         key={role}
         role={role}
-        onSuccess={() => {
-          void navigate(state?.from ?? ROUTES.PROFILE, { replace: true });
+        onSuccess={(user) => {
+          // Back to wherever they were headed, otherwise the list their role came for.
+          void navigate(state?.from ?? landingPathFor(user.role), { replace: true });
         }}
       />
     </AuthLayout>
