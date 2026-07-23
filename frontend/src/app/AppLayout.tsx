@@ -4,6 +4,7 @@ import { Button } from '@/components/Button';
 import { BriefcaseIcon, InboxIcon, LogoutIcon, UsersIcon } from '@/components/icons';
 import { ROLES, ROUTES, landingPathFor } from '@/config/constants';
 import { useLogout } from '@/features/auth/hooks/useAuthActions';
+import { NavAvatar } from '@/features/profile/components/NavAvatar';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { ThemeToggle } from '@/features/theme/ThemeToggle';
 import { useAuthStore } from '@/store/auth.store';
@@ -48,8 +49,6 @@ const mobileLinkClasses = ({ isActive }: { isActive: boolean }): string =>
     isActive ? 'text-brand-text' : 'text-fg-subtle',
   ].join(' ');
 
-const initialsOf = (email: string): string => email.slice(0, 2).toUpperCase();
-
 export const AppLayout = (): React.JSX.Element => {
   const logout = useLogout();
   const user = useAuthStore((state) => state.user);
@@ -92,9 +91,9 @@ export const AppLayout = (): React.JSX.Element => {
               <Link
                 to={ROUTES.PROFILE}
                 title={user.email}
-                className="hidden h-9 w-9 items-center justify-center rounded-full bg-highlight-soft text-xs font-semibold text-highlight-text transition hover:brightness-95 sm:flex"
+                className="hidden transition hover:brightness-95 sm:block"
               >
-                {initialsOf(user.email)}
+                <NavAvatar email={user.email} className="h-9 w-9 text-xs" />
               </Link>
             )}
 
@@ -131,9 +130,11 @@ export const AppLayout = (): React.JSX.Element => {
           </NavLink>
         ))}
         <NavLink to={ROUTES.PROFILE} className={mobileLinkClasses}>
-          <span className="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-highlight-soft text-[0.5rem] font-bold text-highlight-text">
-            {user === null ? '' : initialsOf(user.email)}
-          </span>
+          {user === null ? (
+            <span className="h-4.5 w-4.5" />
+          ) : (
+            <NavAvatar email={user.email} className="h-4.5 w-4.5 text-[0.5rem]" />
+          )}
           Profile
         </NavLink>
       </nav>

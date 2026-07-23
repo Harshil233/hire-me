@@ -70,6 +70,12 @@ export const envSchema = z.object({
   RESEND_API_KEY: z.string().default(''),
   MAIL_FROM_EMAIL: z.string().default('onboarding@resend.dev'),
   MAIL_FROM_NAME: z.string().default('Hire Me'),
+  /*
+   * Every outreach email goes here instead of its real recipient when set. For use
+   * before a sending domain is verified, when a provider will only accept mail to the
+   * account's own address.
+   */
+  MAIL_REDIRECT_TO: z.string().default(''),
   /** Public URL of the SPA, used for the links inside an email. */
   APP_BASE_URL: z.url().default('http://localhost:5173'),
   UNSUBSCRIBE_SECRET: z

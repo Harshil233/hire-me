@@ -94,6 +94,7 @@ import {
 import { FileController } from '../modules/file/file.controller';
 import { LoggingEmailSender } from '../common/email/logging.sender';
 import { ResendEmailSender } from '../common/email/resend.sender';
+import { RedirectingEmailSender } from '../common/email/redirecting.sender';
 import { EMAIL_SENDER } from '../common/email/email.types';
 import { OutreachRepository } from '../modules/outreach/outreach.repository';
 import { OutreachService } from '../modules/outreach/outreach.service';
@@ -251,7 +252,7 @@ export const createContainer = (config: ContainerConfig): Container => {
   const projectService = new OwnedResourceService(projectRepository, 'Project');
 
   /* --------------------------------------------------------------- outreach */
-  const emailSender =
+  const baseEmailSender =
     env.MAIL_DRIVER === 'resend'
       ? new ResendEmailSender({
           apiKey: env.RESEND_API_KEY,
@@ -259,6 +260,12 @@ export const createContainer = (config: ContainerConfig): Container => {
           fromName: env.MAIL_FROM_NAME,
         })
       : new LoggingEmailSender(logger);
+
+  // Decorator, so the redirect is invisible to everything that sends (CLAUDE.md §4).
+  const emailSender =
+    env.MAIL_REDIRECT_TO.trim() === ''
+      ? baseEmailSender
+      : new RedirectingEmailSender(baseEmailSender, env.MAIL_REDIRECT_TO.trim());
 
   const outreachRepository = new OutreachRepository(OutreachCampaignModel, OutreachRecipientModel);
   const candidateAudience = new CandidateAudienceAdapter(candidateProfileRepository);

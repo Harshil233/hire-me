@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { LoggingEmailSender } from '../../../common/email/logging.sender';
+import { RedirectingEmailSender } from '../../../common/email/redirecting.sender';
 import { ResendEmailSender } from '../../../common/email/resend.sender';
+import type { EmailMessage, IEmailSender } from '../../../common/email/email.types';
 import { createFakeLogger } from '../../../../tests/helpers/fakes';
 import type { JobWithCompany } from '../../job/job.interface';
 import { renderCampaignEmail } from '../outreach.template';
@@ -98,6 +100,92 @@ describe('LoggingEmailSender', () => {
       expect.stringContaining('not sent'),
       expect.objectContaining({ to: 'ada@example.com' }),
     );
+  });
+
+  it('logs the whole body, which is the only way to read it without a sending domain', async () => {
+    const logger = createFakeLogger();
+    const long = 'x'.repeat(500);
+
+    await new LoggingEmailSender(logger).send({
+      to: 'ada@example.com',
+      subject: 'Hello',
+      text: long,
+    });
+
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ body: long }),
+    );
+  });
+});
+
+describe('RedirectingEmailSender', () => {
+  const capture = (): { sender: IEmailSender; sent: EmailMessage[] } => {
+    const sent: EmailMessage[] = [];
+    return {
+      sender: {
+        send: async (message) => {
+          sent.push(message);
+          return Promise.resolve();
+        },
+      },
+      sent,
+    };
+  };
+
+  it('delivers to the test address instead of the candidate', async () => {
+    const { sender, sent } = capture();
+
+    await new RedirectingEmailSender(sender, 'me@mine.test').send({
+      to: 'ada@example.com',
+      subject: 'Hello',
+      text: 'Body',
+    });
+
+    expect(sent[0]?.to).toBe('me@mine.test');
+  });
+
+  it('names the intended recipient in the subject', async () => {
+    const { sender, sent } = capture();
+
+    await new RedirectingEmailSender(sender, 'me@mine.test').send({
+      to: 'ada@example.com',
+      subject: 'Hello',
+      text: 'Body',
+    });
+
+    expect(sent[0]?.subject).toBe('[to: ada@example.com] Hello');
+  });
+
+  it('keeps the original message under a banner, so nothing is lost', async () => {
+    const { sender, sent } = capture();
+
+    await new RedirectingEmailSender(sender, 'me@mine.test').send({
+      to: 'ada@example.com',
+      subject: 'Hello',
+      text: 'The real body',
+    });
+
+    expect(sent[0]?.text).toContain('redirected test message');
+    expect(sent[0]?.text).toContain('addressed to ada@example.com');
+    expect(sent[0]?.text).toContain('The real body');
+  });
+
+  it('leaves the sender name and reply address alone', async () => {
+    const { sender, sent } = capture();
+
+    await new RedirectingEmailSender(sender, 'me@mine.test').send({
+      to: 'ada@example.com',
+      subject: 'Hello',
+      text: 'Body',
+      fromName: 'Nimbus Labs',
+      replyTo: 'grace@nimbuslabs.test',
+    });
+
+    expect(sent[0]).toMatchObject({
+      fromName: 'Nimbus Labs',
+      replyTo: 'grace@nimbuslabs.test',
+    });
   });
 });
 
