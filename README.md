@@ -8,7 +8,7 @@ Everything runs in Docker. One command brings up the database, the API and the U
 seeds a populated demo dataset so there is something to look at immediately.
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Harshil233/hire-me.git
 cd hire-me
 docker compose up --build
 ```
@@ -171,7 +171,14 @@ before Docker can start. Windows 10 version 2004+ or Windows 11.
 4. Wait for the whale icon in the system tray to report **"Engine running"**. Docker
    Desktop takes 30–60 seconds to start and the CLI fails until it has.
 
-5. Confirm, then start the stack:
+5. If you intend to run `docker compose` **from inside a WSL shell** rather than from
+   PowerShell, open **Docker Desktop → Settings → Resources → WSL Integration** and
+   enable the toggle for your distro (e.g. `Ubuntu`), then **Apply & restart**. Without
+   this, the distro has no working `docker` CLI or socket. After enabling it for the
+   first time, run `wsl --shutdown` in PowerShell and reopen the terminal — see
+   [Permission denied on the Docker socket](#permission-denied-on-the-docker-socket).
+
+6. Confirm, then start the stack:
 
    ```bash
    docker info
@@ -251,10 +258,53 @@ The equivalent message on macOS and Linux is
 `Cannot connect to the Docker daemon at unix:///var/run/docker.sock` — same cause, same
 fixes.
 
+#### Permission denied on the Docker socket
+
+A different failure, with a different fix:
+
+```
+unable to get image 'hire-me-frontend': permission denied while trying to connect to
+the docker API at unix:///var/run/docker.sock
+```
+
+The daemon **is** running — the socket exists, your user is just not allowed to open it.
+`/var/run/docker.sock` is owned by `root:docker` with mode `660`, so only root and
+members of the `docker` group can talk to it. `sudo docker compose up --build` works,
+which confirms the diagnosis, but it leaves root-owned files in the bind-mounted volumes.
+Fix the group instead:
+
+```bash
+ls -l /var/run/docker.sock   # expect: srw-rw---- 1 root docker
+id -nG                       # is "docker" in the list?
+
+sudo usermod -aG docker $USER
+```
+
+Group membership is only read at login, so the shell you ran that in still cannot see
+it. From an **admin PowerShell**:
+
+```powershell
+wsl --shutdown
+```
+
+Reopen the WSL terminal and re-check `id -nG`, then `docker info`. (`newgrp docker` is a
+single-shell shortcut if you would rather not restart WSL.)
+
+On Windows this bites even when **WSL Integration is already enabled** for the distro,
+because two separate things have to be true and only one of them is a Docker Desktop
+setting:
+
+| Cause | Fix |
+|---|---|
+| The WSL session was already open when integration was enabled — its group list is a snapshot from login and does not include `docker` | `wsl --shutdown`, reopen |
+| Your Linux user was created *after* Docker Desktop set up the distro, so it was never added to the group | `sudo usermod -aG docker $USER`, then `wsl --shutdown` |
+| Docker Engine was also installed inside the distro with `apt`, and *its* socket — owned by a `docker` group you are not in — is the one being hit | Pick one: either `sudo usermod -aG docker $USER`, or remove the in-distro engine and rely on Docker Desktop |
+| Integration is enabled for a *different* distro than the one you are typing in | `wsl -l -v` to see which distro is default; enable the right one under Settings → Resources → WSL Integration |
+
 ### Start
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Harshil233/hire-me.git
 cd hire-me
 docker compose up --build
 ```

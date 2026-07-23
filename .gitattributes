@@ -1,0 +1,10 @@
+# Everything in this repo is built and run inside Linux containers, so every text
+# file must keep LF endings regardless of the OS it was committed from. Without this,
+# a commit made on Windows (core.autocrlf=true) can rewrite shell-interpreted files —
+# the inline `bash -c` block in docker-compose.yml, for one — with CRLF, which injects
+# stray \r characters and breaks them at runtime with confusing errors.
+* text=auto eol=lf
+
+# Lockfiles are generated artifacts: normalise them but never let a diff tool try to
+# merge them line-by-line.
+package-lock.json -diff
