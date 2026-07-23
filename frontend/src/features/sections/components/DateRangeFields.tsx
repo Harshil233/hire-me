@@ -42,7 +42,8 @@ export const DateRangeFields = <TValues extends FieldValues>({
         <FormField
           label={endLabel}
           error={errorFor(errors, 'endDate')}
-          hint={isCurrent === true ? 'Not needed while ongoing' : 'Optional'}
+          isOptional
+          {...(isCurrent === true ? { hint: 'Not needed while ongoing' } : {})}
         >
           {(fieldProps) => (
             <TextInput

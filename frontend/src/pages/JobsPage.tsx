@@ -4,6 +4,7 @@ import { Alert } from '@/components/Alert';
 import { EmptyState } from '@/components/Card';
 import { FilterChips } from '@/components/FilterChips';
 import { FilterDrawer } from '@/components/FilterDrawer';
+import { FilterRail } from '@/components/FilterRail';
 import { Pagination } from '@/components/Pagination';
 import { SearchBar } from '@/components/SearchBar';
 import { Skeleton } from '@/components/Skeleton';
@@ -16,6 +17,7 @@ import { JobFilterFields } from '@/features/jobs/components/JobFilterFields';
 import { useJobs } from '@/features/jobs/hooks/useJobs';
 import type { JobFilters } from '@/features/jobs/schemas/job.schema';
 import { useFilterParams } from '@/hooks/useFilterParams';
+import { useIsWideScreen } from '@/hooks/useMediaQuery';
 
 const FILTER_KEYS = [
   'search',
@@ -40,6 +42,7 @@ const chipLabel = (key: string, value: string): string => {
 
 export const JobsPage = (): React.JSX.Element => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const isWide = useIsWideScreen();
 
   const { filters, activeCount, chips, apply, search, remove, clear, goToPage } =
     useFilterParams<JobFilters>(FILTER_KEYS, chipLabel);
@@ -47,8 +50,10 @@ export const JobsPage = (): React.JSX.Element => {
   // One scale for the whole page, so the bands compare against each other.
   const scale = payScaleOf(query.data?.jobs ?? []);
 
+  const fields = <JobFilterFields value={filters} onChange={apply} />;
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <PageHeader
         eyebrow="Hiring now"
         title="Open roles"
@@ -59,63 +64,77 @@ export const JobsPage = (): React.JSX.Element => {
         }
       />
 
-      <SearchBar
-        value={filters.search ?? ''}
-        placeholder="Search by role, company, skill or location"
-        activeFilterCount={activeCount}
-        onSearch={search}
-        onOpenFilters={() => {
-          setIsFilterOpen(true);
-        }}
-      />
+      <div className="lg:grid lg:grid-cols-[16.5rem_minmax(0,1fr)] lg:gap-6">
+        {/* Beside the results when there is room; behind a button when there is not. */}
+        {isWide && (
+          <FilterRail activeFilterCount={activeCount} onClear={clear}>
+            {fields}
+          </FilterRail>
+        )}
 
-      <FilterChips chips={chips} onRemove={remove} onClearAll={clear} />
+        <div className="space-y-4">
+          <SearchBar
+            value={filters.search ?? ''}
+            placeholder="Search by role, company, skill or location"
+            activeFilterCount={activeCount}
+            showFilterButton={!isWide}
+            onSearch={search}
+            onOpenFilters={() => {
+              setIsFilterOpen(true);
+            }}
+          />
 
-      {query.isPending && (
-        <div className="grid gap-4" data-testid="jobs-loading">
-          <Skeleton className="h-36" />
-          <Skeleton className="h-36" />
-          <Skeleton className="h-36" />
+          <FilterChips chips={chips} onRemove={remove} onClearAll={clear} />
+
+          {query.isPending && (
+            <div className="grid gap-3" data-testid="jobs-loading">
+              <Skeleton className="h-36" />
+              <Skeleton className="h-36" />
+              <Skeleton className="h-36" />
+            </div>
+          )}
+
+          {query.isError && <Alert tone="error">{query.error.message}</Alert>}
+
+          {query.isSuccess && query.data.jobs.length === 0 && (
+            <EmptyState
+              icon={<BriefcaseIcon className="h-6 w-6" />}
+              title="No roles match these filters"
+              description="Try a broader search, or clear a filter or two to see more."
+            />
+          )}
+
+          {query.isSuccess && query.data.jobs.length > 0 && (
+            <div className="grid gap-3">
+              {query.data.jobs.map((job) => (
+                <JobCard key={job.id} job={job} scale={scale} />
+              ))}
+            </div>
+          )}
+
+          {query.isSuccess && (
+            <Pagination
+              page={query.data.pagination.page}
+              totalPages={query.data.pagination.totalPages}
+              total={query.data.pagination.total}
+              onChange={goToPage}
+            />
+          )}
         </div>
+      </div>
+
+      {!isWide && (
+        <FilterDrawer
+          isOpen={isFilterOpen}
+          activeFilterCount={activeCount}
+          onClose={() => {
+            setIsFilterOpen(false);
+          }}
+          onClear={clear}
+        >
+          {fields}
+        </FilterDrawer>
       )}
-
-      {query.isError && <Alert tone="error">{query.error.message}</Alert>}
-
-      {query.isSuccess && query.data.jobs.length === 0 && (
-        <EmptyState
-          icon={<BriefcaseIcon className="h-6 w-6" />}
-          title="No roles match these filters"
-          description="Try a broader search, or clear a filter or two to see more."
-        />
-      )}
-
-      {query.isSuccess && query.data.jobs.length > 0 && (
-        <div className="grid gap-3">
-          {query.data.jobs.map((job) => (
-            <JobCard key={job.id} job={job} scale={scale} />
-          ))}
-        </div>
-      )}
-
-      {query.isSuccess && (
-        <Pagination
-          page={query.data.pagination.page}
-          totalPages={query.data.pagination.totalPages}
-          total={query.data.pagination.total}
-          onChange={goToPage}
-        />
-      )}
-
-      <FilterDrawer
-        isOpen={isFilterOpen}
-        activeFilterCount={activeCount}
-        onClose={() => {
-          setIsFilterOpen(false);
-        }}
-        onClear={clear}
-      >
-        <JobFilterFields value={filters} onChange={apply} />
-      </FilterDrawer>
     </div>
   );
 };

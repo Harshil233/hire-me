@@ -99,7 +99,7 @@ export const HrRegisterForm = ({ onSuccess }: HrRegisterFormProps): React.JSX.El
           </FormField>
         </div>
 
-        <FormField label="Designation" error={errors.designation?.message} hint="Optional">
+        <FormField label="Designation" error={errors.designation?.message} isOptional>
           {(fieldProps) => (
             <TextInput
               {...form.register('designation')}
@@ -161,7 +161,8 @@ export const HrRegisterForm = ({ onSuccess }: HrRegisterFormProps): React.JSX.El
           <FormField
             label="Company domain"
             error={errors.companyDomain?.message}
-            hint="Optional — e.g. acme.com"
+            isOptional
+            hint="e.g. acme.com"
           >
             {(fieldProps) => (
               <TextInput
@@ -173,11 +174,7 @@ export const HrRegisterForm = ({ onSuccess }: HrRegisterFormProps): React.JSX.El
             )}
           </FormField>
 
-          <FormField
-            label="Headquarters"
-            error={errors.companyHeadquarters?.message}
-            hint="Optional"
-          >
+          <FormField label="Headquarters" error={errors.companyHeadquarters?.message} isOptional>
             {(fieldProps) => (
               <TextInput
                 {...form.register('companyHeadquarters')}
@@ -190,7 +187,7 @@ export const HrRegisterForm = ({ onSuccess }: HrRegisterFormProps): React.JSX.El
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField label="Website" error={errors.companyWebsiteUrl?.message} hint="Optional">
+          <FormField label="Website" error={errors.companyWebsiteUrl?.message} isOptional>
             {(fieldProps) => (
               <TextInput
                 {...form.register('companyWebsiteUrl')}
@@ -201,7 +198,7 @@ export const HrRegisterForm = ({ onSuccess }: HrRegisterFormProps): React.JSX.El
             )}
           </FormField>
 
-          <FormField label="LinkedIn" error={errors.companyLinkedinUrl?.message} hint="Optional">
+          <FormField label="LinkedIn" error={errors.companyLinkedinUrl?.message} isOptional>
             {(fieldProps) => (
               <TextInput
                 {...form.register('companyLinkedinUrl')}

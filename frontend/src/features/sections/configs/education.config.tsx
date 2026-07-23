@@ -94,7 +94,7 @@ const EducationFormFields = ({
         currentLabel="I am still studying here"
       />
 
-      <FormField label="Highlights" error={errors.description?.message} hint="Optional">
+      <FormField label="Highlights" error={errors.description?.message} isOptional>
         {(fieldProps) => (
           <TextArea
             {...form.register('description')}

@@ -152,7 +152,7 @@ describe('CandidatesPage', () => {
 
     renderWithProviders(<CandidatesPage />);
 
-    expect(await screen.findByText('+2 more')).toBeInTheDocument();
+    expect(await screen.findByText('+4')).toBeInTheDocument();
   });
 
   it('links each card through to that candidate', async () => {

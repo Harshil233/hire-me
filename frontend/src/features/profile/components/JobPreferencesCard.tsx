@@ -104,7 +104,7 @@ export const JobPreferencesCard = ({ profile }: JobPreferencesCardProps): React.
         <FormField
           label={`Current salary (${CTC_CURRENCY} per year)`}
           error={errors.currentCtc?.message}
-          hint="Optional"
+          isOptional
         >
           {(fieldProps) => (
             <TextInput
@@ -120,7 +120,7 @@ export const JobPreferencesCard = ({ profile }: JobPreferencesCardProps): React.
         <FormField
           label={`Expected salary (${CTC_CURRENCY} per year)`}
           error={errors.expectedCtc?.message}
-          hint="Optional"
+          isOptional
         >
           {(fieldProps) => (
             <TextInput

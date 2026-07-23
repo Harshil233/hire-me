@@ -78,49 +78,56 @@ export const CandidateDetailPage = (): React.JSX.Element => {
       <header className="surface-card overflow-hidden">
         <div className="h-1.5 bg-highlight" aria-hidden="true" />
 
-        <div className="flex flex-wrap items-start gap-4 p-6">
-          <CandidateAvatar fullName={candidate.fullName} size="lg" />
+        {/* Stacks on a phone: side by side, the résumé block starved the name of width. */}
+        <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:gap-5 sm:p-7">
+          <div className="flex min-w-0 flex-1 items-start gap-4">
+            <CandidateAvatar fullName={candidate.fullName} size="lg" />
 
-          <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-semibold tracking-tight text-fg">{candidate.fullName}</h1>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-[1.75rem] leading-[1.1] font-semibold tracking-[-0.02em] text-fg sm:text-[2.125rem]">
+                {candidate.fullName}
+              </h1>
 
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-fg-muted">
-              <span className="inline-flex items-center gap-1.5">
-                <MapPinIcon className={ICON} />
-                {candidate.currentLocation ?? 'Location not shared'}
-              </span>
-              {candidate.jobTypes.length > 0 && (
-                <span>
-                  Open to {candidate.jobTypes.map((type) => JOB_TYPE_LABELS[type]).join(' · ')}
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-fg-muted">
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPinIcon className={ICON} />
+                  {candidate.currentLocation ?? 'Location not shared'}
                 </span>
-              )}
-            </div>
+                {candidate.jobTypes.length > 0 && (
+                  <span>
+                    Open to {candidate.jobTypes.map((type) => JOB_TYPE_LABELS[type]).join(' · ')}
+                  </span>
+                )}
+              </div>
 
-            <p className="mt-1 text-sm text-fg-subtle">
-              {candidate.preferredLocations.length > 0
-                ? `Would work in ${candidate.preferredLocations.join(', ')}`
-                : 'No preferred locations listed'}
-            </p>
+              <p className="mt-1 text-sm text-fg-subtle">
+                {candidate.preferredLocations.length > 0
+                  ? `Would work in ${candidate.preferredLocations.join(', ')}`
+                  : 'No preferred locations listed'}
+              </p>
+            </div>
           </div>
 
-          {candidate.resumeFileId === undefined ? (
-            <p className="text-sm text-fg-subtle">No résumé uploaded</p>
-          ) : (
-            <ResumeButton
-              fileId={candidate.resumeFileId}
-              candidateName={candidate.fullName}
-              size="md"
-            />
-          )}
+          <div className="shrink-0">
+            {candidate.resumeFileId === undefined ? (
+              <p className="text-sm text-fg-subtle">No résumé uploaded</p>
+            ) : (
+              <ResumeButton
+                fileId={candidate.resumeFileId}
+                candidateName={candidate.fullName}
+                size="md"
+              />
+            )}
+          </div>
         </div>
 
-        <div className="border-t border-border px-6 py-4">
-          <h2 className="text-xs font-semibold tracking-wide text-fg-subtle uppercase">Skills</h2>
+        <div className="border-t border-border px-5 py-4 sm:px-7">
+          <h2 className="eyebrow">Skills</h2>
 
           {candidate.skills.length === 0 ? (
             <p className="mt-2 text-sm text-fg-subtle">No skills listed.</p>
           ) : (
-            <ul className="mt-2 flex flex-wrap gap-1.5">
+            <ul className="mt-2.5 flex flex-wrap gap-1.5">
               {candidate.skills.map((skill) => (
                 <li key={skill} className="chip">
                   {skill}

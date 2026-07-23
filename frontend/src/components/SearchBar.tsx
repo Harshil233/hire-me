@@ -10,6 +10,8 @@ export interface SearchBarProps {
   readonly onOpenFilters: () => void;
   /** Drives the badge on the filter button. */
   readonly activeFilterCount: number;
+  /** Hidden where the filters are already on screen in a rail. */
+  readonly showFilterButton?: boolean;
 }
 
 /**
@@ -23,6 +25,7 @@ export const SearchBar = ({
   onSearch,
   onOpenFilters,
   activeFilterCount,
+  showFilterButton = true,
 }: SearchBarProps): React.JSX.Element => {
   const [term, setTerm] = useState(value);
 
@@ -65,23 +68,25 @@ export const SearchBar = ({
         )}
       </div>
 
-      <button
-        type="button"
-        onClick={onOpenFilters}
-        aria-label={activeFilterCount > 0 ? `Filters, ${activeFilterCount} active` : 'Filters'}
-        className="relative inline-flex shrink-0 items-center gap-2 rounded-[var(--radius-control)] border border-border bg-surface px-4 text-sm font-medium text-fg transition hover:border-border-strong hover:bg-surface-hover"
-      >
-        <SlidersIcon className="h-4.5 w-4.5" />
-        <span className="hidden sm:inline">Filters</span>
-        {activeFilterCount > 0 && (
-          <span
-            data-testid="active-filter-count"
-            className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-xs font-semibold text-fg-on-brand"
-          >
-            {activeFilterCount}
-          </span>
-        )}
-      </button>
+      {showFilterButton && (
+        <button
+          type="button"
+          onClick={onOpenFilters}
+          aria-label={activeFilterCount > 0 ? `Filters, ${activeFilterCount} active` : 'Filters'}
+          className="relative inline-flex shrink-0 items-center gap-2 rounded-[var(--radius-control)] border border-border bg-surface px-4 text-sm font-medium text-fg transition hover:border-border-strong hover:bg-surface-hover"
+        >
+          <SlidersIcon className="h-4.5 w-4.5" />
+          <span className="hidden sm:inline">Filters</span>
+          {activeFilterCount > 0 && (
+            <span
+              data-testid="active-filter-count"
+              className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-xs font-semibold text-fg-on-brand"
+            >
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
+      )}
     </form>
   );
 };

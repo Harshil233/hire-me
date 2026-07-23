@@ -86,7 +86,7 @@ export const CandidateRegisterForm = ({
         </FormField>
       </div>
 
-      <FormField label="Middle name" error={errors.middleName?.message} hint="Optional">
+      <FormField label="Middle name" error={errors.middleName?.message} isOptional>
         {(fieldProps) => (
           <TextInput
             {...form.register('middleName')}

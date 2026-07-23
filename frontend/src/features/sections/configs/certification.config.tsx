@@ -87,7 +87,8 @@ const CertificationFormFields = ({
         <FormField
           label="Expires on"
           error={errors.expiresOn?.message}
-          hint="Optional — leave empty if it does not expire"
+          isOptional
+          hint="Empty if it never expires"
         >
           {(fieldProps) => (
             <TextInput
@@ -100,7 +101,7 @@ const CertificationFormFields = ({
         </FormField>
       </div>
 
-      <FormField label="Credential URL" error={errors.credentialUrl?.message} hint="Optional">
+      <FormField label="Credential URL" error={errors.credentialUrl?.message} isOptional>
         {(fieldProps) => (
           <TextInput
             {...form.register('credentialUrl')}
@@ -111,7 +112,7 @@ const CertificationFormFields = ({
         )}
       </FormField>
 
-      <FormField label="Notes" error={errors.description?.message} hint="Optional">
+      <FormField label="Notes" error={errors.description?.message} isOptional>
         {(fieldProps) => (
           <TextArea
             {...form.register('description')}

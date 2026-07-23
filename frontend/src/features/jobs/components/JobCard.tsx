@@ -97,10 +97,7 @@ export const JobCard = ({
         {job.skills.length > 0 && (
           <ul className="mt-3.5 flex flex-wrap gap-1.5">
             {job.skills.slice(0, SKILLS_SHOWN).map((skill) => (
-              <li
-                key={skill}
-                className="chip chip-sm"
-              >
+              <li key={skill} className="chip chip-sm">
                 {skill}
               </li>
             ))}

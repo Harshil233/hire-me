@@ -69,7 +69,7 @@ const ProjectFormFields = ({
       </FormField>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="Domain" error={errors.domain?.message} hint="Optional — e.g. Fintech">
+        <FormField label="Domain" error={errors.domain?.message} isOptional hint="e.g. Fintech">
           {(fieldProps) => (
             <TextInput
               {...form.register('domain')}
@@ -79,7 +79,7 @@ const ProjectFormFields = ({
           )}
         </FormField>
 
-        <FormField label="Link" error={errors.link?.message} hint="Optional">
+        <FormField label="Link" error={errors.link?.message} isOptional>
           {(fieldProps) => (
             <TextInput
               {...form.register('link')}
@@ -100,7 +100,7 @@ const ProjectFormFields = ({
 
       <ChipsField form={form} name="skills" label="Technologies" placeholder="React" />
 
-      <FormField label="What is it about?" error={errors.description?.message} hint="Optional">
+      <FormField label="What is it about?" error={errors.description?.message} isOptional>
         {(fieldProps) => (
           <TextArea
             {...form.register('description')}

@@ -77,7 +77,8 @@ export const ApplyModal = ({
         <FormField
           label="Cover note"
           error={errors.coverNote?.message}
-          hint="Optional — a short note to the employer."
+          isOptional
+          hint="A short note to the employer"
         >
           {(fieldProps) => (
             <textarea

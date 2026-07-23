@@ -153,14 +153,27 @@ describe('FormField', () => {
     expect(input).toHaveAccessibleDescription(/Enter a valid email/);
   });
 
-  it('hides the hint once there is an error', () => {
+  it('keeps the hint alongside an error, since they no longer share a line', () => {
     render(
       <FormField label="Email" hint="A hint" error="An error">
         {(fieldProps) => <TextInput {...fieldProps} />}
       </FormField>,
     );
 
-    expect(screen.queryByText('A hint')).not.toBeInTheDocument();
+    // The hint sits on the label row and the error below the control, so the advice
+    // that helps you fix the problem stays visible while you fix it.
+    expect(screen.getByText('A hint')).toBeInTheDocument();
+    expect(screen.getByText('An error')).toBeInTheDocument();
+  });
+
+  it('marks an optional field in the label rather than under the control', () => {
+    render(
+      <FormField label="Middle name" isOptional>
+        {(fieldProps) => <TextInput {...fieldProps} />}
+      </FormField>,
+    );
+
+    expect(screen.getByText('(optional)')).toBeInTheDocument();
   });
 });
 

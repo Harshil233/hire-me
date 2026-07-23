@@ -88,7 +88,7 @@ const ExperienceFormFields = ({
 
       <ChipsField form={form} name="skills" label="Skills used" placeholder="TypeScript" />
 
-      <FormField label="What did you do?" error={errorFor(errors, 'description')} hint="Optional">
+      <FormField label="What did you do?" error={errorFor(errors, 'description')} isOptional>
         {(fieldProps) => (
           <TextArea
             {...form.register('description')}

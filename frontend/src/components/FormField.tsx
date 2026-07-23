@@ -5,8 +5,11 @@ import { cn } from '@/lib/cn';
 export interface FormFieldProps {
   readonly label: string;
   readonly error?: string | undefined;
+  /** Sits on the label row, not under the control, so fields keep a uniform height. */
   readonly hint?: string | undefined;
   readonly isRequired?: boolean;
+  /** Marks the field optional in the label itself rather than in a line below it. */
+  readonly isOptional?: boolean;
   readonly className?: string;
   /**
    * Receives the wiring a control needs to be announced correctly by screen readers.
@@ -27,6 +30,7 @@ export const FormField = ({
   error,
   hint,
   isRequired = false,
+  isOptional = false,
   className,
   children,
 }: FormFieldProps): React.JSX.Element => {
@@ -39,26 +43,34 @@ export const FormField = ({
 
   return (
     <div className={cn('w-full', className)}>
-      <label htmlFor={id} className="field-label">
-        {label}
-        {isRequired && (
-          <span aria-hidden="true" className="ml-0.5 text-danger">
-            *
+      {/*
+        Label, optionality and hint share one row. Putting the hint under the control
+        made every field a different height, so a two-column form never lined up.
+      */}
+      <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+        <label htmlFor={id} className="field-label mb-0">
+          {label}
+          {isRequired && (
+            <span aria-hidden="true" className="ml-0.5 text-danger">
+              *
+            </span>
+          )}
+          {isOptional && <span className="ml-1.5 font-normal text-fg-subtle">(optional)</span>}
+        </label>
+
+        {/* Wraps onto its own line in a narrow column rather than colliding with the label. */}
+        {hint !== undefined && (
+          <span id={hintId} className="text-xs text-fg-subtle">
+            {hint}
           </span>
         )}
-      </label>
+      </div>
 
       {children({
         id,
         'aria-invalid': error !== undefined,
         'aria-describedby': describedBy.length > 0 ? describedBy : undefined,
       })}
-
-      {hint !== undefined && error === undefined && (
-        <p id={hintId} className="mt-1.5 text-xs text-fg-muted">
-          {hint}
-        </p>
-      )}
 
       {error !== undefined && (
         <p id={errorId} className="field-error">
