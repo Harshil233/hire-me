@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ROUTES, candidateDetailPath } from '@/config/constants';
 import { CandidateDetailPage } from '@/pages/CandidateDetailPage';
 import { httpClient } from '@/services/api-client';
-import { candidateDetailResponse } from '@/test/fixtures';
+import { candidateDetailResponse, job, jobListResponse } from '@/test/fixtures';
 import { renderWithProviders } from '@/test/render';
 
 let mock: MockAdapter;
@@ -198,6 +198,46 @@ describe('candidate detail', () => {
       expect(mock.history.get.some((entry) => entry.url === '/files/file-7')).toBe(true);
     });
     vi.unstubAllGlobals();
+  });
+
+  it('confirms with a popup once the recruiter emails them', async () => {
+    const user = userEvent.setup();
+    mock.onGet('/candidates/user-1').reply(200, candidateDetailResponse({ userId: 'user-1' }));
+    mock.onGet('/jobs/mine').reply(200, jobListResponse([job({ id: 'job-1', title: 'Backend' })]));
+    mock.onPost('/outreach/campaigns/preview').reply(200, {
+      success: true,
+      data: { recipientCount: 1 },
+    });
+    mock.onPost('/outreach/campaigns').reply(201, {
+      success: true,
+      data: {
+        campaign: {
+          id: 'c1',
+          jobId: 'job-1',
+          subject: 's',
+          body: 'b',
+          status: 'queued',
+          recipientCount: 1,
+          sentCount: 0,
+          failedCount: 0,
+          skippedCount: 0,
+          createdAt: '2026-07-20T10:00:00.000Z',
+        },
+      },
+    });
+
+    renderPage();
+    await screen.findByRole('heading', { name: 'Ada Lovelace' });
+
+    await user.click(screen.getByRole('button', { name: /Email Ada/ }));
+    await screen.findByText(/1 person will be emailed/);
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    expect(await screen.findByRole('heading', { name: 'Email sent' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'View campaigns' })).toHaveAttribute(
+      'href',
+      ROUTES.OUTREACH,
+    );
   });
 
   it('reports a candidate that cannot be opened', async () => {

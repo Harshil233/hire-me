@@ -18,6 +18,7 @@ import { CandidateFilterFields } from '@/features/candidates/components/Candidat
 import { useCandidates } from '@/features/candidates/hooks/useCandidates';
 import type { CandidateFilters } from '@/features/candidates/schemas/candidate.schema';
 import { useMyJobs } from '@/features/jobs/hooks/useJobs';
+import { CampaignSentModal } from '@/features/outreach/components/CampaignSentModal';
 import { ComposeCampaignModal } from '@/features/outreach/components/ComposeCampaignModal';
 import { useSendCampaign } from '@/features/outreach/hooks/useOutreach';
 import type { CampaignAudience } from '@/features/outreach/schemas/outreach.schema';
@@ -43,6 +44,8 @@ export const CandidatesPage = (): React.JSX.Element => {
   // Outreach selection. `null` means "everyone the current search matches".
   const [picked, setPicked] = useState<readonly string[] | null>([]);
   const [isComposeOpen, setIsComposeOpen] = useState(false);
+  // Set to the recipient count once a campaign is accepted, which opens the confirmation.
+  const [sentCount, setSentCount] = useState<number | null>(null);
   const send = useSendCampaign();
 
   // Only your own published listings: the server refuses anything else, and offering
@@ -211,11 +214,22 @@ export const CandidatesPage = (): React.JSX.Element => {
           }}
           onSend={(draft) => {
             send.mutate(draft, {
-              onSuccess: () => {
+              onSuccess: (campaign) => {
                 setIsComposeOpen(false);
                 setPicked([]);
+                setSentCount(campaign.recipientCount);
               },
             });
+          }}
+        />
+      )}
+
+      {sentCount !== null && (
+        <CampaignSentModal
+          isOpen
+          recipientCount={sentCount}
+          onClose={() => {
+            setSentCount(null);
           }}
         />
       )}

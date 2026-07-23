@@ -4,7 +4,9 @@ import MockAdapter from 'axios-mock-adapter';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CampaignRow } from '../components/CampaignRow';
+import { CampaignSentModal } from '../components/CampaignSentModal';
 import { ComposeCampaignModal } from '../components/ComposeCampaignModal';
+import { ROUTES } from '@/config/constants';
 import { httpClient } from '@/services/api-client';
 import { job } from '@/test/fixtures';
 import { renderWithProviders } from '@/test/render';
@@ -118,6 +120,35 @@ describe('ComposeCampaignModal', () => {
     });
 
     expect(screen.getByRole('alert')).toHaveTextContent('reached its daily limit');
+  });
+});
+
+describe('CampaignSentModal', () => {
+  it('confirms the send and points at the campaigns section', () => {
+    renderWithProviders(<CampaignSentModal isOpen recipientCount={3} onClose={vi.fn()} />);
+
+    expect(screen.getByRole('heading', { name: 'Email sent' })).toBeInTheDocument();
+    expect(screen.getByText(/on its way to 3 candidates/)).toBeInTheDocument();
+    expect(screen.getByText(/Check the Campaigns section/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'View campaigns' })).toHaveAttribute(
+      'href',
+      ROUTES.OUTREACH,
+    );
+  });
+
+  it('uses the singular for a single recipient', () => {
+    renderWithProviders(<CampaignSentModal isOpen recipientCount={1} onClose={vi.fn()} />);
+
+    expect(screen.getByText(/on its way to 1 candidate\./)).toBeInTheDocument();
+  });
+
+  it('closes when the recruiter is done', async () => {
+    const onClose = vi.fn();
+    renderWithProviders(<CampaignSentModal isOpen recipientCount={2} onClose={onClose} />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Done' }));
+
+    expect(onClose).toHaveBeenCalledOnce();
   });
 });
 

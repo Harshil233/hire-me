@@ -21,6 +21,7 @@ import { CandidateSection } from '@/features/candidates/components/CandidateSect
 import { ResumeButton } from '@/features/candidates/components/ResumeButton';
 import { useCandidate } from '@/features/candidates/hooks/useCandidates';
 import { useMyJobs } from '@/features/jobs/hooks/useJobs';
+import { CampaignSentModal } from '@/features/outreach/components/CampaignSentModal';
 import { ComposeCampaignModal } from '@/features/outreach/components/ComposeCampaignModal';
 import { useSendCampaign } from '@/features/outreach/hooks/useOutreach';
 import { certificationConfig } from '@/features/sections/configs/certification.config';
@@ -36,6 +37,8 @@ export const CandidateDetailPage = (): React.JSX.Element => {
   const query = useCandidate(userId);
 
   const [isComposeOpen, setIsComposeOpen] = useState(false);
+  // Set to the recipient count once a campaign is accepted, which opens the confirmation.
+  const [sentCount, setSentCount] = useState<number | null>(null);
   const send = useSendCampaign();
   // Only your own published listings; the server refuses anything else.
   const myJobs = useMyJobs({ status: 'published' });
@@ -207,10 +210,21 @@ export const CandidateDetailPage = (): React.JSX.Element => {
           }}
           onSend={(draft) => {
             send.mutate(draft, {
-              onSuccess: () => {
+              onSuccess: (campaign) => {
                 setIsComposeOpen(false);
+                setSentCount(campaign.recipientCount);
               },
             });
+          }}
+        />
+      )}
+
+      {sentCount !== null && (
+        <CampaignSentModal
+          isOpen
+          recipientCount={sentCount}
+          onClose={() => {
+            setSentCount(null);
           }}
         />
       )}

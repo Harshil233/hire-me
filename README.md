@@ -16,6 +16,11 @@ docker compose up --build
 Then open **<http://localhost:5173>** and sign in with the credentials in
 [Test credentials](#test-credentials).
 
+> **If that command fails**, it is almost always Docker itself not being ready rather
+> than the project — jump to [Running it → Troubleshooting](#docker-is-not-running),
+> which covers the Windows/WSL2, socket-permission and daemon-not-running cases with
+> the exact fix for each.
+
 ---
 
 ## Contents

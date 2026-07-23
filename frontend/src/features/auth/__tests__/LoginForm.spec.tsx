@@ -36,6 +36,20 @@ describe('LoginForm', () => {
     expect(mock.history.post).toHaveLength(0);
   });
 
+  it('reveals and re-hides the password on demand', async () => {
+    renderWithProviders(<LoginForm role="candidate" onSuccess={vi.fn()} />);
+
+    const password = screen.getByLabelText(/Password/);
+    expect(password).toHaveAttribute('type', 'password');
+
+    await userEvent.type(password, 'secret123');
+    await userEvent.click(screen.getByRole('button', { name: 'Show' }));
+    expect(password).toHaveAttribute('type', 'text');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Hide' }));
+    expect(password).toHaveAttribute('type', 'password');
+  });
+
   it('rejects a malformed email', async () => {
     renderWithProviders(<LoginForm role="candidate" onSuccess={vi.fn()} />);
 

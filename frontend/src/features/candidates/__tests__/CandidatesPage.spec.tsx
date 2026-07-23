@@ -3,10 +3,10 @@ import userEvent from '@testing-library/user-event';
 import MockAdapter from 'axios-mock-adapter';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { candidateDetailPath } from '@/config/constants';
+import { ROUTES, candidateDetailPath } from '@/config/constants';
 import { httpClient } from '@/services/api-client';
 import { CandidatesPage } from '@/pages/CandidatesPage';
-import { candidate, candidateListResponse } from '@/test/fixtures';
+import { candidate, candidateListResponse, job, jobListResponse } from '@/test/fixtures';
 import { renderWithProviders } from '@/test/render';
 import type { Candidate } from '../schemas/candidate.schema';
 
@@ -181,6 +181,48 @@ describe('CandidatesPage', () => {
 
     await screen.findByText('Ada Lovelace');
     expect(screen.queryByRole('button', { name: 'View resume' })).not.toBeInTheDocument();
+  });
+
+  it('confirms with a popup once a campaign is sent', async () => {
+    const user = userEvent.setup();
+    mock.onGet('/candidates').reply(200, pool([candidate({ userId: 'user-1' })]));
+    mock.onGet('/jobs/mine').reply(200, jobListResponse([job({ id: 'job-1', title: 'Backend' })]));
+    mock.onPost('/outreach/campaigns/preview').reply(200, {
+      success: true,
+      data: { recipientCount: 1 },
+    });
+    mock.onPost('/outreach/campaigns').reply(201, {
+      success: true,
+      data: {
+        campaign: {
+          id: 'c1',
+          jobId: 'job-1',
+          subject: 's',
+          body: 'b',
+          status: 'queued',
+          recipientCount: 1,
+          sentCount: 0,
+          failedCount: 0,
+          skippedCount: 0,
+          createdAt: '2026-07-20T10:00:00.000Z',
+        },
+      },
+    });
+
+    renderWithProviders(<CandidatesPage />);
+    await screen.findByText('Ada Lovelace');
+
+    await user.click(screen.getByRole('checkbox', { name: 'Select Ada Lovelace' }));
+    await user.click(screen.getByRole('button', { name: /Email/ }));
+
+    await screen.findByText(/1 person will be emailed/);
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    expect(await screen.findByRole('heading', { name: 'Email sent' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'View campaigns' })).toHaveAttribute(
+      'href',
+      ROUTES.OUTREACH,
+    );
   });
 
   it('pages forward', async () => {

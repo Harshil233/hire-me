@@ -11,6 +11,7 @@ import { isApiError } from '@/services/api-error';
 import { useLogin } from '../hooks/useAuthActions';
 import { useServerFieldErrors } from '../hooks/useServerFieldErrors';
 import { loginFormSchema, type LoginFormValues } from '../schemas/auth.schema';
+import { PasswordField } from './PasswordField';
 
 export interface LoginFormProps {
   /** Which role's sign-in path this submission goes to. */
@@ -71,17 +72,12 @@ export const LoginForm = ({ role, onSuccess }: LoginFormProps): React.JSX.Elemen
         )}
       </FormField>
 
-      <FormField label="Password" error={errors.password?.message} isRequired>
-        {(fieldProps) => (
-          <TextInput
-            {...register('password')}
-            {...fieldProps}
-            type="password"
-            autoComplete="current-password"
-            isInvalid={errors.password !== undefined}
-          />
-        )}
-      </FormField>
+      <PasswordField
+        label="Password"
+        registration={register('password')}
+        error={errors.password?.message}
+        autoComplete="current-password"
+      />
 
       <Button type="submit" isLoading={login.isPending} className="w-full">
         Sign in
