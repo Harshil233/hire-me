@@ -114,7 +114,7 @@ export const AppLayout = (): React.JSX.Element => {
       </header>
 
       {/* Bottom padding clears the mobile tab bar so nothing sits under it. */}
-      <main className="mx-auto max-w-6xl px-4 py-6 pb-24 sm:px-6 sm:py-9 md:pb-9">
+      <main className="mx-auto max-w-6xl px-4 pt-5 pb-24 sm:px-6 sm:pt-6 md:pb-10">
         <Outlet />
       </main>
 

@@ -69,6 +69,8 @@ export const jobDetailSchema = z.object({ job: jobSchema });
  */
 export type JobFilters = {
   readonly page?: number | undefined;
+  /** Only set where a caller wants a short list, such as the similar-jobs strip. */
+  readonly pageSize?: number | undefined;
   readonly search?: string | undefined;
   readonly role?: string | undefined;
   readonly jobType?: string | undefined;

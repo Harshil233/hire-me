@@ -12,6 +12,7 @@ import {
   ROUTES,
   WORK_MODE_LABELS,
 } from '@/config/constants';
+import { SimilarJobs } from '@/features/jobs/components/SimilarJobs';
 import { ApplyModal } from '@/features/applications/components/ApplyModal';
 import { useApply } from '@/features/applications/hooks/useApplications';
 import { JobStatusBadge } from '@/features/jobs/components/JobStatusBadge';
@@ -122,6 +123,8 @@ export const JobDetailPage = (): React.JSX.Element => {
           </div>
         )}
       </Card>
+
+      <SimilarJobs job={{ id: job.id, role: job.role }} />
 
       {isApplyOpen && (
         <ApplyModal

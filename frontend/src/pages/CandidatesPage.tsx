@@ -42,7 +42,6 @@ export const CandidatesPage = (): React.JSX.Element => {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Talent pool"
         title="Find candidates"
         tone="highlight"
         count={

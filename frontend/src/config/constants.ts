@@ -163,6 +163,7 @@ export const QUERY_KEYS = {
   jobs: (filters: Readonly<Record<string, unknown>>) => ['jobs', filters] as const,
   myJobs: (filters: Readonly<Record<string, unknown>>) => ['jobs', 'mine', filters] as const,
   job: (id: string) => ['job', id] as const,
+  similarJobs: (id: string) => ['job', id, 'similar'] as const,
   myApplications: (filters: Readonly<Record<string, unknown>>) =>
     ['applications', 'mine', filters] as const,
   jobApplicants: (jobId: string, filters: Readonly<Record<string, unknown>>) =>

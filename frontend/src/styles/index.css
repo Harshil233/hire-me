@@ -1,12 +1,8 @@
 @import 'tailwindcss';
 
 /* Self-hosted: no third-party request at runtime, and the app works offline. */
-@import '@fontsource-variable/bricolage-grotesque';
-@import '@fontsource/ibm-plex-sans/400.css';
-@import '@fontsource/ibm-plex-sans/500.css';
-@import '@fontsource/ibm-plex-sans/600.css';
-@import '@fontsource/ibm-plex-mono/400.css';
-@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource-variable/plus-jakarta-sans';
+@import '@fontsource-variable/inter';
 
 /* ==========================================================================
    Design tokens
@@ -42,6 +38,14 @@
   --iris-400: oklch(0.63 0.16 285);
   --iris-500: oklch(0.55 0.18 285);
   --iris-600: oklch(0.47 0.165 285);
+
+  --teal-100: oklch(0.94 0.04 205);
+  --teal-300: oklch(0.75 0.1 205);
+  --teal-600: oklch(0.5 0.12 205);
+
+  --rose-100: oklch(0.94 0.04 350);
+  --rose-300: oklch(0.75 0.11 350);
+  --rose-600: oklch(0.52 0.16 350);
 
   --pine-100: oklch(0.94 0.045 168);
   --pine-500: oklch(0.52 0.09 168);
@@ -102,6 +106,22 @@
   --info: var(--ink-700);
   --info-soft: oklch(0.95 0.004 220);
 
+  /*
+   * Employment type is the fact a scan sorts by first — an internship and a permanent
+   * role are not near-substitutes. Giving each its own tint puts colour across a listing
+   * page that means something, rather than decorating it.
+   */
+  --tone-permanent: var(--iris-600);
+  --tone-permanent-soft: var(--iris-100);
+  --tone-partial: var(--teal-600);
+  --tone-partial-soft: var(--teal-100);
+  --tone-temporary: var(--accent-text);
+  --tone-temporary-soft: var(--marigold-100);
+  --tone-entry: var(--pine-500);
+  --tone-entry-soft: var(--pine-100);
+  --tone-independent: var(--rose-600);
+  --tone-independent-soft: var(--rose-100);
+
   --shadow-xs: 0 1px 2px 0 oklch(0.17 0.014 220 / 0.06);
   --shadow-sm: 0 1px 2px 0 oklch(0.17 0.014 220 / 0.06), 0 1px 3px 0 oklch(0.17 0.014 220 / 0.04);
   --shadow-md: 0 4px 14px -4px oklch(0.17 0.014 220 / 0.1);
@@ -128,20 +148,20 @@
    * interfaces cannot lean on shadow the way light ones do: a black shadow on a black
    * page is invisible, so depth has to come from lightness plus the rim highlight below.
    */
-  --bg: oklch(0.152 0.017 258);
-  --bg-subtle: oklch(0.129 0.016 258);
-  --surface: oklch(0.203 0.019 258);
-  --surface-raised: oklch(0.243 0.021 258);
-  --surface-hover: oklch(0.268 0.022 258);
-  --surface-inset: oklch(0.174 0.018 258);
+  --bg: oklch(0.187 0.021 258);
+  --bg-subtle: oklch(0.163 0.02 258);
+  --surface: oklch(0.234 0.023 258);
+  --surface-raised: oklch(0.272 0.025 258);
+  --surface-hover: oklch(0.296 0.026 258);
+  --surface-inset: oklch(0.208 0.022 258);
 
   --fg: oklch(0.972 0.004 258);
   --fg-muted: oklch(0.765 0.014 258);
   --fg-subtle: oklch(0.63 0.016 258);
   --fg-on-brand: var(--ink-950);
 
-  --border: oklch(0.315 0.021 258);
-  --border-strong: oklch(0.44 0.026 258);
+  --border: oklch(0.345 0.024 258);
+  --border-strong: oklch(0.47 0.029 258);
 
   /* Light from above, the cue that makes a dark panel read as raised rather than cut out. */
   --rim: inset 0 1px 0 oklch(1 0 0 / 0.055);
@@ -178,6 +198,17 @@
   --danger-soft: oklch(0.3 0.062 30);
   --info: oklch(0.79 0.015 258);
   --info-soft: oklch(0.27 0.022 258);
+
+  --tone-permanent: var(--iris-300);
+  --tone-permanent-soft: oklch(0.32 0.07 278);
+  --tone-partial: var(--teal-300);
+  --tone-partial-soft: oklch(0.31 0.05 205);
+  --tone-temporary: var(--marigold-200);
+  --tone-temporary-soft: oklch(0.32 0.06 74);
+  --tone-entry: var(--pine-300);
+  --tone-entry-soft: oklch(0.31 0.055 178);
+  --tone-independent: var(--rose-300);
+  --tone-independent-soft: oklch(0.32 0.07 350);
 
   --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.4);
   --shadow-sm: 0 1px 3px 0 oklch(0 0 0 / 0.5);
@@ -218,6 +249,17 @@
   --color-highlight-text: var(--highlight-text);
   --color-highlight-line: var(--highlight-line);
 
+  --color-tone-permanent: var(--tone-permanent);
+  --color-tone-permanent-soft: var(--tone-permanent-soft);
+  --color-tone-partial: var(--tone-partial);
+  --color-tone-partial-soft: var(--tone-partial-soft);
+  --color-tone-temporary: var(--tone-temporary);
+  --color-tone-temporary-soft: var(--tone-temporary-soft);
+  --color-tone-entry: var(--tone-entry);
+  --color-tone-entry-soft: var(--tone-entry-soft);
+  --color-tone-independent: var(--tone-independent);
+  --color-tone-independent-soft: var(--tone-independent-soft);
+
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-warning: var(--warning);
@@ -232,9 +274,14 @@
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
 
-  --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  /*
+   * Plus Jakarta Sans carries the headings and Inter does the work. The pair replaces a
+   * display face that read as playful rather than professional, and a mono that made
+   * every salary and count look like terminal output — figures are set in Inter with
+   * tabular numerals instead, which lines them up without changing typeface.
+   */
+  --font-display: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
@@ -269,8 +316,7 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-variation-settings: 'wdth' 100;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.022em;
   }
 
   body,
@@ -337,17 +383,15 @@
 @layer components {
   /* ---------------------------------------------------------------- data */
 
-  /* Every number in the product is data, and is set as data. */
+  /* Figures line up column to column without switching to a different typeface. */
   .numeric {
-    font-family: var(--font-mono);
-    font-feature-settings: 'tnum' 1;
-    letter-spacing: -0.01em;
+    font-feature-settings: 'tnum' 1, 'cv01' 1;
+    font-variant-numeric: tabular-nums;
   }
 
-  /* Small caps label above a heading. Names the section without competing. */
+  /* Small label above a heading. Names the section without competing with it. */
   .eyebrow {
-    font-family: var(--font-mono);
-    @apply text-[0.6875rem] font-medium tracking-[0.14em] uppercase;
+    @apply text-[0.6875rem] font-semibold tracking-[0.1em] uppercase;
     color: var(--fg-subtle);
   }
 

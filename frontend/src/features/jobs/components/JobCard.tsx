@@ -2,13 +2,9 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ClockIcon, MapPinIcon } from '@/components/icons';
-import {
-  JOB_ROLE_LABELS,
-  JOB_TYPE_LABELS,
-  WORK_MODE_LABELS,
-  jobDetailPath,
-} from '@/config/constants';
+import { JOB_ROLE_LABELS, WORK_MODE_LABELS, jobDetailPath } from '@/config/constants';
 import { JobStatusBadge } from './JobStatusBadge';
+import { JobTypeBadge } from './JobTypeBadge';
 import { PayBand } from './PayBand';
 import type { PayScale } from '../utils/pay-scale';
 import { formatCtcRange, formatExperienceRange } from '../utils/job.format';
@@ -63,7 +59,7 @@ export const JobCard = ({
             ) : (
               <span className="numeric text-sm font-medium text-fg">{ctc}</span>
             )}
-            <p className="eyebrow mt-1">{JOB_TYPE_LABELS[job.jobType]}</p>
+            <JobTypeBadge jobType={job.jobType} className="mt-1.5" />
           </div>
         </div>
 

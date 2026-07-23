@@ -64,7 +64,6 @@ export const HrJobsPage = (): React.JSX.Element => {
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Your company"
         title="Postings"
         count={
           query.isSuccess
