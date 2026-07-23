@@ -130,7 +130,126 @@ A fuller treatment is in [docs/DESIGN.md](docs/DESIGN.md); the class-level detai
 
 ### Prerequisites
 
-Docker Desktop (or Docker Engine) with Compose v2. Nothing else — no Node, no MongoDB.
+**Docker Desktop (or Docker Engine) with Compose v2, running.** Nothing else — no Node,
+no MongoDB, no npm install.
+
+Verify before you start:
+
+```bash
+docker compose version     # expect: Docker Compose version v2.x or later
+docker info                # must print server details, not an error
+```
+
+If `docker info` errors, the CLI is installed but the **engine is not running** — see
+[Docker is not running](#docker-is-not-running) below. On Windows this is usually because
+WSL2 is missing, and it is the single most common reason a first
+`docker compose up --build` fails.
+
+<details>
+<summary><b>Windows — first-time setup (WSL2 required)</b></summary>
+
+Docker Desktop on Windows runs its engine inside **WSL2**, so WSL2 must be installed
+before Docker can start. Windows 10 version 2004+ or Windows 11.
+
+1. Open **PowerShell as Administrator** and install WSL2:
+
+   ```powershell
+   wsl --install
+   ```
+
+   If WSL is already present but out of date:
+
+   ```powershell
+   wsl --update
+   ```
+
+2. **Restart your machine.** This is not optional — WSL2 is not usable until you do.
+
+3. Install [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/)
+   and launch it. During setup keep **"Use WSL 2 instead of Hyper-V"** ticked.
+
+4. Wait for the whale icon in the system tray to report **"Engine running"**. Docker
+   Desktop takes 30–60 seconds to start and the CLI fails until it has.
+
+5. Confirm, then start the stack:
+
+   ```bash
+   docker info
+   docker compose up --build
+   ```
+
+**If `wsl --install` fails**, hardware virtualisation is probably disabled. Check Task
+Manager → Performance → CPU → *Virtualization: Enabled*. If it says Disabled, enable
+Intel VT-x / AMD-V (often called SVM) in your BIOS/UEFI.
+
+Useful checks:
+
+```powershell
+wsl --status         # which version is default, and is a distro installed
+wsl -l -v            # installed distros and their WSL version
+```
+
+</details>
+
+<details>
+<summary><b>macOS</b></summary>
+
+Install [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/) —
+choose the Apple Silicon or Intel build to match your machine — and launch it. No WSL,
+no extra steps. Wait for the whale icon to report the engine is running, then:
+
+```bash
+docker info
+docker compose up --build
+```
+
+</details>
+
+<details>
+<summary><b>Linux</b></summary>
+
+Install Docker Engine and the Compose plugin from
+[docs.docker.com/engine/install](https://docs.docker.com/engine/install/). There is no
+Docker Desktop requirement.
+
+```bash
+sudo systemctl enable --now docker
+
+# optional: run docker without sudo (log out and back in afterwards)
+sudo usermod -aG docker $USER
+```
+
+Then `docker compose up --build`. Without the group change, prefix the command with
+`sudo`.
+
+</details>
+
+#### Docker is not running
+
+If you see this on `docker compose up --build`:
+
+```
+unable to get image 'hire-me-frontend': failed to connect to the docker API at
+npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the
+daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find
+the file specified.
+```
+
+…nothing is wrong with this project. The Docker **CLI** is installed but the **engine**
+is not reachable. In order of likelihood:
+
+| Cause | Fix |
+|---|---|
+| Docker Desktop is not running | Launch it; wait for the tray icon to say *Engine running* |
+| Docker Desktop is still starting | Give it 30–60 seconds and retry |
+| **WSL2 is not installed** (Windows) | `wsl --install` in an admin PowerShell, then **restart** — see the Windows section above |
+| WSL2 is installed but outdated | `wsl --update`, then restart Docker Desktop |
+| Virtualisation disabled in BIOS | Enable Intel VT-x / AMD-V (SVM), then reinstall WSL2 |
+| Linux daemon not started | `sudo systemctl start docker` |
+
+The equivalent message on macOS and Linux is
+`Cannot connect to the Docker daemon at unix:///var/run/docker.sock` — same cause, same
+fixes.
 
 ### Start
 
