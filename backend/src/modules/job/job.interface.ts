@@ -10,6 +10,9 @@ export interface Job {
   readonly postedByUserId: string;
   readonly title: string;
   readonly description: string;
+  readonly highlights: readonly string[];
+  readonly responsibilities: readonly string[];
+  readonly qualifications: readonly string[];
   readonly role: JobRole;
   readonly jobType: JobType;
   readonly workMode: WorkMode;
@@ -55,6 +58,11 @@ export interface CompanySummary {
   readonly name: string;
   readonly slug: string;
   readonly logoFileId?: string | undefined;
+  /* Where a reader goes to check the employer out, before deciding to apply. */
+  readonly websiteUrl?: string | undefined;
+  readonly linkedinUrl?: string | undefined;
+  readonly facebookUrl?: string | undefined;
+  readonly instagramUrl?: string | undefined;
 }
 
 export interface ICompanyDirectory {

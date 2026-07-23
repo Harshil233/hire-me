@@ -1,7 +1,11 @@
 import { SEED_PASSWORD } from './seed.password';
 import type { SeedHr } from './seed.types';
 
-/** Employers, each with the company created alongside the account. */
+/**
+ * Employers, each with the company created alongside the account. The social links are
+ * deliberately uneven — one company has no LinkedIn, two have no Instagram — so the
+ * listing page has to cope with a partial set rather than always showing every icon.
+ */
 export const SEED_HRS: readonly SeedHr[] = [
   {
     email: 'grace@nimbuslabs.test',
@@ -17,6 +21,8 @@ export const SEED_HRS: readonly SeedHr[] = [
       description:
         'We build developer tooling for teams shipping to the cloud. Small team, long horizons, and a strong bias towards writing things down.',
       websiteUrl: 'https://nimbuslabs.test',
+      linkedinUrl: 'https://www.linkedin.com/company/nimbus-labs',
+      facebookUrl: 'https://www.facebook.com/nimbuslabs',
     },
   },
   {
@@ -33,6 +39,8 @@ export const SEED_HRS: readonly SeedHr[] = [
       description:
         'Decision intelligence for retail and logistics. We turn messy operational data into forecasts people actually trust.',
       websiteUrl: 'https://aetheranalytics.test',
+      linkedinUrl: 'https://www.linkedin.com/company/aether-analytics',
+      instagramUrl: 'https://www.instagram.com/aetheranalytics',
     },
   },
   {
@@ -49,6 +57,9 @@ export const SEED_HRS: readonly SeedHr[] = [
       description:
         'A retail group running 200+ stores and a growing online arm. Engineering, design and operations all sit in one building.',
       websiteUrl: 'https://northwindretail.test',
+      linkedinUrl: 'https://www.linkedin.com/company/northwind-retail',
+      facebookUrl: 'https://www.facebook.com/northwindretail',
+      instagramUrl: 'https://www.instagram.com/northwindretail',
     },
   },
   {
@@ -65,6 +76,7 @@ export const SEED_HRS: readonly SeedHr[] = [
       description:
         'Clinical software for hospital networks. Regulated, audited, and used by people who cannot afford for it to be down.',
       websiteUrl: 'https://vertexhealth.test',
+      linkedinUrl: 'https://www.linkedin.com/company/vertex-health',
     },
   },
   {
@@ -81,6 +93,8 @@ export const SEED_HRS: readonly SeedHr[] = [
       description:
         'Payments and lending infrastructure for businesses that outgrew their spreadsheets. Correctness first, everywhere.',
       websiteUrl: 'https://orbitfintech.test',
+      linkedinUrl: 'https://www.linkedin.com/company/orbit-fintech',
+      instagramUrl: 'https://www.instagram.com/orbitfintech',
     },
   },
   {
@@ -97,6 +111,8 @@ export const SEED_HRS: readonly SeedHr[] = [
       description:
         'A small product studio doing brand, interface and motion work for companies that care how things feel.',
       websiteUrl: 'https://lumenstudios.test',
+      facebookUrl: 'https://www.facebook.com/lumenstudios',
+      instagramUrl: 'https://www.instagram.com/lumenstudios',
     },
   },
 ];

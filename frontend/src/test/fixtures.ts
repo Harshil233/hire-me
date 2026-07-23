@@ -83,6 +83,9 @@ export const hrProfileView: ProfileView = {
 };
 
 export const job = (overrides: Partial<Job> = {}): Job => ({
+  highlights: [],
+  responsibilities: [],
+  qualifications: [],
   id: 'job-1',
   title: 'Senior Backend Engineer',
   description: 'Own the API from schema to production.',

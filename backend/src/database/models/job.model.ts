@@ -20,6 +20,9 @@ export interface JobDocument {
   postedByUserId: Types.ObjectId;
   title: string;
   description: string;
+  highlights: string[];
+  responsibilities: string[];
+  qualifications: string[];
   role: JobRole;
   jobType: JobType;
   workMode: WorkMode;
@@ -42,6 +45,9 @@ const jobSchema = new Schema<JobDocument>(
     postedByUserId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
+    highlights: { type: [String], default: [] },
+    responsibilities: { type: [String], default: [] },
+    qualifications: { type: [String], default: [] },
     role: { type: String, required: true, enum: JOB_ROLE_VALUES },
     jobType: { type: String, required: true, enum: JOB_TYPE_VALUES },
     workMode: { type: String, required: true, enum: WORK_MODE_VALUES },

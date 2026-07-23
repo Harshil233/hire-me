@@ -12,6 +12,28 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Senior Backend Engineer',
+      highlights: [
+        'Own the API end to end — schema, request path, and the decisions that outlive the ticket',
+        'Ship to production most weeks; releases are small and reversible',
+        'Design reviews are written, so the reasoning survives the people who wrote it',
+        'A real say in the architecture, not a backlog handed down from elsewhere',
+      ],
+      responsibilities: [
+        'Design and deliver API features from data model through to rollout',
+        'Keep the request path fast: profile before optimising, and measure afterwards',
+        'Review pull requests against the team\'s clean-code and SOLID guidelines',
+        'Instrument services with metrics and structured logs, and act on what they show',
+        'Write the migrations, including the rollback nobody wants to need',
+        'Mentor engineers earlier in their career and take part in hiring',
+      ],
+      qualifications: [
+        '4-8 years building production services, with real ownership of at least one',
+        'Deep TypeScript and Node.js, and comfort with an ORM as well as raw queries',
+        'MongoDB or a comparable document store, including index design',
+        'REST API design, versioning, and the discipline to keep contracts stable',
+        'Testing as a habit: unit, integration, and enough end-to-end to sleep at night',
+        'Able to explain a trade-off to someone who does not write code',
+      ],
       description:
         'Own our API from schema to production. You will shape the data model, keep the request path fast, and help the team make decisions that survive contact with real traffic.\n\nWe care more about how you reason through a trade-off than which framework you last used.',
       role: 'engineering',
@@ -30,6 +52,26 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Frontend Engineer, Design Systems',
+      highlights: [
+        'Own the component library every other product team builds on',
+        'Accessibility and theming are first-class here, not a retrofit',
+        'Your work is visible in every screen the company ships',
+        'Close partnership with design — same room, same decisions',
+      ],
+      responsibilities: [
+        'Build and maintain shared React components, documented and versioned',
+        'Hold the library to WCAG 2.1 AA, including keyboard and screen-reader paths',
+        'Own the theming layer so a colour change never means a search-and-replace',
+        'Review component contributions from other teams',
+        'Keep bundle size honest and profile rendering when it slips',
+      ],
+      qualifications: [
+        '3-6 years of frontend work, including time on a shared component library',
+        'React and TypeScript to a depth that includes generics and render performance',
+        'Modern CSS: custom properties, layers, container queries',
+        'Practical accessibility knowledge, not only an audit checklist',
+        'Testing with a library that exercises behaviour rather than implementation',
+      ],
       description:
         'Build the component library the rest of the product is assembled from. Accessibility and theming are first-class here, not a retrofit.',
       role: 'engineering',
@@ -48,6 +90,25 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Platform Engineer (SRE)',
+      highlights: [
+        'Make the on-call rota boring — the team\'s stated goal, not a slogan',
+        'Terraform everywhere; no console-clicked infrastructure',
+        'Budget and mandate to delete what is not earning its keep',
+      ],
+      responsibilities: [
+        'Own the Kubernetes estate and the pipelines that deploy to it',
+        'Define SLIs and SLOs with the teams that own each service',
+        'Cut alert noise until every page means something',
+        'Run incident reviews that produce changes rather than documents',
+        'Automate the toil out of releases, including rollback',
+      ],
+      qualifications: [
+        '5+ years in SRE, platform or infrastructure engineering',
+        'Kubernetes and Terraform in production, not only in a lab',
+        'AWS across compute, networking and IAM',
+        'Observability tooling, and the judgement to know what to instrument',
+        'Scripting in Python or Go for the glue nobody else wants to write',
+      ],
       description:
         'Keep the lights on and make the on-call rota boring. Terraform, observability, and a genuine say in the architecture.',
       role: 'operations',
@@ -65,6 +126,22 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Engineering Intern',
+      highlights: [
+        'Six months alongside the platform team',
+        'You will ship something real, with your name on the commit',
+        'Paired and reviewed from day one',
+      ],
+      responsibilities: [
+        'Work through well-scoped tickets with a mentor',
+        'Write tests for what you build',
+        'Take part in code review, on both sides of it',
+        'Present what you shipped at the end of the placement',
+      ],
+      qualifications: [
+        'Final-year student or recent graduate',
+        'JavaScript fundamentals and comfort with Git',
+        'Curiosity, and the habit of asking before guessing',
+      ],
       description:
         'Six months alongside the platform team. You will ship something real and have your name on it.',
       role: 'engineering',
@@ -154,6 +231,25 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Data Engineer',
+      highlights: [
+        'Build the pipelines the forecasting team depends on every morning',
+        'Batch today, streaming where it genuinely earns its keep',
+        'Clear ownership: you run what you build',
+      ],
+      responsibilities: [
+        'Design and operate Airflow pipelines with real tests and alerting',
+        'Model warehouse tables analysts can use without asking you first',
+        'Tune Spark jobs that have outgrown their original shape',
+        'Document lineage, so a number can be traced back to its source',
+        'Work with analysts to turn recurring questions into stable datasets',
+      ],
+      qualifications: [
+        '4-9 years in data engineering',
+        'Python and SQL to a professional standard',
+        'Airflow or a comparable orchestrator, in production',
+        'Spark where it is needed, and the judgement to avoid it where it is not',
+        'Dimensional modelling, and a view on when to break the rules',
+      ],
       description:
         'Build the pipelines the forecasting team depends on. Batch today, streaming where it earns its keep.',
       role: 'engineering',
@@ -172,6 +268,25 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Machine Learning Engineer',
+      highlights: [
+        'Take forecasting models from a notebook to something that runs nightly, unattended',
+        'Own the whole path: training, deployment, monitoring, retraining',
+        'Models are judged on the decisions they change, not on a leaderboard',
+      ],
+      responsibilities: [
+        'Productionise models with reproducible training and versioned artefacts',
+        'Build monitoring for drift, and the retraining that answers it',
+        'Own the rollback plan for a model that starts behaving badly',
+        'Work with the data team on the features a model actually needs',
+        'Write the evaluation that decides whether a change ships',
+      ],
+      qualifications: [
+        '4+ years applying machine learning to production problems',
+        'Python and PyTorch, with a working knowledge of the maths underneath',
+        'MLOps practice: pipelines, registries, monitoring',
+        'SQL good enough to build your own features',
+        'Honest about uncertainty, and able to communicate it',
+      ],
       description:
         'Take forecasting models from a notebook to something that runs every night without anyone watching.',
       role: 'engineering',
@@ -189,6 +304,24 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Product Designer',
+      highlights: [
+        'Dense, information-heavy tooling for analysts — complexity made legible, not hidden',
+        'Research access to real users, on a regular cadence',
+        'Design sits with engineering from the first sketch',
+      ],
+      responsibilities: [
+        'Own product areas end to end: research, interface, and the handover',
+        'Run usability sessions and turn what you learn into decisions',
+        'Contribute to and follow the shared design system',
+        'Prototype at the fidelity the question needs, and no higher',
+        'Pair with engineers through build, not only at the handoff',
+      ],
+      qualifications: [
+        '3-7 years designing software, ideally data-heavy products',
+        'Figma to a professional standard, including component and variable work',
+        'Comfortable running your own research',
+        'Able to defend a decision with reasoning rather than taste',
+      ],
       description:
         'Dense, information-heavy tooling for analysts. The craft here is making complexity legible, not hiding it.',
       role: 'design',
@@ -277,6 +410,23 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Full Stack Engineer',
+      highlights: [
+        'Storefront and the tools behind it — you see your work in a shop the same week',
+        'Real traffic to learn from, and analytics to check yourself against',
+        'Small team, short path from idea to release',
+      ],
+      responsibilities: [
+        'Build features across React and Node, including the database work',
+        'Keep the buying journey fast on the devices customers actually use',
+        'Add tests at the level that will catch the regression, not the level that is easiest',
+        'Support what you ship, including the occasional store-hours issue',
+      ],
+      qualifications: [
+        '2-6 years of full-stack work',
+        'React and Node.js in production',
+        'PostgreSQL, including reading a query plan when something gets slow',
+        'Comfortable owning a feature from ticket to release',
+      ],
       description:
         'Storefront and the tools behind it. You will see your work in a shop the same week you ship it.',
       role: 'engineering',
@@ -295,6 +445,24 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Product Manager, Storefront',
+      highlights: [
+        'Own the buying journey end to end, from search to the confirmation screen',
+        'Enough traffic that experiments settle in days rather than quarters',
+        'A direct line to the stores, not only to a dashboard',
+      ],
+      responsibilities: [
+        'Own the storefront roadmap and the reasoning behind its order',
+        'Define success up front and hold releases to it',
+        'Run experiments, and kill the ones that do not work',
+        'Bring engineering and design in early, not at sign-off',
+        'Keep store operations informed of anything that changes their day',
+      ],
+      qualifications: [
+        '5+ years in product, some of it in e-commerce or retail',
+        'Comfortable with analytics and able to write your own queries',
+        'A track record of shipping and measuring, not only planning',
+        'Stakeholder management across functions that disagree',
+      ],
       description:
         'Own the buying journey end to end, from search to the confirmation screen. You will have real traffic to learn from.',
       role: 'product',
@@ -416,6 +584,24 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Senior Software Engineer, Clinical Systems',
+      highlights: [
+        'Scheduling and records used by hospital networks, where downtime has a cost you can name',
+        'Regulated software: audited, versioned, reviewed by people whose job is to find the gap',
+        'Correctness is valued above velocity, and the timelines reflect that',
+      ],
+      responsibilities: [
+        'Build and maintain clinical features against HL7 and internal standards',
+        'Write the audit trail alongside the feature, not afterwards',
+        'Take part in formal design and code review',
+        'Support compliance work with evidence engineers can actually produce',
+        'Own defects through to root cause',
+      ],
+      qualifications: [
+        '5-10 years in Java and Spring',
+        'PostgreSQL, including transactional design under contention',
+        'Healthcare interoperability such as HL7 or FHIR, or the appetite to learn it',
+        'Experience working inside an audited process',
+      ],
       description:
         'Scheduling and records for hospital networks. Regulated software: audited, versioned, and reviewed by people whose job is to find the gap.\n\nIf you like problems where correctness matters more than velocity, this is one.',
       role: 'engineering',
@@ -434,6 +620,25 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Security Engineer',
+      highlights: [
+        'Patient data, so the threat model is not hypothetical',
+        'A mandate to fix, not only to report',
+        'Remote-first, with the team meeting in person a few times a year',
+      ],
+      responsibilities: [
+        'Run threat modelling for new services before they ship',
+        'Review code and infrastructure for the OWASP Top 10 and beyond',
+        'Own the vulnerability pipeline from discovery to verified fix',
+        'Build the guardrails that stop a class of bug returning',
+        'Support audit and certification with real evidence',
+      ],
+      qualifications: [
+        '5+ years in application or cloud security',
+        'Hands-on threat modelling and secure design review',
+        'Working knowledge of cryptography, and where it is usually got wrong',
+        'Cloud security across identity, network and data',
+        'Able to explain risk to people who must weigh it against delivery',
+      ],
       description:
         'Patient data, so the threat model is not hypothetical. Threat modelling, reviews, and the unglamorous work of fixing what you find.',
       role: 'engineering',
@@ -522,6 +727,24 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Payments Engineer',
+      highlights: [
+        'Ledgers, reconciliation and settlement — money must not be created by a race condition',
+        'A correctness culture: property tests, invariants, and reviews that take them seriously',
+        'Volume that makes the hard parts genuinely hard',
+      ],
+      responsibilities: [
+        'Build and operate double-entry ledger services',
+        'Own reconciliation, including the breaks nobody expected',
+        'Design for idempotency and exactly-once effects across retries',
+        'Write the property tests that try to break your own invariants',
+        'Carry the pager for what you build',
+      ],
+      qualifications: [
+        '5-12 years building backend systems, some of it where errors are expensive',
+        'Go, or fluency in a comparable language and the willingness to move',
+        'PostgreSQL under real concurrency',
+        'Distributed systems fundamentals: consistency, ordering, failure modes',
+      ],
       description:
         'Ledgers, reconciliation and settlement. Money must not be created or destroyed by a race condition, and here it will not be.',
       role: 'engineering',
@@ -575,6 +798,23 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Backend Engineer, Lending',
+      highlights: [
+        'The origination flow, from application to disbursal — plenty of state, all of it consequential',
+        'Event sourcing where it earns its keep, because every transition has an auditor attached',
+        'Remote-first team with a written-decision culture',
+      ],
+      responsibilities: [
+        'Model and build the lending state machine and its transitions',
+        'Keep an auditable history of every decision the system makes',
+        'Integrate with credit and identity providers, including their failure modes',
+        'Write the tests that cover the paths regulators ask about',
+      ],
+      qualifications: [
+        '3-9 years in backend engineering',
+        'Node.js and TypeScript in production',
+        'PostgreSQL, and a considered view on event sourcing',
+        'Comfortable working where a bug is a compliance question',
+      ],
       description:
         'The origination flow, from application to disbursal. Plenty of state, all of it consequential.',
       role: 'engineering',
@@ -593,6 +833,23 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Growth Marketer',
+      highlights: [
+        'Own acquisition for the self-serve product end to end',
+        'Experiments, not vibes — the analytics will prove it either way',
+        'Remote-first, with a real budget to test against',
+      ],
+      responsibilities: [
+        'Own the acquisition funnel and the number attached to it',
+        'Run paid and organic experiments with a stated hypothesis',
+        'Write copy that survives contact with an audience',
+        'Kill channels that are not working, and say why',
+      ],
+      qualifications: [
+        '3+ years in growth or performance marketing for a software product',
+        'SEO and paid acquisition, hands-on',
+        'Analytics good enough to build your own reports',
+        'Writing that reads like a person rather than a template',
+      ],
       description:
         'Own acquisition for the self-serve product. Experiments, not vibes — you will have the analytics to prove it either way.',
       role: 'marketing',
@@ -645,6 +902,24 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Senior Product Designer',
+      highlights: [
+        'Client work across three or four products a year — variety without whiplash',
+        'Own the whole arc: research, interface, and the handover that makes it survive',
+        'A small studio, so your name is on the work',
+      ],
+      responsibilities: [
+        'Lead design on client engagements from kickoff to delivery',
+        'Run research appropriate to the budget and the question',
+        'Build design systems the client\'s own team can carry forward',
+        'Present and defend work directly to client stakeholders',
+        'Mentor the studio\'s junior designers and interns',
+      ],
+      qualifications: [
+        '5+ years designing digital products, ideally some studio or agency work',
+        'Figma mastery including systems, variables and prototyping',
+        'Interaction design sense that survives contact with real content',
+        'Comfortable presenting to the people paying for the work',
+      ],
       description:
         'Client work across three or four products a year. You will own the whole arc — research, interface, and the handover that makes it survive.',
       role: 'design',
@@ -696,6 +971,23 @@ export const SEED_JOBS: readonly SeedJob[] = [
     publish: true,
     job: {
       title: 'Design Intern',
+      highlights: [
+        'Three months in the studio in Goa, on real client work',
+        'Reviewed properly, by people whose job is to make you better',
+        'Your name in the credits on whatever ships',
+      ],
+      responsibilities: [
+        'Support senior designers across live client projects',
+        'Produce explorations and iterate on the feedback you get',
+        'Keep files tidy enough for someone else to pick up',
+        'Present your own work in studio reviews',
+      ],
+      qualifications: [
+        'Final-year student or recent graduate in design',
+        'Working knowledge of Figma',
+        'A portfolio showing how you think, not only what you made',
+        'Available in Goa for the full three months',
+      ],
       description:
         'Three months in the studio in Goa. Real client work, reviewed properly, with your name in the credits.',
       role: 'design',

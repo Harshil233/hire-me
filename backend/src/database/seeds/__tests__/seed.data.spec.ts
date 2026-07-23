@@ -77,7 +77,7 @@ describe('seed jobs', () => {
   it('never records a pay floor above its ceiling', () => {
     for (const { job } of SEED_JOBS) {
       if (job.ctcMin !== undefined && job.ctcMax !== undefined) {
-        expect(job.ctcMin).toBeLessThanOrEqual(job.ctcMax);
+        expect(job.ctcMin).toBeLessThanOrEqual(job.ctcMax as number);
       }
     }
   });

@@ -236,6 +236,11 @@ export class JobRepository implements IJobRepository, IJobSummaryProvider {
       postedByUserId: toIdString(document.postedByUserId),
       title: document.title,
       description: document.description,
+      // Documents written before these fields existed carry none, and the domain type
+      // promises arrays either way.
+      highlights: document.highlights ?? [],
+      responsibilities: document.responsibilities ?? [],
+      qualifications: document.qualifications ?? [],
       role: document.role,
       jobType: document.jobType,
       workMode: document.workMode,

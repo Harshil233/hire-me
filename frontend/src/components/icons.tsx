@@ -157,3 +157,35 @@ export const AwardIcon = (props: IconProps): React.JSX.Element => (
     <path d="m8.5 14.5-1 6.5 4.5-2.6 4.5 2.6-1-6.5" />
   </svg>
 );
+
+export const GlobeIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18" />
+    <path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z" />
+  </svg>
+);
+
+export const LinkedinIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+    <path d="M7.5 10.5V17" />
+    <path d="M7.5 7.2v.01" />
+    <path d="M11.5 17v-3.6a2.4 2.4 0 0 1 4.8 0V17" />
+    <path d="M11.5 10.5V17" />
+  </svg>
+);
+
+export const FacebookIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <path d="M14.5 8.5h2V5.7h-2.2c-2 0-3.3 1.3-3.3 3.4v1.6H9v2.8h2v6.5h2.9v-6.5h2.1l.4-2.8h-2.5V9.4c0-.6.2-.9.6-.9Z" />
+  </svg>
+);
+
+export const InstagramIcon = (props: IconProps): React.JSX.Element => (
+  <svg {...base(props)}>
+    <rect x="3" y="3" width="18" height="18" rx="5" />
+    <circle cx="12" cy="12" r="3.6" />
+    <path d="M17 7v.01" />
+  </svg>
+);

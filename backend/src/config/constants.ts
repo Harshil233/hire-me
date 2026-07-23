@@ -174,6 +174,9 @@ export const VALIDATION_LIMITS = {
   ADDRESS_MAX_LENGTH: 300,
   LIST_MAX_ITEMS: 50,
   LIST_ITEM_MAX_LENGTH: 50,
+  /* A responsibility or requirement is a sentence, not a tag. */
+  BULLET_MAX_ITEMS: 20,
+  BULLET_MAX_LENGTH: 300,
   MOBILE_MIN_DIGITS: 7,
   MOBILE_MAX_DIGITS: 15,
   MIN_AGE_YEARS: 16,

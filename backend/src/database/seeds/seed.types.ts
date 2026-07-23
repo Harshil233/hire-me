@@ -5,7 +5,7 @@ import type { UpdateCandidateProfileInput } from '../../modules/candidate/candid
 import type { certificationInputSchema } from '../../modules/certification/certification.schema';
 import type { educationInputSchema } from '../../modules/education/education.schema';
 import type { experienceInputSchema } from '../../modules/experience/experience.schema';
-import type { CreateJobInput } from '../../modules/job/job.schema';
+import type { createJobSchema } from '../../modules/job/job.schema';
 import type { projectInputSchema } from '../../modules/project/project.schema';
 
 /**
@@ -18,7 +18,8 @@ export type SeedHr = RegisterHrInput;
 export interface SeedJob {
   /** Employer email the listing belongs to. */
   readonly hrEmail: string;
-  readonly job: CreateJobInput;
+  /** Schema input, so a listing may leave the optional sections out. */
+  readonly job: z.input<typeof createJobSchema>;
   /** Left as a draft when false; closed listings are published then closed. */
   readonly publish: boolean;
   readonly close?: boolean;

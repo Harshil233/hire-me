@@ -12,6 +12,9 @@ import {
   ROUTES,
   WORK_MODE_LABELS,
 } from '@/config/constants';
+import { ArrowLeftIcon } from '@/components/icons';
+import { CompanyLinks } from '@/features/jobs/components/CompanyLinks';
+import { JobBulletSection } from '@/features/jobs/components/JobBulletSection';
 import { SimilarJobs } from '@/features/jobs/components/SimilarJobs';
 import { ApplyModal } from '@/features/applications/components/ApplyModal';
 import { useApply } from '@/features/applications/hooks/useApplications';
@@ -63,23 +66,36 @@ export const JobDetailPage = (): React.JSX.Element => {
 
   return (
     <div className="space-y-4">
-      <Link to={ROUTES.JOBS} className="text-sm font-medium text-brand-text hover:underline">
-        ← Back to jobs
+      <Link
+        to={ROUTES.JOBS}
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-fg-muted transition hover:text-fg"
+      >
+        <ArrowLeftIcon className="h-4 w-4" />
+        Back to jobs
       </Link>
 
       <Card>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="text-xl font-semibold text-fg">{job.title}</h1>
+        <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4">
+          <div className="min-w-0">
+            <h1 className="text-2xl leading-tight font-semibold tracking-[-0.02em] text-fg">
+              {job.title}
+            </h1>
             <p className="mt-1 text-sm text-fg-muted">{job.company.name}</p>
+            <div className="mt-3">
+              <CompanyLinks company={job.company} />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
+
+          {/* The badge is a label and the button is an action; they read as one row only
+              if the badge sits above rather than beside it. */}
+          <div className="flex shrink-0 flex-col items-end gap-3">
             <JobStatusBadge status={job.status} />
             {canApply &&
               (hasApplied ? (
                 <span className="text-sm font-medium text-success">Application sent</span>
               ) : (
                 <Button
+                  size="lg"
                   onClick={() => {
                     apply.reset();
                     setIsApplyOpen(true);
@@ -109,6 +125,10 @@ export const JobDetailPage = (): React.JSX.Element => {
             {job.description}
           </p>
         </div>
+
+        <JobBulletSection title="What you get" items={job.highlights} />
+        <JobBulletSection title="Responsibilities" items={job.responsibilities} />
+        <JobBulletSection title="Qualifications & skills" items={job.qualifications} />
 
         {job.skills.length > 0 && (
           <div className="mt-6">

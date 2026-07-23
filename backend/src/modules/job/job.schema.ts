@@ -28,9 +28,16 @@ const experienceYearsSchema = z
  * Field rules declared once. `companyId` is deliberately absent: it is resolved from the
  * poster's own membership, never accepted from the client.
  */
+const bulletListSchema = (label: string): ReturnType<typeof stringListSchema> =>
+  stringListSchema(label, VALIDATION_LIMITS.BULLET_MAX_ITEMS, VALIDATION_LIMITS.BULLET_MAX_LENGTH);
+
 const jobFields = {
   title: requiredText('Title'),
   description: requiredText('Description', VALIDATION_LIMITS.DESCRIPTION_MAX_LENGTH),
+  /* The three headed lists a real posting is made of, each optional. */
+  highlights: bulletListSchema('Highlights'),
+  responsibilities: bulletListSchema('Responsibilities'),
+  qualifications: bulletListSchema('Qualifications'),
   role: z.enum(JOB_ROLE_VALUES),
   jobType: z.enum(JOB_TYPE_VALUES),
   workMode: z.enum(WORK_MODE_VALUES),
@@ -58,6 +65,9 @@ export const createJobSchema = z
   .object({
     ...jobFields,
     skills: stringListSchema('Skills').default([]),
+    highlights: bulletListSchema('Highlights').default([]),
+    responsibilities: bulletListSchema('Responsibilities').default([]),
+    qualifications: bulletListSchema('Qualifications').default([]),
     locations: stringListSchema('Locations').default([]),
   })
   .superRefine(ctcRangeRule)
@@ -130,6 +140,9 @@ export const jobResponseSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string(),
+  highlights: z.array(z.string()),
+  responsibilities: z.array(z.string()),
+  qualifications: z.array(z.string()),
   role: z.enum(JOB_ROLE_VALUES),
   jobType: z.enum(JOB_TYPE_VALUES),
   workMode: z.enum(WORK_MODE_VALUES),
@@ -142,7 +155,16 @@ export const jobResponseSchema = z.object({
   status: z.enum(JOB_STATUS_VALUES),
   publishedAt: z.iso.datetime().optional(),
   closedAt: z.iso.datetime().optional(),
-  company: companyResponseSchema.pick({ id: true, name: true, slug: true, logoFileId: true }),
+  company: companyResponseSchema.pick({
+    id: true,
+    name: true,
+    slug: true,
+    logoFileId: true,
+    websiteUrl: true,
+    linkedinUrl: true,
+    facebookUrl: true,
+    instagramUrl: true,
+  }),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 });

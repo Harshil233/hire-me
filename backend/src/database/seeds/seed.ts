@@ -5,7 +5,9 @@ import { createContainer } from '../../container';
 import { APPLICATION_SERVICE } from '../../modules/application/application.interface';
 import { AUTH_SERVICE } from '../../modules/auth/auth.interface';
 import { CANDIDATE_PROFILE_SERVICE } from '../../modules/candidate/candidate.interface';
+import { COMPANY_MEMBERSHIP, COMPANY_SERVICE } from '../../modules/company/company.interface';
 import { JOB_SERVICE } from '../../modules/job/job.interface';
+import { createJobSchema } from '../../modules/job/job.schema';
 import { USER_REPOSITORY } from '../../modules/user/user.interface';
 import { MongooseConnection, getConnection } from '../connection';
 import { CERTIFICATION_SERVICE } from '../../modules/certification/certification.interface';
@@ -63,6 +65,8 @@ const seed = async (): Promise<void> => {
   const jobService = container.resolve(JOB_SERVICE);
   const applicationService = container.resolve(APPLICATION_SERVICE);
   const candidateProfiles = container.resolve(CANDIDATE_PROFILE_SERVICE);
+  const companies = container.resolve(COMPANY_SERVICE);
+  const membership = container.resolve(COMPANY_MEMBERSHIP);
 
   const userIdByEmail = new Map<string, string>();
   const jobIdByTitle = new Map<string, string>();
@@ -73,7 +77,7 @@ const seed = async (): Promise<void> => {
   const projects = container.resolve(PROJECT_SERVICE);
   const certifications = container.resolve(CERTIFICATION_SERVICE);
 
-  let created = { employers: 0, candidates: 0, sections: 0, jobs: 0, applications: 0 };
+  let created = { employers: 0, candidates: 0, sections: 0, jobs: 0, jobSections: 0, companyLinks: 0, applications: 0 };
 
   /**
    * Writes one section list, but only when the candidate has none of that kind yet.
@@ -128,12 +132,41 @@ const seed = async (): Promise<void> => {
     return written.reduce((total, count) => total + count, 0);
   };
 
+  /** Adds the company's public links where the record does not carry them yet. */
+  const addCompanyLinks = async (userId: string, hr: (typeof SEED_HRS)[number]): Promise<void> => {
+    const companyId = await membership.findCompanyIdForUser(userId);
+
+    if (companyId === null) {
+      return;
+    }
+
+    const company = await companies.getById(companyId);
+    const links = {
+      ...(company.linkedinUrl === undefined && hr.company.linkedinUrl !== undefined
+        ? { linkedinUrl: hr.company.linkedinUrl }
+        : {}),
+      ...(company.facebookUrl === undefined && hr.company.facebookUrl !== undefined
+        ? { facebookUrl: hr.company.facebookUrl }
+        : {}),
+      ...(company.instagramUrl === undefined && hr.company.instagramUrl !== undefined
+        ? { instagramUrl: hr.company.instagramUrl }
+        : {}),
+    };
+
+    if (Object.keys(links).length > 0) {
+      await companies.update(companyId, userId, links);
+      created = { ...created, companyLinks: created.companyLinks + 1 };
+    }
+  };
+
   /* ------------------------------------------------------------- employers */
   for (const hr of SEED_HRS) {
     const existing = await users.findByEmail(hr.email);
 
     if (existing !== null) {
       userIdByEmail.set(hr.email, existing.id);
+      // Backfill: a company registered before the social links existed still gets them.
+      await addCompanyLinks(existing.id, hr);
       continue;
     }
 
@@ -183,10 +216,30 @@ const seed = async (): Promise<void> => {
 
     if (already !== undefined) {
       jobIdByTitle.set(entry.job.title, already.id);
+
+      // Backfill: a listing seeded before the description sections existed still gets
+      // them, and one that already has them is left alone.
+      const parsed = createJobSchema.parse(entry.job);
+      const needsSections =
+        already.highlights.length === 0 &&
+        already.responsibilities.length === 0 &&
+        already.qualifications.length === 0 &&
+        parsed.highlights.length + parsed.responsibilities.length + parsed.qualifications.length >
+          0;
+
+      if (needsSections) {
+        await jobService.update(already.id, hrUserId, {
+          highlights: parsed.highlights,
+          responsibilities: parsed.responsibilities,
+          qualifications: parsed.qualifications,
+        });
+        created = { ...created, jobSections: created.jobSections + 1 };
+      }
+
       continue;
     }
 
-    const job = await jobService.create(hrUserId, entry.job);
+    const job = await jobService.create(hrUserId, createJobSchema.parse(entry.job));
     jobIdByTitle.set(entry.job.title, job.id);
     created = { ...created, jobs: created.jobs + 1 };
 

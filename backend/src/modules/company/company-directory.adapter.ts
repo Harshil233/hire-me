@@ -26,6 +26,10 @@ export class CompanyDirectoryAdapter implements ICompanyDirectory {
           name: company.name,
           slug: company.slug,
           logoFileId: company.logoFileId,
+          websiteUrl: company.websiteUrl,
+          linkedinUrl: company.linkedinUrl,
+          facebookUrl: company.facebookUrl,
+          instagramUrl: company.instagramUrl,
         },
       ]),
     );

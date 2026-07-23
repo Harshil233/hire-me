@@ -18,12 +18,19 @@ export const jobCompanySchema = z.object({
   name: z.string(),
   slug: z.string(),
   logoFileId: z.string().optional(),
+  websiteUrl: z.string().optional(),
+  linkedinUrl: z.string().optional(),
+  facebookUrl: z.string().optional(),
+  instagramUrl: z.string().optional(),
 });
 
 export const jobSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string(),
+  highlights: z.array(z.string()),
+  responsibilities: z.array(z.string()),
+  qualifications: z.array(z.string()),
   role: z.enum(JOB_ROLE_VALUES),
   jobType: z.enum(JOB_TYPE_VALUES),
   workMode: z.enum(WORK_MODE_VALUES),
