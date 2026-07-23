@@ -64,7 +64,7 @@ export class ApplicationService implements IApplicationService {
       );
     }
 
-    // Snapshot the résumé that is current right now: the candidate may replace it later,
+    // Snapshot the resume that is current right now: the candidate may replace it later,
     // and the employer must keep seeing what was actually submitted.
     const profile = await this.deps.candidateProfileService.getByUserId(candidateUserId);
 

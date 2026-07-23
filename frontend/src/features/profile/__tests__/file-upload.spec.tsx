@@ -76,13 +76,13 @@ describe('FileUploadButton', () => {
     render(
       <FileUploadButton
         kind={FILE_KINDS.RESUME}
-        label="Upload résumé"
+        label="Upload resume"
         isUploading={false}
         onSelect={vi.fn()}
       />,
     );
 
-    expect(screen.getByLabelText('Upload résumé')).toHaveAttribute(
+    expect(screen.getByLabelText('Upload resume')).toHaveAttribute(
       'accept',
       expect.stringContaining('application/pdf') as unknown as string,
     );
@@ -228,8 +228,8 @@ describe('profile photo upload', () => {
   });
 });
 
-describe('résumé upload', () => {
-  it('uploads a résumé and links it, then offers to view it', async () => {
+describe('resume upload', () => {
+  it('uploads a resume and links it, then offers to view it', async () => {
     mock.onGet('/profile').reply(200, {
       success: true,
       data: {
@@ -241,12 +241,12 @@ describe('résumé upload', () => {
 
     renderWithProviders(<ProfilePage />);
 
-    expect(await screen.findByText('Résumé attached')).toBeInTheDocument();
+    expect(await screen.findByText('Resume attached')).toBeInTheDocument();
     expect(await screen.findByRole('button', { name: 'View' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Replace' })).toBeInTheDocument();
   });
 
-  it('sends the résumé through the upload endpoint', async () => {
+  it('sends the resume through the upload endpoint', async () => {
     mock.onGet('/profile').reply(200, { success: true, data: candidateProfileView });
     mock.onPost('/files').reply(201, {
       success: true,
@@ -266,7 +266,7 @@ describe('résumé upload', () => {
     renderWithProviders(<ProfilePage />);
 
     const resume = new File(['pdf'], 'cv.pdf', { type: 'application/pdf' });
-    await userEvent.upload(await screen.findByLabelText('Upload résumé'), resume);
+    await userEvent.upload(await screen.findByLabelText('Upload resume'), resume);
 
     await waitFor(() => {
       expect(mock.history.post).toHaveLength(1);

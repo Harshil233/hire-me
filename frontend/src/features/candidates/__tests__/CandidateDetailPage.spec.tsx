@@ -156,27 +156,27 @@ describe('candidate detail', () => {
     expect(screen.queryByRole('button', { name: /^Delete/ })).not.toBeInTheDocument();
   });
 
-  it('offers reading and keeping the résumé when there is one', async () => {
+  it('offers reading and keeping the resume when there is one', async () => {
     mock.onGet(/\/candidates\//).reply(200, candidateDetailResponse({ resumeFileId: 'file-7' }));
 
     renderPage();
 
-    expect(await screen.findByRole('button', { name: 'View résumé' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'View resume' })).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Download Ada Lovelace’s résumé' }),
+      screen.getByRole('button', { name: 'Download Ada Lovelace’s resume' }),
     ).toBeInTheDocument();
   });
 
-  it('says so rather than going quiet when there is no résumé', async () => {
+  it('says so rather than going quiet when there is no resume', async () => {
     mock.onGet(/\/candidates\//).reply(200, candidateDetailResponse());
 
     renderPage();
 
-    expect(await screen.findByText('No résumé uploaded')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'View résumé' })).not.toBeInTheDocument();
+    expect(await screen.findByText('No resume uploaded')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'View resume' })).not.toBeInTheDocument();
   });
 
-  it('fetches the résumé only once asked', async () => {
+  it('fetches the resume only once asked', async () => {
     const user = userEvent.setup();
     vi.stubGlobal('URL', {
       ...URL,
@@ -188,7 +188,7 @@ describe('candidate detail', () => {
     mock.onGet('/files/file-7').reply(200, new Blob(['pdf']));
 
     renderPage();
-    const button = await screen.findByRole('button', { name: 'View résumé' });
+    const button = await screen.findByRole('button', { name: 'View resume' });
 
     expect(mock.history.get.some((entry) => entry.url === '/files/file-7')).toBe(false);
 

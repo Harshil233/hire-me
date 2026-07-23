@@ -30,6 +30,13 @@ export default defineConfig({
       FILE_STORAGE_DRIVER: 'local',
       FILE_STORAGE_PATH: './.tmp-uploads',
       MAX_UPLOAD_BYTES: '5242880',
+      // Pinned so the suite does not depend on whatever a developer has in `.env`.
+      MAIL_DRIVER: 'log',
+      MAIL_REDIRECT_TO: '',
+      APP_BASE_URL: 'http://localhost:5173',
+      UNSUBSCRIBE_SECRET: 'test-unsubscribe-secret-that-is-long-enough',
+      OUTREACH_MAX_RECIPIENTS: '200',
+      OUTREACH_DAILY_LIMIT: '500',
     },
     coverage: {
       provider: 'v8',

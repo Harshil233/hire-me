@@ -17,7 +17,7 @@ export interface ProtectedFile {
  * A plain `<a href>` cannot carry the bearer token — the access token lives in memory,
  * not in a cookie — so the bytes come through the API client and are handed over as an
  * object URL. Fetching on click rather than on render matters here: a page of candidates
- * would otherwise pull down every résumé nobody asked for.
+ * would otherwise pull down every resume nobody asked for.
  *
  * URLs opened in another tab cannot be revoked immediately, because that tab is still
  * reading them; they are released when this component goes away instead.

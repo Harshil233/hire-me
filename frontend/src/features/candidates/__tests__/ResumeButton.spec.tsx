@@ -29,20 +29,20 @@ const renderButton = (api: IFileApi): void => {
 };
 
 describe('ResumeButton', () => {
-  it('offers reading the résumé and keeping it', () => {
+  it('offers reading the resume and keeping it', () => {
     renderButton(okApi());
 
-    expect(screen.getByRole('button', { name: 'View résumé' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'View resume' })).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Download Ada Lovelace’s résumé' }),
+      screen.getByRole('button', { name: 'Download Ada Lovelace’s resume' }),
     ).toBeInTheDocument();
   });
 
-  it('opens the résumé in a new tab when viewed', async () => {
+  it('opens the resume in a new tab when viewed', async () => {
     const user = userEvent.setup();
 
     renderButton(okApi());
-    await user.click(screen.getByRole('button', { name: 'View résumé' }));
+    await user.click(screen.getByRole('button', { name: 'View resume' }));
 
     await waitFor(() => {
       expect(open).toHaveBeenCalledWith('blob:resume', '_blank', 'noopener,noreferrer');
@@ -59,7 +59,7 @@ describe('ResumeButton', () => {
     });
 
     renderButton(okApi());
-    await user.click(screen.getByRole('button', { name: 'Download Ada Lovelace’s résumé' }));
+    await user.click(screen.getByRole('button', { name: 'Download Ada Lovelace’s resume' }));
 
     await waitFor(() => {
       expect(savedAs).toBe('ada-lovelace-resume.pdf');
@@ -74,12 +74,12 @@ describe('ResumeButton', () => {
     expect(api.download).not.toHaveBeenCalled();
   });
 
-  it('reports a résumé that will not open', async () => {
+  it('reports a resume that will not open', async () => {
     const user = userEvent.setup();
     const api: IFileApi = { download: vi.fn(async () => Promise.reject(new Error('404'))) };
 
     renderButton(api);
-    await user.click(screen.getByRole('button', { name: 'View résumé' }));
+    await user.click(screen.getByRole('button', { name: 'View resume' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('That file could not be opened.');
   });

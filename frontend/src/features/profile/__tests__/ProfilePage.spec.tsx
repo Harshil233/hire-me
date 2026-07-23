@@ -75,7 +75,7 @@ describe('ProfilePage — candidate', () => {
     for (const title of [
       'Personal details',
       'Skills and preferences',
-      'Résumé',
+      'Resume',
       'Work experience',
       'Education',
       'Projects',
@@ -162,10 +162,10 @@ describe('ProfilePage — candidate', () => {
     expect(screen.getByRole('button', { name: 'Remove TypeScript' })).toBeInTheDocument();
   });
 
-  it('prompts for a résumé when none is attached', async () => {
+  it('prompts for a resume when none is attached', async () => {
     renderWithProviders(<ProfilePage />);
 
-    expect(await screen.findByText('No résumé uploaded yet')).toBeInTheDocument();
+    expect(await screen.findByText('No resume uploaded yet')).toBeInTheDocument();
   });
 });
 
@@ -188,7 +188,7 @@ describe('ProfilePage — HR', () => {
 
     await screen.findByRole('heading', { name: 'Company' });
     expect(screen.queryByRole('heading', { name: 'Work experience' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Résumé' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Resume' })).not.toBeInTheDocument();
   });
 
   it('saves company details to the company endpoint', async () => {

@@ -14,6 +14,106 @@ const account = (
  * that make their detail page worth opening.
  */
 export const SEED_CANDIDATES: readonly SeedCandidate[] = [
+  /*
+   * The documented demo candidate. Kept first, given its own password, and filled in
+   * properly — this is the profile someone opens to see what a complete one looks like.
+   */
+  {
+    account: {
+      email: 'user@test.com',
+      password: 'User@1234',
+      firstName: 'Rohan',
+      lastName: 'Mehta',
+    },
+    profile: {
+      currentLocation: 'Pune',
+      preferredLocations: ['Pune', 'Bengaluru', 'Remote'],
+      skills: ['TypeScript', 'React', 'Node.js', 'PostgreSQL', 'AWS', 'Docker'],
+      jobTypes: ['full_time'],
+      currentCtc: 1_800_000,
+      expectedCtc: 2_600_000,
+      mobile: { countryCode: '+91', number: '9822014567' },
+      gender: 'male',
+      dob: '1997-03-14',
+    },
+    sections: {
+      experience: [
+        {
+          title: 'Senior Software Engineer',
+          companyName: 'Cobalt Systems',
+          description:
+            'Own the billing service end to end. Led the move off a shared database that had been coupling four teams together, and cut the month-end invoicing run from six hours to twenty minutes.',
+          startDate: '2023-02-01',
+          isCurrent: true,
+          skills: ['TypeScript', 'Node.js', 'PostgreSQL', 'AWS'],
+        },
+        {
+          title: 'Software Engineer',
+          companyName: 'Cobalt Systems',
+          description:
+            'Built the customer-facing dashboard and the reporting API behind it. First on-call rotation, which is where I learned to instrument things before they break.',
+          startDate: '2021-06-01',
+          endDate: '2023-01-31',
+          isCurrent: false,
+          skills: ['React', 'TypeScript', 'REST'],
+        },
+        {
+          title: 'Associate Engineer',
+          companyName: 'Trellis Software',
+          startDate: '2019-08-01',
+          endDate: '2021-05-31',
+          isCurrent: false,
+          skills: ['JavaScript', 'Express', 'MySQL'],
+        },
+      ],
+      education: [
+        {
+          college: 'College of Engineering, Pune',
+          course: 'Computer Engineering',
+          degree: 'B.Tech',
+          description: 'Graduated with distinction. Final-year project on query planning.',
+          startDate: '2015-07-01',
+          endDate: '2019-05-31',
+          isCurrent: false,
+        },
+      ],
+      projects: [
+        {
+          title: 'Invoice reconciliation toolkit',
+          description:
+            'A small service that diffs what we billed against what the payment provider settled, and explains the difference in words rather than a spreadsheet. In use by the finance team.',
+          skills: ['TypeScript', 'PostgreSQL'],
+          link: 'https://github.com/example/reconcile',
+          startDate: '2024-02-01',
+          endDate: '2024-09-01',
+          isCurrent: false,
+        },
+        {
+          title: 'Open-source contributions',
+          description:
+            'Occasional fixes to the Node.js Postgres driver, mostly around connection pooling under load.',
+          skills: ['Node.js', 'PostgreSQL'],
+          startDate: '2023-01-01',
+          isCurrent: true,
+        },
+      ],
+      certifications: [
+        {
+          title: 'AWS Certified Solutions Architect — Associate',
+          issuedBy: 'Amazon Web Services',
+          issuedOn: '2024-04-18',
+          expiresOn: '2027-04-18',
+          credentialUrl: 'https://www.credly.com/badges/example',
+        },
+        {
+          title: 'Certified Kubernetes Application Developer',
+          issuedBy: 'CNCF',
+          issuedOn: '2023-11-02',
+          expiresOn: '2026-11-02',
+        },
+      ],
+    },
+  },
   {
     account: account('ada@example.com', 'Ada', 'Lovelace'),
     profile: {

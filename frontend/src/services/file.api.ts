@@ -4,7 +4,7 @@ import { httpClient, requestBlob } from './api-client';
 
 /**
  * Protected files, which more than one feature needs: a candidate reads their own
- * uploads back, and an employer opens a candidate's résumé. Declared once here so the
+ * uploads back, and an employer opens a candidate's resume. Declared once here so the
  * endpoint is not spelled out per feature (CLAUDE.md §9).
  */
 export interface IFileApi {

@@ -21,6 +21,9 @@ loadDotenvFile({
   quiet: true,
 });
 
+/** Public on purpose: it exists so a local `.env` can omit the outreach block entirely. */
+const DEV_UNSUBSCRIBE_SECRET = 'dev-unsubscribe-secret-at-least-32-chars';
+
 const booleanFromString = z.enum(['true', 'false']).transform((value) => value === 'true');
 
 /** `15m`, `7d`, `3600s` — the format `jsonwebtoken` accepts for `expiresIn`. */
@@ -78,16 +81,29 @@ export const envSchema = z.object({
   MAIL_REDIRECT_TO: z.string().default(''),
   /** Public URL of the SPA, used for the links inside an email. */
   APP_BASE_URL: z.url().default('http://localhost:5173'),
+  /*
+   * Defaulted so the whole outreach block can be left out of a local `.env`. The default
+   * is public, which is fine on a laptop and unacceptable anywhere real — anyone could
+   * forge an unsubscribe link for any account — so production must override it.
+   */
   UNSUBSCRIBE_SECRET: z
     .string()
     .min(32, 'UNSUBSCRIBE_SECRET must be at least 32 characters')
-    .default('dev-unsubscribe-secret-at-least-32-chars'),
+    .default(DEV_UNSUBSCRIBE_SECRET),
   /** Ceilings on outreach, so one account cannot turn the product into a spam cannon. */
   OUTREACH_MAX_RECIPIENTS: z.coerce.number().int().positive().default(200),
   OUTREACH_DAILY_LIMIT: z.coerce.number().int().positive().default(500),
 })
   .superRefine((value, ctx) => {
     // A driver that cannot send is worse than one that says so at boot.
+    if (value.NODE_ENV === 'production' && value.UNSUBSCRIBE_SECRET === DEV_UNSUBSCRIBE_SECRET) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['UNSUBSCRIBE_SECRET'],
+        message: 'UNSUBSCRIBE_SECRET must be set to a real secret in production',
+      });
+    }
+
     if (value.MAIL_DRIVER === 'resend' && value.RESEND_API_KEY.trim() === '') {
       ctx.addIssue({
         code: 'custom',

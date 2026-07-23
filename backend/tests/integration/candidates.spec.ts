@@ -261,7 +261,7 @@ describe('GET /candidates/:userId', () => {
 });
 
 describe('resume access for an employer', () => {
-  /** Uploads a résumé as the candidate and returns its file id. */
+  /** Uploads a resume as the candidate and returns its file id. */
   const uploadResume = async (): Promise<string> => {
     const response = await request(server.app)
       .post(api('/files'))
@@ -276,7 +276,7 @@ describe('resume access for an employer', () => {
     return response.body.data.file.id as string;
   };
 
-  it('lets an employer download a candidate’s résumé', async () => {
+  it('lets an employer download a candidate’s resume', async () => {
     const fileId = await uploadResume();
 
     const response = await request(server.app)
@@ -288,7 +288,7 @@ describe('resume access for an employer', () => {
     expect(response.body.toString()).toContain('a resume');
   });
 
-  it('surfaces the résumé id on the talent-pool card so the download is reachable', async () => {
+  it('surfaces the resume id on the talent-pool card so the download is reachable', async () => {
     const fileId = await uploadResume();
     await profileOf(candidate, { resumeFileId: fileId });
 
@@ -300,7 +300,7 @@ describe('resume access for an employer', () => {
     expect(response.body.data.candidates[0].resumeFileId).toBe(fileId);
   });
 
-  it('still hides the résumé from another candidate', async () => {
+  it('still hides the resume from another candidate', async () => {
     const fileId = await uploadResume();
     const other = await registerCandidate(server.app, { email: 'other@example.com' });
 

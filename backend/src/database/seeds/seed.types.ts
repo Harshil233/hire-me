@@ -1,7 +1,7 @@
 import type { z } from 'zod';
 
 import type { RegisterCandidateInput, RegisterHrInput } from '../../modules/auth/auth.schema';
-import type { UpdateCandidateProfileInput } from '../../modules/candidate/candidate.schema';
+import type { updateCandidateProfileSchema } from '../../modules/candidate/candidate.schema';
 import type { certificationInputSchema } from '../../modules/certification/certification.schema';
 import type { educationInputSchema } from '../../modules/education/education.schema';
 import type { experienceInputSchema } from '../../modules/experience/experience.schema';
@@ -46,7 +46,8 @@ type CertificationSeedInput = z.input<typeof certificationInputSchema>;
 
 export interface SeedCandidate {
   readonly account: RegisterCandidateInput;
-  readonly profile: UpdateCandidateProfileInput;
+  /** Schema input, so dates are written the way a request sends them. */
+  readonly profile: z.input<typeof updateCandidateProfileSchema>;
   readonly sections?: SeedCandidateSections;
 }
 

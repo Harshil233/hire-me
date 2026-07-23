@@ -9,7 +9,7 @@ import { objectIdSchema, optionalField } from '../../common/validation/fields';
 import { jobResponseSchema } from '../job/job.schema';
 
 /**
- * Applying carries almost nothing: the résumé is snapshotted server-side from the
+ * Applying carries almost nothing: the resume is snapshotted server-side from the
  * candidate's profile, so it cannot be pointed at someone else's file.
  */
 export const applySchema = z.object({

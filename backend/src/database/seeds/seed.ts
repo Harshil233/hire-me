@@ -5,6 +5,7 @@ import { createContainer } from '../../container';
 import { APPLICATION_SERVICE } from '../../modules/application/application.interface';
 import { AUTH_SERVICE } from '../../modules/auth/auth.interface';
 import { CANDIDATE_PROFILE_SERVICE } from '../../modules/candidate/candidate.interface';
+import { updateCandidateProfileSchema } from '../../modules/candidate/candidate.schema';
 import { COMPANY_MEMBERSHIP, COMPANY_SERVICE } from '../../modules/company/company.interface';
 import { JOB_SERVICE } from '../../modules/job/job.interface';
 import { createJobSchema } from '../../modules/job/job.schema';
@@ -184,7 +185,7 @@ const seed = async (): Promise<void> => {
       const session = await authService.registerCandidate(candidate.account, {});
       userId = session.user.id;
       // Fills in skills and location, so an employer's applicant list is not blank.
-      await candidateProfiles.update(userId, candidate.profile);
+      await candidateProfiles.update(userId, updateCandidateProfileSchema.parse(candidate.profile));
       created = { ...created, candidates: created.candidates + 1 };
     } else {
       userId = existing.id;

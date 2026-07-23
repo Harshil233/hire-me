@@ -7,6 +7,28 @@ import type { SeedHr } from './seed.types';
  * listing page has to cope with a partial set rather than always showing every icon.
  */
 export const SEED_HRS: readonly SeedHr[] = [
+  /*
+   * The documented demo employer. Kept first and given its own password so the two
+   * sign-ins handed out with the app do not depend on remembering the shared one.
+   */
+  {
+    email: 'admin@test.com',
+    password: 'Admin@1234',
+    firstName: 'Priya',
+    lastName: 'Sharma',
+    designation: 'Head of Talent Acquisition',
+    company: {
+      name: 'Meridian Technologies',
+      domain: 'meridiantech.test',
+      headquarters: 'Pune',
+      locations: ['Pune', 'Bengaluru', 'Remote'],
+      description:
+        'We build logistics software for freight operators across South Asia. Around 180 people, roughly half of them engineers, and a habit of writing decisions down before making them.',
+      websiteUrl: 'https://meridiantech.test',
+      linkedinUrl: 'https://www.linkedin.com/company/meridian-technologies',
+      instagramUrl: 'https://www.instagram.com/meridiantech',
+    },
+  },
   {
     email: 'grace@nimbuslabs.test',
     password: SEED_PASSWORD,

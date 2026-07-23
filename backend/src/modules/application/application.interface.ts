@@ -23,7 +23,7 @@ export interface Application {
   readonly updatedAt: Date;
 }
 
-/** Persistence input — the service resolves the job, the candidate and the résumé. */
+/** Persistence input — the service resolves the job, the candidate and the resume. */
 export interface CreateApplicationData {
   readonly jobId: string;
   readonly candidateUserId: string;

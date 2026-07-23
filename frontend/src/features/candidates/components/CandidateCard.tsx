@@ -37,7 +37,7 @@ export const CandidateCard = ({ candidate }: CandidateCardProps): React.JSX.Elem
           </h3>
 
           {candidate.resumeFileId !== undefined && (
-            // Above the stretched link, so opening the résumé does not navigate instead.
+            // Above the stretched link, so opening the resume does not navigate instead.
             <div className="relative z-10 shrink-0">
               <ResumeButton fileId={candidate.resumeFileId} candidateName={candidate.fullName} />
             </div>

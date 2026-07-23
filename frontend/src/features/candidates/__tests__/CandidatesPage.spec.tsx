@@ -166,21 +166,21 @@ describe('CandidatesPage', () => {
     );
   });
 
-  it('offers the résumé straight from the card', async () => {
+  it('offers the resume straight from the card', async () => {
     mock.onGet('/candidates').reply(200, pool([candidate({ resumeFileId: 'file-7' })]));
 
     renderWithProviders(<CandidatesPage />);
 
-    expect(await screen.findByRole('button', { name: 'View résumé' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'View resume' })).toBeInTheDocument();
   });
 
-  it('leaves the résumé button off a card without one', async () => {
+  it('leaves the resume button off a card without one', async () => {
     mock.onGet('/candidates').reply(200, pool([candidate()]));
 
     renderWithProviders(<CandidatesPage />);
 
     await screen.findByText('Ada Lovelace');
-    expect(screen.queryByRole('button', { name: 'View résumé' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'View resume' })).not.toBeInTheDocument();
   });
 
   it('pages forward', async () => {

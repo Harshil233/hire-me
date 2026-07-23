@@ -13,7 +13,7 @@ export interface ApplicationDocument {
   jobId: Types.ObjectId;
   candidateUserId: Types.ObjectId;
   status: ApplicationStatus;
-  /** Snapshot: whatever résumé was current when the application was submitted. */
+  /** Snapshot: whatever resume was current when the application was submitted. */
   resumeFileId?: Types.ObjectId | undefined;
   coverNote?: string | undefined;
   statusUpdatedAt: Date;

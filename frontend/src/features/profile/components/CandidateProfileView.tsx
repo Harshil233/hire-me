@@ -29,7 +29,7 @@ const Section = ({ id, children }: { id: string; children: ReactNode }): React.J
 const SECTIONS = [
   { id: 'personal', label: 'Personal details' },
   { id: 'preferences', label: 'Job preferences' },
-  { id: 'resume', label: 'Résumé' },
+  { id: 'resume', label: 'Resume' },
   { id: 'experience', label: 'Work experience' },
   { id: 'education', label: 'Education' },
   { id: 'projects', label: 'Projects' },

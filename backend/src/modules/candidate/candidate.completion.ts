@@ -84,7 +84,7 @@ const RULES: readonly CompletionRule<CandidateCompletionSubject>[] = [
   },
   {
     key: 'resume',
-    label: 'Résumé',
+    label: 'Resume',
     weight: CANDIDATE_COMPLETION_WEIGHTS.resume,
     isComplete: ({ profile }) => isFilled(profile.resumeFileId),
   },

@@ -11,7 +11,7 @@ const RECORD: StoredFileRecord = {
   ownerUserId: 'user-1',
   kind: FILE_KINDS.RESUME,
   storageKey: 'key.pdf',
-  originalName: 'my résumé.pdf',
+  originalName: 'my resume.pdf',
   mimeType: 'application/pdf',
   sizeBytes: 2048,
   createdAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -26,7 +26,7 @@ const createService = (): IFileService => ({
 
 const uploadedFile = {
   buffer: Buffer.from('pdf-bytes'),
-  originalname: 'my résumé.pdf',
+  originalname: 'my resume.pdf',
   mimetype: 'application/pdf',
   size: 2048,
 } as Express.Multer.File;
@@ -44,7 +44,7 @@ describe('FileController.upload', () => {
     expect(service.upload).toHaveBeenCalledWith('user-1', {
       kind: FILE_KINDS.RESUME,
       buffer: uploadedFile.buffer,
-      originalName: 'my résumé.pdf',
+      originalName: 'my resume.pdf',
       mimeType: 'application/pdf',
       sizeBytes: 2048,
     });
@@ -55,7 +55,7 @@ describe('FileController.upload', () => {
         file: {
           id: 'file-1',
           kind: FILE_KINDS.RESUME,
-          originalName: 'my résumé.pdf',
+          originalName: 'my resume.pdf',
           mimeType: 'application/pdf',
           sizeBytes: 2048,
           createdAt: '2026-01-01T00:00:00.000Z',
@@ -94,7 +94,7 @@ describe('FileController.download', () => {
     expect(res.setHeader).toHaveBeenCalledWith('Content-Length', 2048);
     expect(res.setHeader).toHaveBeenCalledWith(
       'Content-Disposition',
-      `inline; filename="${encodeURIComponent('my résumé.pdf')}"`,
+      `inline; filename="${encodeURIComponent('my resume.pdf')}"`,
     );
     expect((res.capturedBody as Buffer).toString()).toBe('pdf-bytes');
   });

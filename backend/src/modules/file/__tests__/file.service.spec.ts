@@ -77,7 +77,7 @@ describe('FileService.upload', () => {
     });
   });
 
-  it('accepts a PDF résumé', async () => {
+  it('accepts a PDF resume', async () => {
     const { service } = createHarness();
 
     await expect(
@@ -147,7 +147,7 @@ describe('FileService.download', () => {
     expect(storage.read).not.toHaveBeenCalled();
   });
 
-  it('lets an employer open a candidate’s résumé', async () => {
+  it('lets an employer open a candidate’s resume', async () => {
     const { service, repository } = createHarness();
     vi.mocked(repository.findById).mockResolvedValue({ ...RECORD, kind: FILE_KINDS.RESUME });
 

@@ -25,7 +25,7 @@ import { projectConfig } from '@/features/sections/configs/project.config';
 
 const ICON = 'h-4 w-4';
 
-/** The employer's view of one candidate: the card, expanded, plus their résumé. */
+/** The employer's view of one candidate: the card, expanded, plus their resume. */
 export const CandidateDetailPage = (): React.JSX.Element => {
   const { userId = '' } = useParams<{ userId: string }>();
   const query = useCandidate(userId);
@@ -78,7 +78,7 @@ export const CandidateDetailPage = (): React.JSX.Element => {
       <header className="surface-card overflow-hidden">
         <div className="h-1.5 bg-highlight" aria-hidden="true" />
 
-        {/* Stacks on a phone: side by side, the résumé block starved the name of width. */}
+        {/* Stacks on a phone: side by side, the resume block starved the name of width. */}
         <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:gap-5 sm:p-7">
           <div className="flex min-w-0 flex-1 items-start gap-4">
             <CandidateAvatar fullName={candidate.fullName} size="lg" />
@@ -110,7 +110,7 @@ export const CandidateDetailPage = (): React.JSX.Element => {
 
           <div className="shrink-0">
             {candidate.resumeFileId === undefined ? (
-              <p className="text-sm text-fg-subtle">No résumé uploaded</p>
+              <p className="text-sm text-fg-subtle">No resume uploaded</p>
             ) : (
               <ResumeButton
                 fileId={candidate.resumeFileId}

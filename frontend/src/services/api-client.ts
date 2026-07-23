@@ -38,7 +38,7 @@ export const request = async <TSchema extends ZodType>(
   return parsed.data.data;
 };
 
-/** Requests that return raw bytes (images, résumés) rather than the JSON envelope. */
+/** Requests that return raw bytes (images, resumes) rather than the JSON envelope. */
 export const requestBlob = async (client: AxiosInstance, url: string): Promise<Blob> => {
   const response = await client.request<Blob>({ url, method: 'GET', responseType: 'blob' });
   return response.data;

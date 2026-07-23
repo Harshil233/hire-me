@@ -172,7 +172,7 @@ describe('POST /jobs/:id/apply', () => {
       .expect(404);
   });
 
-  it('ignores a résumé or candidate id supplied in the body', async () => {
+  it('ignores a resume or candidate id supplied in the body', async () => {
     await request(server.app)
       .post(api(`/jobs/${jobId}/apply`))
       .set('Authorization', bearer(candidate))

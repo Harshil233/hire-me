@@ -24,12 +24,12 @@ export class OwnerFileAccessPolicy implements IFileAccessPolicy {
 }
 
 /**
- * An employer may open a résumé — the one thing a candidate uploads in order to be
+ * An employer may open a resume — the one thing a candidate uploads in order to be
  * found, and whose id is already on every talent-pool card. Nothing else widens: profile
  * pictures are only ever rendered on a user's own profile, so granting them here would
  * hand out access no screen asks for.
  *
- * The check is on kind, not on who owns the record, so any résumé is readable by any
+ * The check is on kind, not on who owns the record, so any resume is readable by any
  * employer. That matches `GET /candidates`, which already shows every candidate to every
  * employer; it is a deliberate boundary rather than an oversight.
  */

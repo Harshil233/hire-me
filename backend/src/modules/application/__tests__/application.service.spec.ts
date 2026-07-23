@@ -175,7 +175,7 @@ describe('ApplicationService.apply', () => {
     );
   });
 
-  it('snapshots the résumé that is current at the moment of applying', async () => {
+  it('snapshots the resume that is current at the moment of applying', async () => {
     await harness.service.apply('job-1', 'candidate-1', {});
 
     expect(harness.repository.create).toHaveBeenCalledWith(
@@ -183,7 +183,7 @@ describe('ApplicationService.apply', () => {
     );
   });
 
-  it('applies without a résumé when the candidate has not uploaded one', async () => {
+  it('applies without a resume when the candidate has not uploaded one', async () => {
     vi.mocked(harness.candidateProfileService.getByUserId).mockResolvedValue(
       {} as Awaited<ReturnType<ICandidateProfileService['getByUserId']>>,
     );

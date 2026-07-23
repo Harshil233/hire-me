@@ -26,7 +26,7 @@ const PNG_BYTES = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
   'base64',
 );
-const PDF_BYTES = Buffer.from('%PDF-1.4\n%fake résumé\n');
+const PDF_BYTES = Buffer.from('%PDF-1.4\n%fake resume\n');
 
 describe('GET /company/:id', () => {
   it('returns the company created during HR registration', async () => {
@@ -223,7 +223,7 @@ describe('POST /files and GET /files/:id', () => {
     expect(Buffer.compare(download.body as Buffer, PNG_BYTES)).toBe(0);
   });
 
-  it('uploads a résumé and links it to the profile', async () => {
+  it('uploads a resume and links it to the profile', async () => {
     const candidate = await registerCandidate(server.app);
 
     const upload = await request(server.app)

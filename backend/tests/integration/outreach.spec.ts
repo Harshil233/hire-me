@@ -18,8 +18,8 @@ let hr: RegisteredUser;
 let candidate: RegisteredUser;
 let jobId: string;
 
-/** Matches the value `vitest.config.ts` puts in the environment for the test run. */
-const UNSUBSCRIBE_SECRET = 'dev-unsubscribe-secret-at-least-32-chars';
+/** Matches the value `vitest.config.ts` pins, so a developer's own `.env` cannot break this. */
+const UNSUBSCRIBE_SECRET = 'test-unsubscribe-secret-that-is-long-enough';
 
 const publishJob = async (): Promise<string> => {
   const created = await request(server.app)

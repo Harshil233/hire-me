@@ -31,7 +31,7 @@ export const ResumeCard = ({ resumeFileId }: ResumeCardProps): React.JSX.Element
   return (
     <Card
       id="section-resume"
-      title="Résumé"
+      title="Resume"
       description="PDF or Word document, up to 5MB."
       actions={
         resumeFileId !== undefined && (
@@ -46,12 +46,12 @@ export const ResumeCard = ({ resumeFileId }: ResumeCardProps): React.JSX.Element
     >
       {resumeFileId === undefined ? (
         <EmptyState
-          title="No résumé uploaded yet"
+          title="No resume uploaded yet"
           description="Employers are far more likely to respond when one is attached."
           action={
             <FileUploadButton
               kind={FILE_KINDS.RESUME}
-              label="Upload résumé"
+              label="Upload resume"
               variant="primary"
               isUploading={isBusy}
               onSelect={handleSelect}
@@ -61,7 +61,7 @@ export const ResumeCard = ({ resumeFileId }: ResumeCardProps): React.JSX.Element
       ) : (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border px-4 py-3">
           <div>
-            <p className="text-sm font-medium text-fg">Résumé attached</p>
+            <p className="text-sm font-medium text-fg">Resume attached</p>
             <p className="text-xs text-fg-muted">Visible to employers you apply to.</p>
           </div>
 

@@ -5,7 +5,7 @@ import { ProfileQuickLinks } from '../components/ProfileQuickLinks';
 
 const SECTIONS = [
   { id: 'personal', label: 'Personal details' },
-  { id: 'resume', label: 'Résumé' },
+  { id: 'resume', label: 'Resume' },
 ];
 
 describe('ProfileQuickLinks', () => {
@@ -22,7 +22,7 @@ describe('ProfileQuickLinks', () => {
       'href',
       '#personal',
     );
-    expect(screen.getByRole('link', { name: 'Résumé' })).toHaveAttribute('href', '#resume');
+    expect(screen.getByRole('link', { name: 'Resume' })).toHaveAttribute('href', '#resume');
   });
 
   it('lists exactly the sections it is given', () => {

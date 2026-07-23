@@ -40,7 +40,7 @@ describe('createApplicationApi.apply', () => {
     expect(JSON.parse(mock.history.post[0]?.data as string)).toEqual({});
   });
 
-  it('never sends a résumé or candidate id — the server decides both', async () => {
+  it('never sends a resume or candidate id — the server decides both', async () => {
     mock
       .onPost('/jobs/job-1/apply')
       .reply(201, { success: true, data: { application: myApplication() } });
