@@ -35,9 +35,17 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],
       include: ['src/**/*.ts'],
-      // Only the bootstrap entrypoint, type-only files and barrels are excluded
-      // (CLAUDE.md §11 — coverage is never raised by hiding real code).
-      exclude: ['src/server.ts', 'src/**/*.interface.ts', 'src/common/types/**', 'src/**/index.ts'],
+      // Only bootstrap entrypoints, type-only files and barrels are excluded
+      // (CLAUDE.md §11 — coverage is never raised by hiding real code). The seed is a
+      // developer script with its own entrypoint, and it holds no business rules: it
+      // drives the same services the API does.
+      exclude: [
+        'src/server.ts',
+        'src/database/seeds/**',
+        'src/**/*.interface.ts',
+        'src/common/types/**',
+        'src/**/index.ts',
+      ],
       thresholds: {
         statements: 90,
         branches: 90,
